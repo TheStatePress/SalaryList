@@ -1,0 +1,343 @@
+<!--
+    Links: 
+    https://docs.google.com/spreadsheets/d/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/edit?usp=sharing
+    http://salzerdesign.com/test/fixedTable.html
+    http://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript 
+    http://stackoverflow.com/questions/9127498/how-to-perform-a-real-time-search-and-filter-on-a-html-table 
+    https://www.w3schools.com/howto/howto_js_filter_table.asp
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- JQuery is required by BootStrap, provided by default in Gryphon -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0px;
+            padding: 0;
+        }
+        
+        #data {
+            margin: auto;
+        }
+        
+        .salarytd {
+            text-align: right;
+        }
+        
+        #name {
+            /*width: 400px;*/
+        }
+        
+        #salary {
+            /*width: 200px;*/
+        }
+        
+        #spaceTakerUpper {
+            background: white;
+        }
+        /*THIS IS RIDICULOUS*/
+        /*TODO: clean up all styles!*/
+        
+        #tableHeaderBg {
+            top: 1em;
+            position: fixed;
+            z-index: 1;
+            width: 100%;
+        }
+        
+        #tableHeaderBg div {
+            padding: 0 2em 0 1em;
+        }
+        
+        #tHBColor {
+            /*padding: 0;*/
+            margin: 0;
+            background: white;
+            z-index: 1;
+            height: 6em;
+        }
+        
+        #topBar {
+            /*background-color: none;*/
+            /*padding: 1em 1em 0 1em;*/
+            z-index: 2;
+        }
+        
+        #topBar input {
+            padding: 1em 1em 1em 1em;
+            width: 100%;
+            border: 1px solid rgb(238, 238, 238);
+            /*border: none;*/
+            /*box-shadow: 2px 2px 4px #999;*/
+            border-radius: 4px;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px 0px, rgba(0, 0, 0, 0.0196078) 0px -1px 0px 0px;
+        }
+        
+        #nameBox {
+            padding: 1em;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid rgb(238, 238, 238);
+            /*border: none;*/
+            /*box-shadow: 2px 2px 4px #999;*/
+            border-radius: 4px;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px 0px, rgba(0, 0, 0, 0.0196078) 0px -1px 0px 0px
+        }
+        
+        .th-inner {
+            position: fixed;
+            top: 4.5em;
+            padding: .7em 0em .7em 0em;
+            /*background: white;*/
+            z-index: 3;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="position:fixed; width: 100%; z-index: 2;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8" id="topBar" style="padding: 1em 1em 0 1em;">
+                    <input id="searchBar" onkeyup="queueSearch(this)" type="text" placeholder="Search for anyone."></input>
+                    <!-- I end up attaching a queueing boolean and a stack of subsets of salaries to this input object lol-->
+                </div>
+                <div class="col-md-4" style="padding: 1em 1em 0 1em;">
+                    <div id="nameBox">
+                        <div style="float: right;">
+                            <h4 style="margin: 10px">Salary History</h4>
+                            <table>
+                                <tr>
+                                    <td>2016</td>
+                                    <td> $$$$</td>
+                                </tr>
+                                <tr>
+                                    <td>2015</td>
+                                    <td> $$$$</td>
+                                </tr>
+                                <tr>
+                                    <td>2014</td>
+                                    <td> $$$$</td>
+                                </tr>
+                                <tr>
+                                    <td>2013</td>
+                                    <td> $$$$</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <h2 style="margin: 10px">First Last</h2>
+                        <h3 style="margin: 10px">Position</h3>
+                        <p style="margin-left: 10px;">Current Salary: $$$$$$</p>
+                        <p style="margin-left: 10px">Job Description: Lorem ipsum dolor sit amet</p>
+                        <!--TODO: Global stats like std. dev, percentile histograms,  box whisker plots and outliers. Show all or by year, and compare individual to all or to year-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="margin: auto;">
+        <div class="row" id="tableHeaderBg">
+            <div class="col-md-8">
+                <div id="tHBColor"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="spaceTakerUpper" style="height:6em;"></div>
+        </div>
+
+        <div class="row" style="">
+            <div class="col-md-8" style="padding: 1em 1em 0 1em;">
+                <table style="width: 100%;">
+                    <colgroup>
+                        <col id="name">
+                        <col id="jobdesc">
+                        <col id="salary">
+                    </colgroup>
+                    <thead style="height: 2em; background-color: red;">
+                        <tr>
+                            <th>
+                                <div class="th-inner">Name</div>
+                            </th>
+                            <th>
+                                <div class="th-inner">Job Description</div>
+                            </th>
+                            <th>
+                                <div class="th-inner" style="text-align: right">Salary</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="data">
+                        <tr id="loading">
+                            <td>Loading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var dataDom = document.getElementById("data");
+        var requrl = "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/'2016'";
+        var key = "AIzaSyCHLd1jjOQ5XvhKkaGe6d3huYprz6br7Lg" //development key, switch to production key before commit!
+        var salaries = [];
+        /** 
+         *   @param options: object - specifies url, method, headers, params in appropriately named field. Params not used on get request
+         */
+        function sendRequest(options) {
+            return new Promise(function(resolve, reject) {
+                var req = new XMLHttpRequest();
+                req.open(options.method, options.url)
+                req.onload = function() {
+                    if (this.status == 200 && this.readyState == 4) {
+                        resolve(req.response);
+                    } else { //TODO: errored promises do not contain a statustext. Look into why
+                        reject({
+                            status: this.status,
+                            statusText: req.statusText
+                        });
+                    }
+                }
+                req.onerror = function() {
+                    reject({
+                        status: this.status,
+                        statusText: req.statusText
+                    });
+                }
+                if (options.headers) {
+                    Object.keys(options.headers).forEach(function(key) {
+                        req.setRequestHeader(key, options.headers[key]);
+                    });
+                }
+                var params = options.params;
+                // We'll need to stringify if we've been given an object
+                // If we have a string, this is skipped.
+                if (params && typeof params === 'object') {
+                    params = Object.keys(params).map(function(key) {
+                        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+                    }).join('&');
+                }
+                req.send(params);
+            });
+        }
+
+        function cleanData(data) {
+            data = JSON.parse(data);
+            salaries = data.values;
+            salaries.splice(0, 1);
+            salaries = salaries.map(employee =>
+                /** Employee object, also has property domRef which is assigned at render time */
+                ({
+                    name: employee[1].split(",")[1] + " " + employee[1].split(",")[0],
+                    job: employee[2],
+                    salary: employee[4]
+                        //TODO: Store array/object of salaries over time, change salary to currentSalary or mostRecentSalary or something.
+                }))
+            return salaries;
+        }
+        //takes an array of salaries
+        function renderList(salaries) {
+            dataDom.innerHTML = "";
+            for (employee of salaries) {
+                var tr = document.createElement("tr")
+                var nametd = document.createElement("td");
+                nametd.innerText = employee.name;
+                var jobtd = document.createElement("td");
+                jobtd.innerText = employee.job;
+                var salarytd = document.createElement("td");
+                salarytd.className = "salarytd";
+                salarytd.innerText = employee.salary;
+
+                tr.appendChild(nametd);
+                tr.appendChild(jobtd);
+                tr.appendChild(salarytd);
+                employee.domRef = tr;
+                dataDom.appendChild(tr);
+                // document.getElementById("loading").style.display = "none";
+            }
+        }
+
+        //combines newly returned data with existing data
+        function addYear(data) {
+
+        }
+
+        function queueSearch(searchComponent) {
+            if (!searchComponent.queueing) {
+                searchComponent.queueing = true;
+                window.setTimeout(() => {
+                    searchSalaries(searchComponent);
+                    searchComponent.queueing = false;
+                }, 100);
+            }
+        }
+
+        //TODO: refactor everything so we just have a searchCache full of searchResult objects, perhaps creating and storing a search/searchService object separate from the search bar.
+        function searchSalaries(searchComponent) {
+            var value = searchComponent.value.toLowerCase();
+            if (searchComponent.cachedFilteredSalaries) { //objects including array of salary objects (results) and attribute searchValue
+                if (searchComponent.cachedFilteredSalaries[searchComponent.cachedFilteredSalaries.length - 1].searchValue == value) {
+                    //we have this result already, do nothing
+                    console.log("Do nothing!");
+                } else if (value.includes(searchComponent.cachedFilteredSalaries[searchComponent.cachedFilteredSalaries.length - 1].searchValue)
+                    /* && value.length > searchComponent.previousValu[searchComponent.cachedFilteredSalaries.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
+                ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
+                    console.log("case 1")
+                    searchComponent.cachedFilteredSalaries.push(filterSalaries(searchComponent.cachedFilteredSalaries.pop().values, value));
+                } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
+
+                }
+            } else {
+                searchComponent.cachedFilteredSalaries = [filterSalaries(salaries, value)];
+            }
+
+
+
+        }
+
+        function filterSalaries(searchSpace, searchValue) {
+            var filterResults = {
+                    results: searchSpace.filter((employee) => {
+                        if (employee.name.toLowerCase().includes(searchValue)) {
+                            employee.domRef.style.display = "table-row"
+                            return true;
+                        } else {
+                            employee.domRef.style.display = "none";
+                        }
+                    }),
+                    searchValue: searchValue
+                }
+                // filterResults.searchValue
+            console.log(filterResults.results.length);
+            return filterResults;
+        }
+        sendRequest({
+                url: requrl + "?key=" + key,
+                method: 'GET'
+            })
+            .then(cleanData)
+            .then(renderList)
+            .catch((err) => {
+                console.error("error occured!");
+                console.error(err);
+            });
+    </script>
+</body>
+
+</html>
