@@ -54,8 +54,9 @@
         /*THIS IS RIDICULOUS*/
         /*TODO: clean up all styles!*/
         
-        #tableHeaderBg {
-            top: 1em;
+        #tableHeader {
+            top: 5em;
+            left: 0;
             position: fixed;
             z-index: 1;
             width: 100%;
@@ -70,7 +71,7 @@
             margin: 0;
             background: white;
             z-index: 1;
-            height: 6em;
+            height: 2.5em;
         }
         
         #topBar {
@@ -79,7 +80,8 @@
             z-index: 2;
         }
         
-        #topBar input {
+        #topBar input,
+        #tHBColor {
             padding: 1em 1em 1em 1em;
             width: 100%;
             border: 1px solid rgb(238, 238, 238);
@@ -103,7 +105,7 @@
         .th-inner {
             position: fixed;
             top: 4.5em;
-            padding: .7em 0em .7em 0em;
+            padding: 1em 1em 1em 1em;
             /*background: white;*/
             z-index: 3;
         }
@@ -116,7 +118,6 @@
             <div class="row">
                 <div class="col-md-8" id="topBar" style="padding: 1em 1em 0 1em;">
                     <input id="searchBar" onkeyup="queueSearch(this)" type="text" placeholder="Search for anyone."></input>
-                    <!-- I end up attaching a queueing boolean and a stack of subsets of salaries to this input object lol-->
                 </div>
                 <div class="col-md-4" style="padding: 1em 1em 0 1em;">
                     <div id="nameBox">
@@ -145,22 +146,38 @@
                         <h3 style="margin: 10px">Position</h3>
                         <p style="margin-left: 10px;">Current Salary: $$$$$$</p>
                         <p style="margin-left: 10px">Job Description: Lorem ipsum dolor sit amet</p>
+                        <hr />
+                        <p>Stuff for Chuck:</p>
+                        <ul>
+                            <li>TODO: Bind this box to list data</li>
+                            <li>TODO: Clicking on table header should sort table</li>
+                            <li>TODO: This box looks like garbage</li>
+                            <li>TODO: Styles are broken when imported to Gryphon</li>
+                            <li>TODO: http.GET other years from spreadsheet and <em>efficiently</em> bind them to existing data</li>
+                            <li>TODO: Statistics calculations like mean, median, std. deviation, percentiles, and visualization of stats (histograms, box and whisker)</li>
+                            <li>STRETCH TODO: When a person is selected in this box, show where they lie on the salary distribution and other relevent statistics</li>
+                            <li>STRETCH TODO: mark statistically significant outliers with badges in list</li>
+                            <li>STRETCH TODO: Advanced filtering by department, etc.</li>
+                        </ul>
                         <!--TODO: Global stats like std. dev, percentile histograms,  box whisker plots and outliers. Show all or by year, and compare individual to all or to year-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="container" style="margin: auto;">
-        <div class="row" id="tableHeaderBg">
-            <div class="col-md-8">
-                <div id="tHBColor"></div>
+    <div id="tableHeader">
+        <div class="container" style="margin: auto;">
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="tHBColor"></div>
+                </div>
             </div>
         </div>
+    </div>
+    <div class="container">
         <div class="row">
-            <div id="spaceTakerUpper" style="height:6em;"></div>
+            <div id="spaceTakerUpper" style="height:7em;"></div>
         </div>
-
         <div class="row" style="">
             <div class="col-md-8" style="padding: 1em 1em 0 1em;">
                 <table style="width: 100%;">
@@ -169,7 +186,7 @@
                         <col id="jobdesc">
                         <col id="salary">
                     </colgroup>
-                    <thead style="height: 2em; background-color: red;">
+                    <thead id="header" style="display:none; height: 2em;">
                         <tr>
                             <th>
                                 <div class="th-inner">Name</div>
@@ -246,6 +263,7 @@
                 ({
                     name: employee[1].split(",")[1] + " " + employee[1].split(",")[0],
                     job: employee[2],
+                    dept: employee[3],
                     salary: employee[4]
                         //TODO: Store array/object of salaries over time, change salary to currentSalary or mostRecentSalary or something.
                 }))
@@ -271,6 +289,7 @@
                 dataDom.appendChild(tr);
                 // document.getElementById("loading").style.display = "none";
             }
+            document.getElementById("header").style.display = "table-header-group";
         }
 
         //combines newly returned data with existing data
@@ -278,41 +297,61 @@
 
         }
 
+        var queueing = false;
+        var searchCache = [];
+
         function queueSearch(searchComponent) {
-            if (!searchComponent.queueing) {
-                searchComponent.queueing = true;
+            console.log("queueing = " + queueing);
+            if (!queueing) {
+                queueing = true;
                 window.setTimeout(() => {
+                    console.log("timeout triggered, queue reset");
                     searchSalaries(searchComponent);
-                    searchComponent.queueing = false;
-                }, 100);
+                    queueing = false;
+                }, 0);
             }
         }
 
-        //TODO: refactor everything so we just have a searchCache full of searchResult objects, perhaps creating and storing a search/searchService object separate from the search bar.
         function searchSalaries(searchComponent) {
             var value = searchComponent.value.toLowerCase();
-            if (searchComponent.cachedFilteredSalaries) { //objects including array of salary objects (results) and attribute searchValue
-                if (searchComponent.cachedFilteredSalaries[searchComponent.cachedFilteredSalaries.length - 1].searchValue == value) {
-                    //we have this result already, do nothing
-                    console.log("Do nothing!");
-                } else if (value.includes(searchComponent.cachedFilteredSalaries[searchComponent.cachedFilteredSalaries.length - 1].searchValue)
-                    /* && value.length > searchComponent.previousValu[searchComponent.cachedFilteredSalaries.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
-                ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
-                    console.log("case 1")
-                    searchComponent.cachedFilteredSalaries.push(filterSalaries(searchComponent.cachedFilteredSalaries.pop().values, value));
-                } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
-
+            if (value.length == 0) { //show the whole list
+                salaries.forEach((employee) => {
+                    employee.domRef.style.display = "table-row";
+                })
+            } else { //actually search
+                if (searchCache.length > 0) { // We've searched before. objects including array searchResults
+                    if (searchCache[searchCache.length - 1].searchValue == value) {
+                        //we have this result already, do nothing
+                        console.log("search term is identical to cached term, do nothing");
+                    } else if (value.includes(searchCache[searchCache.length - 1].searchValue)
+                        /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
+                    ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
+                        console.log("Current search " + value + " will be performed on a subset of previous search " + searchCache[searchCache.length - 1]);
+                        searchCache.push(doSearch(searchCache[searchCache.length - 1].results, value));
+                    } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
+                        //iterate through searchCache stack until we happen upon a searchValue contained in value, or we empty the stack.
+                        while (searchCache.length > 0 && !value.includes(searchCache[searchCache.length - 1].searchValue)) {
+                            console.log("backtracking on term " + searchCache.pop().searchValue + ".");
+                        }
+                        if (searchCache[searchCache.length - 1]) {
+                            searchCache.push(doSearch(searchCache[searchCache.length - 1].results, value));
+                        } else {
+                            searchCache.push(doSearch(salaries, value));
+                        }
+                    }
+                } else {
+                    //initial search
+                    searchCache.push(doSearch(salaries, value));
                 }
-            } else {
-                searchComponent.cachedFilteredSalaries = [filterSalaries(salaries, value)];
             }
+
 
 
 
         }
 
-        function filterSalaries(searchSpace, searchValue) {
-            var filterResults = {
+        function doSearch(searchSpace, searchValue) {
+            var searchResult = {
                     results: searchSpace.filter((employee) => {
                         if (employee.name.toLowerCase().includes(searchValue)) {
                             employee.domRef.style.display = "table-row"
@@ -324,9 +363,11 @@
                     searchValue: searchValue
                 }
                 // filterResults.searchValue
-            console.log(filterResults.results.length);
-            return filterResults;
+            console.log("Search value " + searchResult.searchValue + " yielded " + searchResult.results.length + " results.");
+            return searchResult;
         }
+
+
         sendRequest({
                 url: requrl + "?key=" + key,
                 method: 'GET'
