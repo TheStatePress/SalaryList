@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Testing</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <style>
+        /*
+ * Globals
+ */
+        /* Links */
+
+        a,
+        a:focus,
+        a:hover {
+            color: #fff;
+        }
+        /* Custom default button */
+
+        .btn-secondary,
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            color: #333;
+            text-shadow: none;
+            /* Prevent inheritance from `body` */
+            background-color: #fff;
+            border: .05rem solid #fff;
+        }
+        /*
+ * Base structure
+ */
+
+        html,
+        body {
+            height: 100%;
+            background-color: #333;
+        }
+
+        body {
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
+        }
+        /* Extra markup and styles for table-esque vertical and horizontal centering */
+
+        .site-wrapper {
+            display: table;
+            width: 100%;
+            height: 100%;
+            /* For at least Firefox */
+            min-height: 100%;
+            -webkit-box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+            box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+        }
+
+        .site-wrapper-inner {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .cover-container {
+            margin-right: auto;
+            margin-left: auto;
+        }
+        /* Padding for spacing */
+
+        .inner {
+            padding: 2rem;
+        }
+        /*
+ * Header
+ */
+
+        .masthead {
+            margin-bottom: 2rem;
+        }
+
+        .masthead-brand {
+            margin-bottom: 0;
+        }
+
+        .nav-masthead .nav-link {
+            padding: .25rem 0;
+            font-weight: bold;
+            color: rgba(255, 255, 255, .5);
+            background-color: transparent;
+            border-bottom: .25rem solid transparent;
+        }
+
+        .nav-masthead .nav-link:hover,
+        .nav-masthead .nav-link:focus {
+            border-bottom-color: rgba(255, 255, 255, .25);
+        }
+
+        .nav-masthead .nav-link+.nav-link {
+            margin-left: 1rem;
+        }
+
+        .nav-masthead .active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        @media (min-width: 48em) {
+            .masthead-brand {
+                float: left;
+            }
+            .nav-masthead {
+                float: right;
+            }
+        }
+        /*
+ * Cover
+ */
+
+        .cover {
+            padding: 0 1.5rem;
+        }
+
+        .cover .btn-lg {
+            padding: .75rem 1.25rem;
+            font-weight: bold;
+        }
+        /*
+ * Footer
+ */
+
+        .mastfoot {
+            color: rgba(255, 255, 255, .5);
+        }
+        /*
+ * Affix and center
+ */
+
+        @media (min-width: 40em) {
+            /* Pull out the header and footer */
+            .masthead {
+                position: fixed;
+                top: 0;
+            }
+            .mastfoot {
+                position: fixed;
+                bottom: 0;
+            }
+            /* Start the vertical centering */
+            .site-wrapper-inner {
+                vertical-align: middle;
+            }
+            /* Handle the widths */
+            .masthead,
+            .mastfoot,
+            .cover-container {
+                width: 100%;
+                /* Must be percentage or pixels for horizontal alignment */
+            }
+        }
+
+        @media (min-width: 62em) {
+            .masthead,
+            .mastfoot,
+            .cover-container {
+                width: 42rem;
+            }
+        }
+    </style>
+    <style>
+        .schoolGroup,
+        .yearGroup {
+            margin: 5px;
+        }
+
+        .test {
+            animation: mymove 3s;
+            -webkit-animation: mymove 3s;
+        }
+        /* Chrome, Safari, Opera */
+
+        @-webkit-keyframes mymove {
+            50% {
+                vertical-align: 300px;
+            }
+        }
+        /* Standard syntax */
+
+        @keyframes mymove {
+            50% {
+                vertical-align: 300px;
+            }
+        }
+
+        .dataTable {
+            display: none;
+        }
+
+        #userInputs {
+            -webkit-transition: all 1s ease;
+            -moz-transition: all 1s ease;
+            -o-transition: all 1s ease;
+            transition: all 1s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="site-wrapper">
+
+        <div class="site-wrapper-inner">
+
+            <div class="cover-container">
+
+                <div class="masthead clearfix">
+                    <div class="inner">
+                        <h3 class="masthead-brand">AZ University Faculty Salaries</h3>
+                    </div>
+                </div>
+
+                <div class="inner cover">
+                    <h1 class="cover-heading">Search</h1>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon" id="sizing-addon1">Name</span>
+                        <input type="text" class="form-control search" placeholder="Faculty Name" aria-describedby="sizing-addon1">
+                    </div>
+                    <div class="btn-group btn-group-lg yearGroup" role="group" aria-label="Year">
+                        <button type="button" class="btn btn-secondary year" disabled>2012</button>
+                        <button type="button" class="btn btn-secondary year">2013</button>
+                        <button type="button" class="btn btn-secondary year">2014</button>
+                        <button type="button" class="btn btn-secondary year">2015</button>
+                        <button type="button" class="btn btn-secondary year">2016</button>
+                    </div>
+                    <div class="btn-group btn-group-lg schoolGroup" role="group" aria-label="University">
+                        <button type="button" class="btn btn-secondary school">UA</button>
+                        <button type="button" class="btn btn-secondary school" disabled>ASU</button>
+                        <button type="button" class="btn btn-secondary school">NAU</button>
+                    </div>
+
+                </div>
+                <div class="dataTable">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Posiiton</th>
+                                <th>Salary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>Staff</td>
+                                <td>$76,543</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mastfoot">
+                    <div class="inner">
+                        <p>Created by <a href="http://www.statepress.com/">The State Press</a>.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script>
+        $(".year").click(function() {
+            $(".year").each(function() {
+                $(this).prop('disabled', false);
+            });
+            $(this).prop('disabled', true);
+        });
+
+        $(".school").click(function() {
+            $(".school").each(function() {
+                $(this).prop('disabled', false);
+            });
+            $(this).prop('disabled', true);
+        });
+
+        $(".search").on('input', function() {
+            console.log($(this).val());
+            if ($(this).val() == "") {
+                $("#userInputs").removeClass("test");
+                // $("#userInputs").animate({
+                //     "vertical-align": "middle"
+                // }, 1000, function() {
+                //
+                // });
+
+                $(".dataTable").hide("slow");
+            } else {
+                $("#userInputs").addClass("test");
+                // $("#userInputs").animate({
+                //     'top': 0
+                // }, 1000, function() {
+                //
+                // });
+                $(".dataTable").show("slow");
+            }
+        });
+    </script>
+</body>
+
+</html>
