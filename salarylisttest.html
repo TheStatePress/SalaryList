@@ -116,51 +116,8 @@
     <div style="position:fixed; width: 100%; z-index: 2;">
         <div class="container">
             <div class="row">
-                <div class="col-md-8" id="topBar" style="padding: 1em 1em 0 1em;">
+                <div class="col-md-12" id="topBar" style="padding: 1em 1em 0 1em;">
                     <input id="searchBar" onkeyup="queueSearch(this)" type="text" placeholder="Search for anyone."></input>
-                </div>
-                <div class="col-md-4" style="padding: 1em 1em 0 1em;">
-                    <div id="nameBox">
-                        <div style="float: right;">
-                            <h4 style="margin: 10px">Salary History</h4>
-                            <table>
-                                <tr>
-                                    <td>2016</td>
-                                    <td> $$$$</td>
-                                </tr>
-                                <tr>
-                                    <td>2015</td>
-                                    <td> $$$$</td>
-                                </tr>
-                                <tr>
-                                    <td>2014</td>
-                                    <td> $$$$</td>
-                                </tr>
-                                <tr>
-                                    <td>2013</td>
-                                    <td> $$$$</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <h2 style="margin: 10px">First Last</h2>
-                        <h3 style="margin: 10px">Position</h3>
-                        <p style="margin-left: 10px;">Current Salary: $$$$$$</p>
-                        <p style="margin-left: 10px">Job Description: Lorem ipsum dolor sit amet</p>
-                        <hr />
-                        <p>Stuff for Chuck:</p>
-                        <ul>
-                            <li>TODO: Bind this box to list data</li>
-                            <li>TODO: Clicking on table header should sort table</li>
-                            <li>TODO: This box looks like garbage</li>
-                            <li>TODO: Styles are broken when imported to Gryphon</li>
-                            <li>TODO: http.GET other years from spreadsheet and <em>efficiently</em> bind them to existing data</li>
-                            <li>TODO: Statistics calculations like mean, median, std. deviation, percentiles, and visualization of stats (histograms, box and whisker)</li>
-                            <li>STRETCH TODO: When a person is selected in this box, show where they lie on the salary distribution and other relevent statistics</li>
-                            <li>STRETCH TODO: mark statistically significant outliers with badges in list</li>
-                            <li>STRETCH TODO: Advanced filtering by department, etc.</li>
-                        </ul>
-                        <!--TODO: Global stats like std. dev, percentile histograms,  box whisker plots and outliers. Show all or by year, and compare individual to all or to year-->
-                    </div>
                 </div>
             </div>
         </div>
@@ -168,7 +125,7 @@
     <div id="tableHeader">
         <div class="container" style="margin: auto;">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div id="tHBColor"></div>
                 </div>
             </div>
@@ -178,8 +135,8 @@
         <div class="row">
             <div id="spaceTakerUpper" style="height:7em;"></div>
         </div>
-        <div class="row" style="">
-            <div class="col-md-8" style="padding: 1em 1em 0 1em;">
+        <div class="row">
+            <div class="col-md-12" style="padding: 1em 1em 0 1em;">
                 <table style="width: 100%;">
                     <colgroup>
                         <col id="name">
@@ -211,68 +168,29 @@
 
     <script>
         var dataDom = document.getElementById("data");
-        var requrl = "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/'2016'";
+        var requrl = "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/";
         var key = "AIzaSyCHLd1jjOQ5XvhKkaGe6d3huYprz6br7Lg" //development key, switch to production key before commit!
         var salaries = [];
-        /** 
-         *   @param options: object - specifies url, method, headers, params in appropriately named field. Params not used on get request
-         */
-        function sendRequest(options) {
-            return new Promise(function(resolve, reject) {
-                var req = new XMLHttpRequest();
-                req.open(options.method, options.url)
-                req.onload = function() {
-                    if (this.status == 200 && this.readyState == 4) {
-                        resolve(req.response);
-                    } else { //TODO: errored promises do not contain a statustext. Look into why
-                        reject({
-                            status: this.status,
-                            statusText: req.statusText
-                        });
-                    }
-                }
-                req.onerror = function() {
-                    reject({
-                        status: this.status,
-                        statusText: req.statusText
-                    });
-                }
-                if (options.headers) {
-                    Object.keys(options.headers).forEach(function(key) {
-                        req.setRequestHeader(key, options.headers[key]);
-                    });
-                }
-                var params = options.params;
-                // We'll need to stringify if we've been given an object
-                // If we have a string, this is skipped.
-                if (params && typeof params === 'object') {
-                    params = Object.keys(params).map(function(key) {
-                        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-                    }).join('&');
-                }
-                req.send(params);
-            });
-        }
 
         function cleanData(data) {
             data = JSON.parse(data);
-            salaries = data.values;
-            salaries.splice(0, 1);
-            salaries = salaries.map(employee =>
+            salaryDat = data.values;
+            salaryDat.splice(0, 1); //remove the first result, which specifies the header row.
+            salaryDat = salaryDat.map(function(employee) {
                 /** Employee object, also has property domRef which is assigned at render time */
-                ({
+                return {
                     name: employee[1].split(",")[1] + " " + employee[1].split(",")[0],
                     job: employee[2],
                     dept: employee[3],
-                    salary: employee[4]
-                        //TODO: Store array/object of salaries over time, change salary to currentSalary or mostRecentSalary or something.
-                }))
-            return salaries;
+                    current: employee[4]
+                }
+            });
+            return salaryDat;
         }
         //takes an array of salaries
-        function renderList(salaries) {
-            dataDom.innerHTML = "";
-            for (employee of salaries) {
+        function renderList(salaryDat) {
+            dataDom.innerHTML = ""; //clear any loading indicator, this is the initial list render
+            for (employee of salaryDat) {
                 var tr = document.createElement("tr")
                 var nametd = document.createElement("td");
                 nametd.innerText = employee.name;
@@ -280,104 +198,78 @@
                 jobtd.innerText = employee.job;
                 var salarytd = document.createElement("td");
                 salarytd.className = "salarytd";
-                salarytd.innerText = employee.salary;
+                salarytd.innerText = employee.current;
 
                 tr.appendChild(nametd);
                 tr.appendChild(jobtd);
                 tr.appendChild(salarytd);
                 employee.domRef = tr;
                 dataDom.appendChild(tr);
-                // document.getElementById("loading").style.display = "none";
             }
+            salaries = salaryDat;
             document.getElementById("header").style.display = "table-header-group";
         }
-
-        //combines newly returned data with existing data
-        function addYear(data) {
-
-        }
-
-        var queueing = false;
         var searchCache = [];
 
         function queueSearch(searchComponent) {
-            console.log("queueing = " + queueing);
-            if (!queueing) {
-                queueing = true;
-                window.setTimeout(() => {
-                    console.log("timeout triggered, queue reset");
-                    searchSalaries(searchComponent);
-                    queueing = false;
-                }, 0);
-            }
+            searchSalaries(searchComponent);
         }
 
         function searchSalaries(searchComponent) {
             var value = searchComponent.value.toLowerCase();
-            if (value.length == 0) { //show the whole list
-                salaries.forEach((employee) => {
-                    employee.domRef.style.display = "table-row";
-                })
-            } else { //actually search
-                if (searchCache.length > 0) { // We've searched before. objects including array searchResults
-                    if (searchCache[searchCache.length - 1].searchValue == value) {
-                        //we have this result already, do nothing
-                        console.log("search term is identical to cached term, do nothing");
-                    } else if (value.includes(searchCache[searchCache.length - 1].searchValue)
-                        /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
-                    ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
-                        console.log("Current search " + value + " will be performed on a subset of previous search " + searchCache[searchCache.length - 1]);
-                        searchCache.push(doSearch(searchCache[searchCache.length - 1].results, value));
-                    } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
-                        //iterate through searchCache stack until we happen upon a searchValue contained in value, or we empty the stack.
-                        while (searchCache.length > 0 && !value.includes(searchCache[searchCache.length - 1].searchValue)) {
-                            console.log("backtracking on term " + searchCache.pop().searchValue + ".");
-                        }
-                        if (searchCache[searchCache.length - 1]) {
-                            searchCache.push(doSearch(searchCache[searchCache.length - 1].results, value));
-                        } else {
-                            searchCache.push(doSearch(salaries, value));
-                        }
+            console.log(value);
+            if (searchCache.length > 0) { // We've searched before. objects including array searchResults
+                if (searchCache[searchCache.length - 1].searchValue == value) {
+                    //we have this result already, do nothing
+                    // console.log("correct value shown, do nothing");
+                } else if (value.includes(searchCache[searchCache.length - 1].searchValue)
+                    /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
+                ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
+                    searchCache.push(doFilter(searchCache[searchCache.length - 1].results, value));
+                } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
+                    //iterate through searchCache stack until we happen upon a searchValue contained in value, or we empty the stack.
+                    while (searchCache.length > 0 && !value.includes(searchCache[searchCache.length - 1].searchValue)) {
+                        console.log("backtracking on term " + searchCache.pop().searchValue + ".");
                     }
-                } else {
-                    //initial search
-                    searchCache.push(doSearch(salaries, value));
+                    if (searchCache[searchCache.length - 1]) {
+                        searchCache.push(doFilter(searchCache[searchCache.length - 1].results, value));
+                    } else {
+                        searchCache.push(doFilter(salaries, value));
+                    }
                 }
+            } else {
+                //initial search
+                searchCache.push(doFilter(salaries, value));
             }
-
-
-
-
         }
 
-        function doSearch(searchSpace, searchValue) {
+        function doFilter(searchSpace, searchValue) {
             var searchResult = {
-                    results: searchSpace.filter((employee) => {
+                results: searchSpace.filter(function(employee)
+
+                    {
                         if (employee.name.toLowerCase().includes(searchValue)) {
-                            employee.domRef.style.display = "table-row"
+                            employee.domRef.style.display = "table-row";
                             return true;
                         } else {
                             employee.domRef.style.display = "none";
+                            return false;
                         }
                     }),
-                    searchValue: searchValue
-                }
-                // filterResults.searchValue
-            console.log("Search value " + searchResult.searchValue + " yielded " + searchResult.results.length + " results.");
+                searchValue: searchValue
+            }
             return searchResult;
         }
+        var req = new XMLHttpRequest();
+        req.open("GET", requrl + "'2016'" + "?key=" + key);
+        req.onload = function() {
+            if (this.status == 200 && this.readyState == 4) {
+                renderList(cleanData(req.responseText));
+            } else { //TODO: errored promises do not contain a statustext. Look into why
+                console.log(req.statusText);
 
-
-        sendRequest({
-                url: requrl + "?key=" + key,
-                method: 'GET'
-            })
-            .then(cleanData)
-            .then(renderList)
-            .catch((err) => {
-                console.error("error occured!");
-                console.error(err);
-            });
+            }
+        }
     </script>
 </body>
 
