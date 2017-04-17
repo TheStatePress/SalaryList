@@ -324,26 +324,17 @@
 
     //takes an array of salaries
     function renderList(salaryDat) {
-        dataDom.innerHTML = ""; //clear any loading indicator, this is the initial list render
+        var rows = [];
         for (employee of salaryDat) {
-            var tr = document.createElement("tr")
-            var nametd = document.createElement("td");
-            nametd.innerText = employee.name;
-            var jobtd = document.createElement("td");
-            jobtd.innerText = employee.job;
-            var salarytd = document.createElement("td");
-            salarytd.className = "salarytd";
-            salarytd.innerText = employee.current;
-
-            tr.appendChild(nametd);
-            tr.appendChild(jobtd);
-            tr.appendChild(salarytd);
-            employee.domRef = tr;
-            dataDom.appendChild(tr);
+            var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+            rows.push(row);
         }
+        dataDom.innerHTML = "";
+        dataDom.innerHTML = rows.join(" ");
         salaries = salaryDat;
         //document.getElementById("header").style.display = "table-header-group";
     }
+
     var searchCache = [];
 
     function queueSearch(searchComponent) {
@@ -360,6 +351,7 @@
             if (searchCache[searchCache.length - 1].searchValue == value) {
                 //we have this result already, do nothing
                 // console.log("correct value shown, do nothing");
+                renderList(searchCache[searchCache.length - 1].results);
             } else if (value.includes(searchCache[searchCache.length - 1].searchValue)
                 /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
             ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
