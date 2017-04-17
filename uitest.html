@@ -246,7 +246,7 @@
                     <h1 class="cover-heading">Search</h1>
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon" id="sizing-addon1">Search Term</span>
-                        <input type="text" class="form-control search" placeholder="Name/Description" aria-describedby="sizing-addon1" id="searchBar" onkeyup="queueSearch(this)">
+                        <input type="text" class="form-control search" placeholder="Name/Description" aria-describedby="sizing-addon1" id="searchBar">
                     </div>
                     <div class="btn-group btn-group-lg yearGroup" role="group" aria-label="Year">
                         <button type="button" class="btn btn-secondary year" disabled>2016</button>
@@ -297,7 +297,25 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script src="dataFetch.js"></script>
     <script>
+        var typingTimer;                //timer identifier
+        var doneTypingInterval = 500;  //time in ms (5 seconds)
 
+        //on keyup, start the countdown
+        $('#searchBar').keyup(function(){
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        $('#searchBar').keydown(function(){
+            addToCache(doFilter(salaries,this.value));
+            console.log(searchCache);
+        });
+
+        //user is "finished typing," do something
+        function doneTyping () {
+            console.log($("#searchBar"));
+            searchSalaries($("#searchBar")[0]);
+        }
 
         $(".search").on('input', function() {
             if ($(this).val() == "") {
@@ -337,6 +355,15 @@
 
     var searchCache = [];
 
+    function addToCache(results){
+        for (var i = 0; i < searchCache.length; i++){
+            if (searchCache[i].searchValue == results.searchValue){
+                return;
+            }
+        }
+        searchCache.push(results);
+    }
+
     function queueSearch(searchComponent) {
         searchSalaries(searchComponent);
     }
@@ -347,34 +374,26 @@
             renderList(data[(5*school)+year]);
             return;
         }
-        if (searchCache.length > 0) { // We've searched before. objects including array searchResults
-            if (searchCache[searchCache.length - 1].searchValue == value) {
-                //we have this result already, do nothing
-                // console.log("correct value shown, do nothing");
-                renderList(searchCache[searchCache.length - 1].results);
-            } else if (value.includes(searchCache[searchCache.length - 1].searchValue)
-                /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
-            ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
-                searchCache.push(doFilter(searchCache[searchCache.length - 1].results, value));
-            } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or
-                //iterate through searchCache stack until we happen upon a searchValue contained in value, or we empty the stack.
-                while (searchCache.length > 0 && !value.includes(searchCache[searchCache.length - 1].searchValue)) {
-                    console.log("backtracking on term " + searchCache.pop().searchValue + ".");
-                }
-                if (searchCache[searchCache.length - 1]) {
-                    searchCache.push(doFilter(searchCache[searchCache.length - 1].results, value));
-                } else {
-                    searchCache.push(doFilter(salaries, value));
+        if (searchCache.length > 0) {
+            for (var i = 0; i < searchCache.length; i++){
+                if (searchCache[i].searchValue == value){
+                    console.log("found in cache");
+                    return renderList(searchCache[i].results);
                 }
             }
+            console.log("no hit in cache. Added to cache");
+            var search = doFilter(salaries, value);
+            searchCache.push(search);
+            renderList(search.results);
         } else {
             //initial search
-            searchCache.push(doFilter(salaries, value));
+            var search = doFilter(salaries, value);
+            searchCache.push(search);
+            renderList(search.results);
         }
     }
 
     function doFilter(searchSpace, searchValue) {
-        var max = searchSpace.length;
         var searchResult = {
             results: searchSpace.filter(function(employee)
                 {
@@ -386,7 +405,6 @@
                 }),
             searchValue: searchValue
         }
-        renderList(searchResult.results);
         return searchResult;
     }
 
