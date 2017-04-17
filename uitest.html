@@ -378,7 +378,7 @@
         var searchResult = {
             results: searchSpace.filter(function(employee)
                 {
-                    if (employee.name.toLowerCase().includes(searchValue)) {
+                    if (employee.name.toLowerCase().includes(searchValue) || employee.job.toLowerCase().includes(searchValue)) {
                         return true;
                     } else {
                         return false;
