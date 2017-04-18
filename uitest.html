@@ -295,7 +295,7 @@
     <script src="dataFetch.js"></script>
     <script>
         var typingTimer; //timer identifier
-        var doneTypingInterval = 500; //time in ms (5 seconds)
+        var doneTypingInterval = 250; //time in ms (5 seconds)
 
         //on keyup, start the countdown
         $('#searchBar').keyup(function() {
@@ -355,7 +355,7 @@
         //takes an array of salaries
         function renderList(salaryDat) {
             $("#data").empty();
-            $("#loading").show();
+            //$("#loading").show();
             var rows = [];
             var fragment = document.createDocumentFragment();
             for (employee of salaryDat) {
