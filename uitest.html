@@ -8,6 +8,7 @@
     <title>Testing</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /*
  * Globals
@@ -222,6 +223,15 @@
             -o-transition: all 1s ease;
             transition: all 1s ease;
         }
+
+        #nameDown,
+        #nameUp,
+        #positionDown,
+        #positionUp,
+        #salaryDown,
+        #salaryUp {
+            display: none;
+        }
     </style>
 </head>
 
@@ -267,9 +277,9 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Position</th>
-                                <th>Salary</th>
+                                <th id="name">Name<i id="nameDown" class="material-icons">arrow_drop_down</i><i id="nameUp" class="material-icons">arrow_drop_up</i></th>
+                                <th id="position">Position<i id="positionDown" class="material-icons">arrow_drop_down</i><i id="positionUp" class="material-icons">arrow_drop_up</i></th>
+                                <th id="salary">Salary<i id="salaryDown" class="material-icons">arrow_drop_down</i><i id="salaryUp" class="material-icons">arrow_drop_up</i></th>
                             </tr>
                         </thead>
                         <tbody id="data">
@@ -296,6 +306,10 @@
     <script>
         var typingTimer; //timer identifier
         var doneTypingInterval = 250; //time in ms (5 seconds)
+        var sortingName = false;
+        var sortingPosition = false;
+        var sortingSalary = false;
+        var sortType = 0;
 
         //on keyup, start the countdown
         $('#searchBar').keyup(function() {
@@ -347,21 +361,163 @@
                 // });
             }
         });
+
+        $("th").click(function() {
+            var arrows = [
+                $("#nameUp"),
+                $("#nameDown"),
+                $("#positionUp"),
+                $("#positionDown"),
+                $("#salaryUp"),
+                $("#salaryDown")
+            ];
+            switch (this.id) {
+                case "name":
+                    if (sortingName) {
+                        if (sortType) {
+                            $("#nameUp").hide();
+                            $("#nameDown").show();
+                        } else {
+                            $("#nameDown").hide();
+                            $("#nameUp").show();
+                        }
+                        sortType = !sortType;
+                        break;
+                    } else {
+                        sortingPosition = false;
+                        sortingSalary = false;
+                        sortingName = true;
+                        sortType = 0;
+                        $("i").each(function() {
+                            $(this).hide();
+                        });
+                        $("#nameDown").show();
+                    }
+                    break;
+                case "position":
+                    if (sortingPosition) {
+                        if (sortType) {
+                            $("#positionUp").hide();
+                            $("#positionDown").show();
+                        } else {
+                            $("#positionDown").hide();
+                            $("#positionUp").show();
+                        }
+                        sortType = !sortType;
+                        break;
+                    } else {
+                        sortingPosition = true;
+                        sortingSalary = false;
+                        sortingName = false;
+                        sortType = 0;
+                        $("i").each(function() {
+                            $(this).hide();
+                        });
+                        $("#positionDown").show();
+                    }
+                    break;
+                case "salary":
+                    if (sortingSalary) {
+                        if (sortType) {
+                            $("#salaryUp").hide();
+                            $("#salaryDown").show();
+                        } else {
+                            $("#salaryDown").hide();
+                            $("#salaryUp").show();
+                        }
+                        sortType = !sortType;
+                        break;
+                    } else {
+                        sortingPosition = false;
+                        sortingSalary = true;
+                        sortingName = false;
+                        sortType = 0;
+                        $("i").each(function() {
+                            $(this).hide();
+                        });
+                        $("#salaryDown").show();
+                    }
+                    break;
+            }
+            renderList(data[(school * 5) + year]);
+        });
     </script>
     <script>
         var dataDom = document.getElementById("data");
         var salaries = [];
 
+        function sortData(data) {
+            if (sortingName) {
+                return data.sort(compareName);
+            } else if (sortingPosition) {
+                return data.sort(comparePosition);
+            } else {
+                return data.sort(compareSalary);
+            }
+        }
+
+        function compareName(a, b) {
+            if (a.name < b.name) {
+                return 1;
+            }
+            if (a.name > b.name) {
+                return -1;
+            }
+            return 0;
+        }
+
+        function comparePosition(a, b) {
+            if (a.job < b.job) {
+                return 1;
+            }
+            if (a.job > b.job) {
+                return -1;
+            }
+            return 0;
+        }
+
+        function compareSalary(a, b) {
+            var c = JSON.parse(JSON.stringify(a));
+            var d = JSON.parse(JSON.stringify(b));
+            c.current = parseInt(c.current.substring(1, c.current.length).split(",").join(""));
+            d.current = parseInt(d.current.substring(1, d.current.length).split(",").join(""));
+            if (c.current < d.current) {
+                return -1;
+            }
+            if (c.current > d.current) {
+                return 1;
+            }
+            return 0;
+        }
+
         //takes an array of salaries
         function renderList(salaryDat) {
-            $("#data").empty();
-            //$("#loading").show();
             var rows = [];
-            var fragment = document.createDocumentFragment();
-            for (employee of salaryDat) {
-                var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
-                rows.push(row);
+            if (sortingName || sortingPosition || sortingSalary) {
+                salaryDat = sortData(salaryDat);
+                if (sortType) {
+                    for (var i = 0; i < salaryDat.length; i++) {
+                        var employee = salaryDat[i];
+                        var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                        rows.push(row);
+                    }
+                } else {
+                    for (var i = salaryDat.length - 1; i >= 0; i--) {
+                        var employee = salaryDat[i];
+                        var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                        rows.push(row);
+                    }
+                }
+            } else {
+                for (var i = 0; i < salaryDat.length; i++) {
+                    var employee = salaryDat[i];
+                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                    rows.push(row);
+                }
             }
+            $("#data").empty();
+            $("#loading").show();
+
             drawTable(rows).then(v => {
                 $("#loading").hide("slow");
             });
