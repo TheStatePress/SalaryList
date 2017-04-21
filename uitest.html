@@ -245,8 +245,11 @@
                 <div class="masthead clearfix">
                     <div class="inner">
                         <h1 class="masthead-brand">Salaries of Arizona University Employees</h1>
-                        <p class="lead">Employees salaries from Arizona’s three public universities are searchable through this database, curated by The State Press. The included data was provided by the universities and is public record under A.R.S. 13-121 et seq. A
-                            full editorial on The State Press’s decision to publish this information can be found here (Hyperlink)</p>
+
+                        <p class="lead" id="page-description">Employees salaries from Arizona’s three public universities are searchable through this database, curated by The State Press. The included data was provided by the universities and is public record under A.R.S. 13-121 et seq. A
+                            full editorial on The State Press’s decision to publish this information can be found here (Hyperlink)
+                            <hr>
+                        </p>
                     </div>
                 </div>
 
@@ -563,7 +566,6 @@
                 }
             }
             $("#data").empty();
-            $("#loading").show();
 
             drawTable(rows).then(v => {
                 $("#loading").hide("slow");
@@ -616,11 +618,11 @@
             if (value == "") {
                 console.log("Empty string. Showing all data");
                 $(".dataTable").hide();
-                //renderList(data[(5 * school) + year]);
+                $("#page-description").show();
                 return;
             }
             $(".dataTable").show();
-
+            $("#page-description").hide();
             /*If there are items in our cache...*/
             if (searchCache.length > 0) {
                 var index = performHash(value);
