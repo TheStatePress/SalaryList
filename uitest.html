@@ -199,7 +199,7 @@
         #positionDown,
         #positionUp,
         #salaryUp {
-            display: none;
+            color: black;
         }
     </style>
 </head>
@@ -394,11 +394,11 @@
                 case "name":
                     if (sortingName) {
                         if (sortType) {
-                            $("#nameUp").hide();
-                            $("#nameDown").show();
+                            $("#nameUp").css("color", "black");
+                            $("#nameDown").css("color", "white");
                         } else {
-                            $("#nameDown").hide();
-                            $("#nameUp").show();
+                            $("#nameDown").css("color", "black");
+                            $("#nameUp").css("color", "white");
                         }
                         sortType = !sortType;
                         break;
@@ -408,19 +408,19 @@
                         sortingName = true;
                         sortType = 0;
                         $("i").each(function() {
-                            $(this).hide();
+                            $(this).css("color", "black");
                         });
-                        $("#nameDown").show();
+                        $("#nameDown").css("color", "white");
                     }
                     break;
                 case "position":
                     if (sortingPosition) {
                         if (sortType) {
-                            $("#positionUp").hide();
-                            $("#positionDown").show();
+                            $("#positionUp").css("color", "black");
+                            $("#positionDown").css("color", "white");
                         } else {
-                            $("#positionDown").hide();
-                            $("#positionUp").show();
+                            $("#positionDown").css("color", "black");
+                            $("#positionUp").css("color", "white");
                         }
                         sortType = !sortType;
                         break;
@@ -430,19 +430,19 @@
                         sortingName = false;
                         sortType = 0;
                         $("i").each(function() {
-                            $(this).hide();
+                            $(this).css("color", "black");
                         });
-                        $("#positionDown").show();
+                        $("#positionDown").css("color", "white");
                     }
                     break;
                 case "salary":
                     if (sortingSalary) {
                         if (sortType) {
-                            $("#salaryUp").hide();
-                            $("#salaryDown").show();
+                            $("#salaryUp").css("color", "black");
+                            $("#salaryDown").css("color", "white");
                         } else {
-                            $("#salaryDown").hide();
-                            $("#salaryUp").show();
+                            $("#salaryDown").css("color", "black");
+                            $("#salaryUp").css("color", "white");
                         }
                         sortType = !sortType;
                         break;
@@ -452,9 +452,9 @@
                         sortingName = false;
                         sortType = 0;
                         $("i").each(function() {
-                            $(this).hide();
+                            $(this).css("color", "black");
                         });
-                        $("#salaryDown").show();
+                        $("#salaryDown").css("color", "white");
                     }
                     break;
             }
