@@ -195,6 +195,7 @@
         }
 
         .dataTable {
+            display: none;
             max-height: 50vh;
             overflow: scroll;
             overflow-x: hidden;
@@ -228,7 +229,6 @@
         #nameUp,
         #positionDown,
         #positionUp,
-        #salaryDown,
         #salaryUp {
             display: none;
         }
@@ -308,7 +308,7 @@
         var doneTypingInterval = 250; //time in ms (5 seconds)
         var sortingName = false;
         var sortingPosition = false;
-        var sortingSalary = false;
+        var sortingSalary = true;
         var sortType = 0;
 
         //on keyup, start the countdown
@@ -439,7 +439,7 @@
                     }
                     break;
             }
-            renderList(data[(school * 5) + year]);
+            searchSalaries($("#searchBar")[0]);
         });
     </script>
     <script>
@@ -568,9 +568,11 @@
             /*Empty string. render the whole list*/
             if (value == "") {
                 console.log("Empty string. Showing all data");
-                renderList(data[(5 * school) + year]);
+                $(".dataTable").hide();
+                //renderList(data[(5 * school) + year]);
                 return;
             }
+            $(".dataTable").show();
 
             /*If there are items in our cache...*/
             if (searchCache.length > 0) {
@@ -652,9 +654,7 @@
             });
             $(this).prop('disabled', true);
             searchCache = [];
-            $("#searchBar").val("");
-            $("#searchBar").trigger("input");
-            renderList(data[(5 * school) + year]);
+            searchSalaries($("#searchBar")[0]);
         });
 
         $(".school").click(function() {
@@ -676,9 +676,7 @@
             });
             $(this).prop('disabled', true);
             searchCache = [];
-            $("#searchBar").val("");
-            $("#searchBar").trigger("input");
-            renderList(data[(5 * school) + year]);
+            searchSalaries($("#searchBar")[0]);
         });
         var data = loadData();
     </script>
