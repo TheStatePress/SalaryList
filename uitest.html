@@ -108,7 +108,7 @@
 
         @media (min-width: 40em) {
             /* Pull out the header and footer */
-            .masthead {
+            /*.masthead {
                 position: fixed;
                 top: 0;
             }
@@ -116,7 +116,7 @@
             .mastfoot {
                 position: fixed;
                 bottom: 0;
-            }
+            }*/
             /* Start the vertical centering */
             .site-wrapper-inner {
                 vertical-align: middle;
@@ -164,9 +164,9 @@
         }
 
         .dataTable {
-            display: none;
-            max-height: 50vh;
-            overflow: scroll;
+            /*display: none;*/
+            /*max-height: 50vh;*/
+            /*overflow: scroll;*/
             overflow-x: hidden;
         }
 
@@ -363,6 +363,7 @@
 
         //user is "finished typing," do something
         function doneTyping() {
+            //$("#loading").show();
             searchSalaries($("#searchBar")[0]);
         }
 
@@ -541,7 +542,7 @@
             $("#data").empty();
 
             drawTable(rows).then(v => {
-                $("#loading").hide("slow");
+                $("#loading").hide();
             });
 
             salaries = salaryDat;
@@ -590,12 +591,13 @@
             /*Empty string. render the whole list*/
             if (value == "") {
                 console.log("Empty string. Showing all data");
-                $(".dataTable").hide();
-                $("#page-description").show();
+                //$(".dataTable").hide();
+                //$("#page-description").show();
+                renderList(data[(5 * school) + year]);
                 return;
             }
-            $(".dataTable").show();
-            $("#page-description").hide();
+            //$(".dataTable").show();
+            //$("#page-description").hide();
             /*If there are items in our cache...*/
             if (searchCache.length > 0) {
                 var index = performHash(value);
