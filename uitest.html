@@ -205,6 +205,16 @@
         #salaryDown {
             color: gold;
         }
+
+        .pagination {
+            display: none;
+            margin: 10px 0;
+        }
+
+        th,
+        td {
+            width: 33%;
+        }
     </style>
 </head>
 
@@ -249,6 +259,12 @@
                 <div id="loading">
                     <p>Loading...</p>
                 </div>
+                <div class="btn-group btn-group-sm pagination" role="group">
+                    <a class="btn btn-secondary firstPage" href="#dataTable">&laquo;</a>
+                    <a class="btn btn-secondary prevPage" href="#dataTable">&lsaquo;</a>
+                    <a class="btn btn-secondary nextPage" href="#dataTable">&rsaquo;</a>
+                    <a class="btn btn-secondary lastPage" href="#dataTable">&raquo;</a>
+                </div>
                 <div class="dataTable">
                     <table class="table">
                         <thead>
@@ -261,6 +277,12 @@
                         <tbody id="data">
                         </tbody>
                     </table>
+                </div>
+                <div class="btn-group btn-group-sm pagination" role="group">
+                    <a class="btn btn-secondary firstPage" href="#dataTable">&laquo;</a>
+                    <a class="btn btn-secondary prevPage" href="#dataTable">&lsaquo;</a>
+                    <a class="btn btn-secondary nextPage" href="#dataTable">&rsaquo;</a>
+                    <a class="btn btn-secondary lastPage" href="#dataTable">&raquo;</a>
                 </div>
                 <div class="mastfoot">
                     <div class="inner">
@@ -298,7 +320,7 @@
         function loadData() {
             var apiKey = "AIzaSyCAsoi605bfwoyZOdTMIQ4_5MZ396HyFpw";
             var years = ["2012", "2013", "2014", "2015", "2016"];
-            var urls = ["https://sheets.googleapis.com/v4/spreadsheets/1U_Mu3x0Zwa5NI8tPFMtWa9qUIXY_qD4m9qYfrsxyrOw/values/", "UA url", "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/"];
+            var urls = ["NAU url", "UA url", "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/"];
             var data = [];
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 5; j++) {
@@ -333,6 +355,9 @@
         var sortingPosition = false;
         var sortingSalary = true;
         var sortType = 0;
+        var maxTableLength = 100;
+        var pageShowing = 0;
+        var rows = [];
 
         //on keyup, start the countdown
         $('#searchBar').keyup(function() {
@@ -465,6 +490,41 @@
             }
             searchSalaries($("#searchBar")[0]);
         });
+
+        $(".firstPage").click(function() {
+            if (pageShowing != 0) {
+                pageShowing = 0;
+                drawTable(rows.slice(0, maxTableLength));
+            }
+        });
+
+        $(".prevPage").click(function() {
+            if (pageShowing != 0) {
+                pageShowing--;
+                var pageIndex = pageShowing * maxTableLength;
+                console.log(pageIndex);
+                drawTable(rows.slice(pageIndex, pageIndex + maxTableLength));
+            }
+        });
+
+        $(".nextPage").click(function() {
+            console.log(Math.floor(rows.length / maxTableLength));
+            if (pageShowing != Math.floor(rows.length / maxTableLength)) {
+                pageShowing++;
+                if (pageShowing == Math.floor(rows.length / maxTableLength)) {
+                    drawTable(rows.slice(pageShowing * maxTableLength));
+                } else {
+                    drawTable(rows.slice(pageShowing * maxTableLength, pageShowing * maxTableLength + maxTableLength));
+                }
+            }
+        });
+
+        $(".lastPage").click(function() {
+            if (pageShowing != Math.floor(rows.length / maxTableLength)) {
+                pageShowing = Math.floor(rows.length / maxTableLength);
+                drawTable(rows.slice(pageShowing * maxTableLength));
+            }
+        });
     </script>
     <script>
         var dataDom = document.getElementById("data");
@@ -516,40 +576,42 @@
 
         //takes an array of salaries
         function renderList(salaryDat) {
-            var rows = [];
-            if (sortingName || sortingPosition || sortingSalary) {
-                salaryDat = sortData(salaryDat);
-                if (sortType) {
-                    for (var i = 0; i < salaryDat.length; i++) {
-                        var employee = salaryDat[i];
-                        var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
-                        rows.push(row);
-                    }
-                } else {
-                    for (var i = salaryDat.length - 1; i >= 0; i--) {
-                        var employee = salaryDat[i];
-                        var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
-                        rows.push(row);
-                    }
+            pageShowing = 0;
+            rows = [];
+            salaryDat = sortData(salaryDat);
+            if (sortType) {
+                for (var i = 0; i < salaryDat.length; i++) {
+                    var employee = salaryDat[i];
+                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                    rows.push(row);
                 }
             } else {
-                for (var i = 0; i < salaryDat.length; i++) {
+                for (var i = salaryDat.length - 1; i >= 0; i--) {
                     var employee = salaryDat[i];
                     var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
                     rows.push(row);
                 }
             }
             $("#data").empty();
+            if (rows.length > maxTableLength) {
+                $(".pagination").show();
+                drawTable(rows.slice(0, maxTableLength)).then(v => {
+                    $("#loading").hide();
+                });
+            } else {
+                $(".pagination").hide();
+                drawTable(rows).then(v => {
+                    $("#loading").hide();
+                });
+            }
 
-            drawTable(rows).then(v => {
-                $("#loading").hide();
-            });
 
             salaries = salaryDat;
         }
 
-        async function drawTable(rows) {
-            dataDom.innerHTML = rows.join(" ");
+        async function drawTable(data) {
+            $("#data").empty();
+            dataDom.innerHTML = data.join(" ");
         }
 
 
