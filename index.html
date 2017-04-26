@@ -250,11 +250,11 @@
                         <button type="button" class="btn btn-secondary year">2013</button>
                         <button type="button" class="btn btn-secondary year">2012</button>
                     </div><br>
-                    <div class="btn-group btn-group-lg schoolGroup" role="group" aria-label="University">
+                    <!-- <div class="btn-group btn-group-lg schoolGroup" role="group" aria-label="University">
                         <button type="button" class="btn btn-secondary school" disabled>ASU</button>
                         <button type="button" class="btn btn-secondary school">UA</button>
                         <button type="button" class="btn btn-secondary school">NAU</button>
-                    </div>
+                    </div> -->
                 </div>
                 <div id="loading">
                     <p>Loading...</p>
@@ -320,9 +320,10 @@
         function loadData() {
             var apiKey = "AIzaSyCAsoi605bfwoyZOdTMIQ4_5MZ396HyFpw";
             var years = ["2012", "2013", "2014", "2015", "2016"];
-            var urls = ["NAU url", "UA url", "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/"];
+            var urls = ["NAU url", "UA url", "https://sheets.googleapis.com/v4/spreadsheets/1WwQ_KQrHjDbkY4mPTQiVaRI_R3oGtoGtmTp2Vdq_7Dk/values/"];
             var data = [];
-            for (var i = 0; i < 3; i++) {
+            //Currently set to only load ASU data. Reduce i to 0 to load others
+            for (var i = 2; i < 3; i++) {
                 for (var j = 0; j < 5; j++) {
                     var newUrl = urls[i] + "'" + years[j] + "'" + "?key=" + apiKey;
                     makeReq(i, j, newUrl, data);
