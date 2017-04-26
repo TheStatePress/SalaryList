@@ -15,38 +15,31 @@
         /*
  * Globals
  */
-        /* Links */
-
-        a,
-        a:focus,
-        a:hover {
-            color: #fff;
-        }
-        /* Custom default button */
-
-        .btn-secondary,
-        .btn-secondary:hover,
-        .btn-secondary:focus {
-            color: #333;
-            text-shadow: none;
-            /* Prevent inheritance from `body` */
-            background-color: #fff;
-            border: .05rem solid #fff;
-        }
         /*
  * Base structure
  */
 
+        .btn-secondary,
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            color: #fff;
+            text-shadow: none;
+            /* Prevent inheritance from `body` */
+            background-color: #8c383e;
+            border: .05rem solid #fff;
+        }
+
+        .btn-secondary:disabled {
+            background-color: #C59B9E;
+        }
+
         html,
         body {
             height: 100%;
-            background-color: #333;
         }
 
         body {
-            color: #fff;
             text-align: center;
-            text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
         }
         /* Extra markup and styles for table-esque vertical and horizontal centering */
 
@@ -56,8 +49,6 @@
             height: 100%;
             /* For at least Firefox */
             min-height: 100%;
-            -webkit-box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
-            box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
         }
 
         .site-wrapper-inner {
@@ -102,7 +93,7 @@
  */
 
         .mastfoot {
-            color: rgba(255, 255, 255, .5);
+            color: black;
         }
         /*
  * Affix and center
@@ -145,11 +136,6 @@
         .yearGroup {
             margin: 5px;
         }
-
-        .test {
-            animation: mymove 3s;
-            -webkit-animation: mymove 3s;
-        }
         /* Chrome, Safari, Opera */
 
         @-webkit-keyframes mymove {
@@ -166,27 +152,7 @@
         }
 
         .dataTable {
-            /*display: none;*/
-            /*max-height: 50vh;*/
-            /*overflow: scroll;*/
             overflow-x: hidden;
-        }
-
-        .dataTable::-webkit-scrollbar {
-            width: 12px;
-            background-color: #F5F5F5;
-        }
-
-        .dataTable::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            background-color: #F5F5F5;
-        }
-
-        .dataTable::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-            background-color: #555;
         }
 
         #userInputs {
@@ -201,7 +167,7 @@
         #positionDown,
         #positionUp,
         #salaryUp {
-            color: white;
+            color: black;
         }
 
         #salaryDown {
@@ -216,6 +182,10 @@
         th,
         td {
             width: 33%;
+        }
+
+        tr:hover {
+            background-color: lightgray;
         }
 
         #page-description {
@@ -233,7 +203,7 @@
 
                 <div class="masthead clearfix">
                     <div class="inner">
-                        <h1 class="masthead-brand">ASU Employee Salaries</h1>
+                        <h1 class="masthead-brand">Salaries of Arizona University Employees</h1>
                         <hr>
                         <p class="lead" id="page-description">Salaries from Arizona State University employees are searchable through this database, curated by The State Press. The included data was provided by the University and is public record under A.R.S. 13-121 et seq. A full editorial
                             on The State Press’s decision to publish this information can be found here.
@@ -273,7 +243,7 @@
                 </div>
                 <div class="dataTable">
                     <table class="table">
-                        <thead>
+                        <thead class="thead-default">
                             <tr>
                                 <th id="name">Name<i id="nameDown" class="material-icons">arrow_drop_down</i><i id="nameUp" class="material-icons">arrow_drop_up</i></th>
                                 <th id="position">Position<i id="positionDown" class="material-icons">arrow_drop_down</i><i id="positionUp" class="material-icons">arrow_drop_up</i></th>
