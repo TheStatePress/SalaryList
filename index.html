@@ -217,6 +217,10 @@
         td {
             width: 33%;
         }
+
+        #page-description {
+            padding: 30px 0;
+        }
     </style>
 </head>
 
@@ -230,7 +234,7 @@
                 <div class="masthead clearfix">
                     <div class="inner">
                         <h1 class="masthead-brand">ASU Employee Salaries</h1>
-
+                        <hr>
                         <p class="lead" id="page-description">Salaries from Arizona State University employees are searchable through this database, curated by The State Press. The included data was provided by the University and is public record under A.R.S. 13-121 et seq. A full editorial
                             on The State Press’s decision to publish this information can be found here.
                             <hr>
@@ -358,7 +362,7 @@
         var sortingPosition = false;
         var sortingSalary = true;
         var sortType = 0;
-        var maxTableLength = 100;
+        var maxTableLength = 50;
         var pageShowing = 0;
         var rows = [];
 
