@@ -1,9 +1,9 @@
 <!--
-    Links: 
+    Links:
     https://docs.google.com/spreadsheets/d/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/edit?usp=sharing
     http://salzerdesign.com/test/fixedTable.html
-    http://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript 
-    http://stackoverflow.com/questions/9127498/how-to-perform-a-real-time-search-and-filter-on-a-html-table 
+    http://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript
+    http://stackoverflow.com/questions/9127498/how-to-perform-a-real-time-search-and-filter-on-a-html-table
     https://www.w3schools.com/howto/howto_js_filter_table.asp
 -->
 <!DOCTYPE html>
@@ -31,29 +31,29 @@
             margin: 0px;
             padding: 0;
         }
-        
+
         #data {
             margin: auto;
         }
-        
+
         .salarytd {
             text-align: right;
         }
-        
+
         #name {
             /*width: 400px;*/
         }
-        
+
         #salary {
             /*width: 200px;*/
         }
-        
+
         #spaceTakerUpper {
             background: white;
         }
         /*THIS IS RIDICULOUS*/
         /*TODO: clean up all styles!*/
-        
+
         #tableHeader {
             top: 5em;
             left: 0;
@@ -61,11 +61,11 @@
             z-index: 1;
             width: 100%;
         }
-        
+
         #tableHeaderBg div {
             padding: 0 2em 0 1em;
         }
-        
+
         #tHBColor {
             /*padding: 0;*/
             margin: 0;
@@ -73,13 +73,13 @@
             z-index: 1;
             height: 2.5em;
         }
-        
+
         #topBar {
             /*background-color: none;*/
             /*padding: 1em 1em 0 1em;*/
             z-index: 2;
         }
-        
+
         #topBar input,
         #tHBColor {
             padding: 1em 1em 1em 1em;
@@ -90,7 +90,7 @@
             border-radius: 4px;
             box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px 0px, rgba(0, 0, 0, 0.0196078) 0px -1px 0px 0px;
         }
-        
+
         #nameBox {
             padding: 1em;
             width: 100%;
@@ -101,7 +101,7 @@
             border-radius: 4px;
             box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px 0px, rgba(0, 0, 0, 0.0196078) 0px -1px 0px 0px
         }
-        
+
         .th-inner {
             position: fixed;
             top: 4.5em;
@@ -169,7 +169,7 @@
     <script>
         var dataDom = document.getElementById("data");
         var requrl = "https://sheets.googleapis.com/v4/spreadsheets/1j0ke-xDtLPnsY6wRSHNsuIFU7KWlpnDZbbFP9q_D2U8/values/";
-        var key = "oops" //development key, switch to production key before commit!
+        var key = "hidden" //development key, switch to production key before commit!
         var salaries = [];
 
         function cleanData(data) {
@@ -226,7 +226,7 @@
                     /* && value.length > searchCache[searchCache.length - 1] this is unnecessary as the current value will only ever contain the newest previous value if it is longer than it.*/
                 ) { //we added characters to the previous search; run the search, but only on a subset of the previously cached result
                     searchCache.push(doFilter(searchCache[searchCache.length - 1].results, value));
-                } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or 
+                } else { //We can't find the most recent value in current value, we backtracked (potentially to the beginning) and (perhaps) added a few characters, pop the queue until we get to the longest previous value that exactly matches the front of value or
                     //iterate through searchCache stack until we happen upon a searchValue contained in value, or we empty the stack.
                     while (searchCache.length > 0 && !value.includes(searchCache[searchCache.length - 1].searchValue)) {
                         console.log("backtracking on term " + searchCache.pop().searchValue + ".");
@@ -260,16 +260,20 @@
             }
             return searchResult;
         }
-        var req = new XMLHttpRequest();
-        req.open("GET", requrl + "'2016'" + "?key=" + key);
-        req.onload = function() {
-            if (this.status == 200 && this.readyState == 4) {
-                renderList(cleanData(req.responseText));
-            } else { //TODO: errored promises do not contain a statustext. Look into why
-                console.log(req.statusText);
 
+        $(document).ready(function() {
+            console.log("Page Loaded");
+            var req = new XMLHttpRequest();
+            req.open("GET", requrl + "'2016'" + "?key=" + key);
+            req.onload = function() {
+                if (this.status == 200 && this.readyState == 4) {
+                    renderList(cleanData(req.responseText));
+                } else { //TODO: errored promises do not contain a statustext. Look into why
+                    console.log(req.statusText);
+
+                }
             }
-        }
+        });
     </script>
 </body>
 
