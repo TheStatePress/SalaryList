@@ -278,7 +278,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script>
         function cleanData(data) {
-            data = JSON.parse(data);
+            //data = JSON.parse(data);
             salaryDat = data.values;
             salaryDat.splice(0, 1); //remove the first result, which specifies the header row.
             salaryDat = salaryDat.map(function(employee) {
@@ -296,13 +296,22 @@
         function loadData() {
             var apiKey = "AIzaSyCAsoi605bfwoyZOdTMIQ4_5MZ396HyFpw";
             var years = ["2012", "2013", "2014", "2015", "2016"];
-            var urls = ["NAU url", "UA url", "https://sheets.googleapis.com/v4/spreadsheets/1WwQ_KQrHjDbkY4mPTQiVaRI_R3oGtoGtmTp2Vdq_7Dk/values/"];
+            var urls = ["NAU", "UA", "ASU"];
             var data = [];
+            for (var i = 0; i < 10; i++) {
+                data.push([]);
+            }
             //Currently set to only load ASU data. Reduce i to 0 to load others
             for (var i = 2; i < 3; i++) {
                 for (var j = 0; j < 5; j++) {
-                    var newUrl = urls[i] + "'" + years[j] + "'" + "?key=" + apiKey;
-                    makeReq(i, j, newUrl, data);
+                    var newUrl = urls[i] + "-" + years[j] + ".json";
+                    //makeReq(i, j, newUrl, data);
+                    $.getJSON(newUrl, function(json) {
+                        data.push(cleanData(json));
+                        if (data.length == 15) {
+                            renderList(data[14]);
+                        }
+                    })
                 }
             }
             return data;
