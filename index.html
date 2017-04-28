@@ -305,33 +305,19 @@
             for (var i = 2; i < 3; i++) {
                 for (var j = 0; j < 5; j++) {
                     var newUrl = urls[i] + "-" + years[j] + ".json";
-                    //makeReq(i, j, newUrl, data);
-                    $.getJSON(newUrl, function(json) {
-                        data.push(cleanData(json));
-                        if (data.length == 15) {
-                            renderList(data[14]);
-                        }
-                    })
+                    makeReq(i, j, newUrl, data);
                 }
             }
             return data;
         }
 
         function makeReq(i, j, url, data) {
-            var req = new XMLHttpRequest();
-            req.open("GET", url);
-            req.onload = function() {
-                if (this.status == 200 && this.readyState == 4) {
-                    data[(i * 5) + j] = cleanData(req.responseText);
-                } else { //TODO: errored promises do not contain a statustext. Look into why
-                    data[(i * 5) + j] = {};
-                }
-                if (i == 2 && j == 4) {
-                    console.log(data);
+            $.getJSON(url, function(json) {
+                data[(i * 5) + j] = cleanData(json);
+                if (data.length == 15) {
                     renderList(data[14]);
                 }
-            }
-            req.send();
+            })
         }
     </script>
     <script>
