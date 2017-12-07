@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="Arizona State University employee salaries from 2012-2016 in a searchable table">
+    <meta name="description" content="Arizona State University employee salaries from 2012-2017 in a searchable table">
     <meta name="keywords" content="ASU,Salary,Salaries,employees,wage,wages,arizona, state, university, higher ed, education, school, faculty, staff, professor, teacher, table, search">
     <title>ASU Employee Salaries</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+        crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /*
@@ -205,8 +206,13 @@
                     <div class="inner">
                         <h1 class="masthead-brand">Salaries of Arizona State University Employees</h1>
                         <hr>
-                        <p class="lead" id="page-description">Salaries from Arizona State University employees are searchable through this database, curated by The State Press. The included data was provided by the University and is public record under A.R.S. 13-121 et seq. A full editorial
-                            on The State Press’s decision to publish this information can be found <a target="_blank" href="http://www.statepress.com/article/2017/04/spopinion-editorial-salary-database">here</a>.
+                        <p class="lead" id="page-description">SSalaries from Arizona State University employees are searchable through this database, curated by
+                            The State Press. The included data was provided by the University and is public record under
+                            A.R.S. 13-121 et seq. A full editorial on The State Press’s decision to publish this information
+                            can be found here. Preliminary salary data for 2017 was added on Dec. 7 and will be updated with
+                            the official version after it is released in early 2018. A full editorial on The State Press’s
+                            decision to publish this information can be found
+                            <a target="_blank" href="http://www.statepress.com/article/2017/04/spopinion-editorial-salary-database">here</a>.
                             <hr>
                         </p>
                     </div>
@@ -220,17 +226,14 @@
                         <input type="text" class="form-control search" placeholder="Name/Description" aria-describedby="sizing-addon1" id="searchBar">
                     </div>
                     <div class="btn-group btn-group-lg yearGroup" role="group" aria-label="Year">
-                        <button type="button" class="btn btn-secondary year" disabled>2016</button>
+                        <button type="button" class="btn btn-secondary year" disabled>2017</button>
+                        <button type="button" class="btn btn-secondary year">2016</button>
                         <button type="button" class="btn btn-secondary year">2015</button>
                         <button type="button" class="btn btn-secondary year">2014</button>
                         <button type="button" class="btn btn-secondary year">2013</button>
                         <button type="button" class="btn btn-secondary year">2012</button>
-                    </div><br>
-                    <!-- <div class="btn-group btn-group-lg schoolGroup" role="group" aria-label="University">
-                        <button type="button" class="btn btn-secondary school" disabled>ASU</button>
-                        <button type="button" class="btn btn-secondary school">UA</button>
-                        <button type="button" class="btn btn-secondary school">NAU</button>
-                    </div> -->
+                    </div>
+                    <br>
                 </div>
                 <div id="loading">
                     <p>Loading...</p>
@@ -245,9 +248,18 @@
                     <table class="table">
                         <thead class="thead-default">
                             <tr>
-                                <th id="name">Name<i id="nameDown" class="material-icons">arrow_drop_down</i><i id="nameUp" class="material-icons">arrow_drop_up</i></th>
-                                <th id="position">Position<i id="positionDown" class="material-icons">arrow_drop_down</i><i id="positionUp" class="material-icons">arrow_drop_up</i></th>
-                                <th id="salary">Salary<i id="salaryDown" class="material-icons">arrow_drop_down</i><i id="salaryUp" class="material-icons">arrow_drop_up</i></th>
+                                <th id="name">Name
+                                    <i id="nameDown" class="material-icons">arrow_drop_down</i>
+                                    <i id="nameUp" class="material-icons">arrow_drop_up</i>
+                                </th>
+                                <th id="position">Position
+                                    <i id="positionDown" class="material-icons">arrow_drop_down</i>
+                                    <i id="positionUp" class="material-icons">arrow_drop_up</i>
+                                </th>
+                                <th id="salary">Salary
+                                    <i id="salaryDown" class="material-icons">arrow_drop_down</i>
+                                    <i id="salaryUp" class="material-icons">arrow_drop_up</i>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="data">
@@ -262,7 +274,9 @@
                 </div>
                 <div class="mastfoot">
                     <div class="inner">
-                        <p>Created for <a target="_blank" href="http://www.statepress.com/">The State Press</a> by <a target="_blank" href="https://github.com/James-Quigley">James Quigley</a>.</p>
+                        <p>Created for
+                            <a target="_blank" href="http://www.statepress.com/">The State Press</a> by
+                            <a target="_blank" href="https://github.com/James-Quigley">James Quigley</a>.</p>
                     </div>
                 </div>
 
@@ -273,15 +287,20 @@
     </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
     <script>
+        var years = ["2012", "2013", "2014", "2015", "2016", "2017"];
+        var data = [];
+
         function cleanData(data) {
-            //data = JSON.parse(data);
             salaryDat = data.values;
             salaryDat.splice(0, 1); //remove the first result, which specifies the header row.
-            salaryDat = salaryDat.map(function(employee) {
+            salaryDat = salaryDat.map(function (employee) {
                 /** Employee object, also has property domRef which is assigned at render time */
                 return {
                     name: employee[1].split(",")[1] + " " + employee[1].split(",")[0],
@@ -294,28 +313,18 @@
         }
 
         function loadData() {
-            var apiKey = "AIzaSyCAsoi605bfwoyZOdTMIQ4_5MZ396HyFpw";
-            var years = ["2012", "2013", "2014", "2015", "2016"];
-            var urls = ["NAU", "UA", "ASU"];
-            var data = [];
-            for (var i = 0; i < 10; i++) {
-                data.push([]);
-            }
-            //Currently set to only load ASU data. Reduce i to 0 to load others
-            for (var i = 2; i < 3; i++) {
-                for (var j = 0; j < 5; j++) {
-                    var newUrl = urls[i] + "-" + years[j] + ".json";
-                    makeReq(i, j, newUrl, data);
-                }
+            for (var i = 0; i < years.length; i++) {
+                var newUrl = "ASU-" + years[i] + ".json";
+                makeReq(i, newUrl, data);
             }
             return data;
         }
 
-        function makeReq(i, j, url, data) {
-            $.getJSON(url, function(json) {
-                data[(i * 5) + j] = cleanData(json);
-                if (data.length == 15) {
-                    renderList(data[14]);
+        function makeReq(i, url, data) {
+            $.getJSON(url, function (json) {
+                data[i] = cleanData(json);
+                if (data.length == years.length) {
+                    renderList(data[years.length - 1]);
                 }
             })
         }
@@ -332,26 +341,26 @@
         var rows = [];
 
         //on keyup, start the countdown
-        $('#searchBar').keyup(function() {
+        $('#searchBar').keyup(function () {
             clearTimeout(typingTimer);
             typingTimer = setTimeout(doneTyping, doneTypingInterval);
         });
 
-        $('#searchBar').keydown(function(event) {
+        $('#searchBar').keydown(function (event) {
             if (event.which != 8) {
                 var value = this.value;
                 var index = performHash(value);
                 if (!searchCache[index] || searchCache[index].searchValue != value) {
                     for (var i = value.length - 2; i >= 0; i--) {
                         var subIndex = performHash(value.substring(0, i + 1));
-                        if (searchCache[subIndex] && searchCache[subIndex].searchValue == value.substring(0, i + 1)) {
+                        if (searchCache[subIndex] && searchCache[subIndex].searchValue == value.substring(0, i +
+                                1)) {
                             var search = doFilter(searchCache[subIndex].results, value);
                             addToCache(search);
                             return;
                         }
                     }
-                    console.log("no hit in cache. Added to cache");
-                    var search = doFilter(data[(5 * school) + year], value);
+                    var search = doFilter(data[year], value);
                     addToCache(search);
                     return;
                 }
@@ -360,30 +369,18 @@
 
         //user is "finished typing," do something
         function doneTyping() {
-            //$("#loading").show();
             searchSalaries($("#searchBar")[0]);
         }
 
-        $(".search").on('input', function() {
+        $(".search").on('input', function () {
             if ($(this).val() == "") {
                 $("#userInputs").removeClass("test");
-                // $("#userInputs").animate({
-                //     "vertical-align": "middle"
-                // }, 1000, function() {
-                //
-                // });
-
             } else {
                 $("#userInputs").addClass("test");
-                // $("#userInputs").animate({
-                //     'top': 0
-                // }, 1000, function() {
-                //
-                // });
             }
         });
 
-        $("th").click(function() {
+        $("th").click(function () {
             var arrows = [
                 $("#nameUp"),
                 $("#nameDown"),
@@ -409,7 +406,7 @@
                         sortingSalary = false;
                         sortingName = true;
                         sortType = 0;
-                        $("i").each(function() {
+                        $("i").each(function () {
                             $(this).css("color", "white");
                         });
                         $("#nameDown").css("color", "gold");
@@ -431,7 +428,7 @@
                         sortingSalary = false;
                         sortingName = false;
                         sortType = 0;
-                        $("i").each(function() {
+                        $("i").each(function () {
                             $(this).css("color", "white");
                         });
                         $("#positionDown").css("color", "gold");
@@ -453,7 +450,7 @@
                         sortingSalary = true;
                         sortingName = false;
                         sortType = 0;
-                        $("i").each(function() {
+                        $("i").each(function () {
                             $(this).css("color", "white");
                         });
                         $("#salaryDown").css("color", "gold");
@@ -463,35 +460,34 @@
             searchSalaries($("#searchBar")[0]);
         });
 
-        $(".firstPage").click(function() {
+        $(".firstPage").click(function () {
             if (pageShowing != 0) {
                 pageShowing = 0;
                 drawTable(rows.slice(0, maxTableLength));
             }
         });
 
-        $(".prevPage").click(function() {
+        $(".prevPage").click(function () {
             if (pageShowing != 0) {
                 pageShowing--;
                 var pageIndex = pageShowing * maxTableLength;
-                console.log(pageIndex);
                 drawTable(rows.slice(pageIndex, pageIndex + maxTableLength));
             }
         });
 
-        $(".nextPage").click(function() {
-            console.log(Math.floor(rows.length / maxTableLength));
+        $(".nextPage").click(function () {
             if (pageShowing != Math.floor(rows.length / maxTableLength)) {
                 pageShowing++;
                 if (pageShowing == Math.floor(rows.length / maxTableLength)) {
                     drawTable(rows.slice(pageShowing * maxTableLength));
                 } else {
-                    drawTable(rows.slice(pageShowing * maxTableLength, pageShowing * maxTableLength + maxTableLength));
+                    drawTable(rows.slice(pageShowing * maxTableLength, pageShowing * maxTableLength +
+                        maxTableLength));
                 }
             }
         });
 
-        $(".lastPage").click(function() {
+        $(".lastPage").click(function () {
             if (pageShowing != Math.floor(rows.length / maxTableLength)) {
                 pageShowing = Math.floor(rows.length / maxTableLength);
                 drawTable(rows.slice(pageShowing * maxTableLength));
@@ -554,27 +550,28 @@
             if (sortType) {
                 for (var i = 0; i < salaryDat.length; i++) {
                     var employee = salaryDat[i];
-                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current +
+                        "</td></tr>";
                     rows.push(row);
                 }
             } else {
                 for (var i = salaryDat.length - 1; i >= 0; i--) {
                     var employee = salaryDat[i];
-                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current + "</td></tr>";
+                    var row = "<tr><td>" + employee.name + "</td><td>" + employee.job + "</td><td>" + employee.current +
+                        "</td></tr>";
                     rows.push(row);
                 }
             }
             $("#data").empty();
             if (rows.length > maxTableLength) {
                 $(".pagination").show();
-                drawTable(rows.slice(0, maxTableLength)).then(v => {
-                    $("#loading").hide();
-                });
+                drawTable(rows.slice(0, maxTableLength));
+                $("#loading").hide();
             } else {
                 $(".pagination").hide();
-                drawTable(rows).then(v => {
-                    $("#loading").hide();
-                });
+                drawTable(rows);
+                $("#loading").hide();
+
             }
 
 
@@ -621,59 +618,42 @@
 
         function searchSalaries(searchComponent) {
             var value = searchComponent.value.toLowerCase();
-            console.log("Searching for : " + value);
             /*Empty string. render the whole list*/
             if (value == "") {
-                console.log("Empty string. Showing all data");
-                //$(".dataTable").hide();
-                //$("#page-description").show();
-                renderList(data[(5 * school) + year]);
+                renderList(data[year]);
                 return;
             }
-            //$(".dataTable").show();
-            //$("#page-description").hide();
             /*If there are items in our cache...*/
             if (searchCache.length > 0) {
                 var index = performHash(value);
-                console.log(value + " matches to index: " + index);
-                console.log("Current object at that index: ");
-                console.log(searchCache[index]);
                 /*If nothing is in the hashtable OR something exists, but it doesn't match*/
                 if (!searchCache[index] || searchCache[index].searchValue != value) {
-                    console.log("No match. Searching substring");
                     /*Iterate over substring to see if we find a hit for any of those in the cache*/
                     for (var i = value.length - 2; i >= 0; i--) {
                         var subIndex = performHash(value.substring(0, i + 1));
-                        console.log(value.substring(0, i + 1) + " matches to index: " + subIndex);
-                        console.log("Current object at that index: ");
-                        console.log(searchCache[subIndex]);
                         /*If it exists AND the value matches*/
                         if (searchCache[subIndex] && searchCache[subIndex].searchValue == value.substring(0, i + 1)) {
-                            console.log("Substring in cache. Performing search on that");
                             var search = doFilter(searchCache[subIndex].results, value);
                             addToCache(search);
                             renderList(search.results);
                             return;
                         }
                     }
-                    console.log("no hit in cache. Added to cache");
-                    var search = doFilter(data[(5 * school) + year], value);
+                    var search = doFilter(data[year], value);
                     addToCache(search);
                     renderList(search.results);
                     return;
                 }
                 /*We found the value in the cache*/
                 else {
-                    console.log("found in cache!");
                     renderList(searchCache[index].results);
                     return;
                 }
             }
             /*Nothing in the cache. Do a search on all of the data*/
             else {
-                console.log("Cache is empty. Searching all data");
                 //initial search
-                var search = doFilter(data[(5 * school) + year], value);
+                var search = doFilter(data[year], value);
                 addToCache(search);
                 renderList(search.results);
                 return;
@@ -681,12 +661,10 @@
         }
 
         function doFilter(searchSpace, searchValue) {
-            console.log("Executing search for: " + searchValue);
-            console.log("Search Space:");
-            console.log(searchSpace);
             var searchResult = {
-                results: searchSpace.filter(function(employee) {
-                    if (employee.name.toLowerCase().includes(searchValue) || employee.job.toLowerCase().includes(searchValue)) {
+                results: searchSpace.filter(function (employee) {
+                    if (employee.name.toLowerCase().includes(searchValue) || employee.job.toLowerCase().includes(
+                            searchValue)) {
                         return true;
                     } else {
                         return false;
@@ -696,47 +674,19 @@
             }
             return searchResult;
         }
-
-
-        $(document).ready(function() {
-            console.log("Page Loaded");
-        });
     </script>
     <script>
-        var year = 4;
-        var school = 2;
-        $(".year").click(function() {
+        var year = years.length - 1;
+        $(".year").click(function () {
             year = parseInt(this.innerHTML) - 2012;
-            $(".year").each(function() {
+            $(".year").each(function () {
                 $(this).prop('disabled', false);
             });
             $(this).prop('disabled', true);
             searchCache = [];
             searchSalaries($("#searchBar")[0]);
         });
-
-        $(".school").click(function() {
-            switch (this.innerHTML) {
-                case "ASU":
-                    school = 2;
-                    break;
-                case "UA":
-                    school = 1;
-                    break;
-                case "NAU":
-                    school = 0;
-                    break;
-                default:
-                    school = 2;
-            }
-            $(".school").each(function() {
-                $(this).prop('disabled', false);
-            });
-            $(this).prop('disabled', true);
-            searchCache = [];
-            searchSalaries($("#searchBar")[0]);
-        });
-        var data = loadData();
+        loadData();
     </script>
 </body>
 
