@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "noEmitOnError": true,
+        "jsx": "react"
+    }
+}

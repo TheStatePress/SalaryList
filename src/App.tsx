@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import axios from "axios";
 import { map, reduce, addIndex, assoc, prop, filter, includes } from "ramda";
 import { createSelector } from "reselect";
@@ -8,7 +8,7 @@ import Table from "./Table";
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
 const YEAR_TEMPLATE = year =>
   // `https://thestatepress.github.io/SalaryList/ASU-${year}.json`;
-  `http://localhost:8000/ASU-${year}.json`;
+  `http://localhost:8080/ASU-${year}.json`;
 
 // const getYears = prop('years');
 // const getYear = createSelector(
