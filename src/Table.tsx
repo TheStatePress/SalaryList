@@ -25,7 +25,7 @@ const getSortButton = (
     type="button"
     onClick={() => onClick(sortKey)}
     value={`${sortKey}${
-      sortKey == currentSortKey ? (currentSortDirection > 0 ? " ^" : " v") : ""
+      sortKey == currentSortKey ? (currentSortDirection > 0 ? " ▲" : " ▼") : ""
     }`}
   />
 );
