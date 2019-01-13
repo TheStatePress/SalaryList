@@ -1,5 +1,5 @@
 import * as React from "react";
-import { take, sort, prop, ascend, descend } from "ramda";
+import { take, sort, prop, ascend, descend, toUpper, pipe } from "ramda";
 
 import { Row } from "./App";
 import TableRow from "./TableRow";
@@ -54,7 +54,18 @@ class Table extends React.Component<Props, State> {
     const { items } = this.props;
     const { sortKey, sortDirection } = this.state;
     const dir = sortDirection > 0 ? ascend : descend;
-    return take(100, sort(dir(prop(sortKey)), items));
+    return take(
+      100,
+      sort(
+        dir(
+          pipe(
+            prop(sortKey),
+            toUpper
+          )
+        ),
+        items
+      )
+    );
   }
   render() {
     const { items } = this.props;
@@ -63,8 +74,8 @@ class Table extends React.Component<Props, State> {
     return (
       <div className="sortable-table">
         <div>
-          {getSortButton('firstName', sortKey, sortDirection, this._sortBy)}
-          {getSortButton('lastName', sortKey, sortDirection, this._sortBy)}
+          {getSortButton("firstName", sortKey, sortDirection, this._sortBy)}
+          {getSortButton("lastName", sortKey, sortDirection, this._sortBy)}
         </div>
         {this.state.sortDirection} {this.state.sortKey}
         {items
