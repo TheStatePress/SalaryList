@@ -1,5 +1,5 @@
 import * as React from "react";
-import { take, sort, prop, ascend, descend, toUpper, pipe } from "ramda";
+import { take, sort, prop, ascend, descend, toUpper, pipe, toString } from "ramda";
 
 import { Row } from "./App";
 import TableRow from "./TableRow";
@@ -60,7 +60,7 @@ class Table extends React.Component<Props, State> {
         dir(
           pipe(
             prop(sortKey),
-            toUpper
+            (val) => typeof val == 'number' ? val : toUpper(val)
           )
         ),
         items
@@ -76,8 +76,8 @@ class Table extends React.Component<Props, State> {
         <div>
           {getSortButton("firstName", sortKey, sortDirection, this._sortBy)}
           {getSortButton("lastName", sortKey, sortDirection, this._sortBy)}
+          {getSortButton("salary", sortKey, sortDirection, this._sortBy)}
         </div>
-        {this.state.sortDirection} {this.state.sortKey}
         {items
           ? this._getSortedList().map(item => (
               <TableRow key={item.key} row={item} />

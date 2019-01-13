@@ -53349,7 +53349,9 @@ function (_super) {
         sortKey = _a.sortKey,
         sortDirection = _a.sortDirection;
     var dir = sortDirection > 0 ? ramda_1.ascend : ramda_1.descend;
-    return ramda_1.take(100, ramda_1.sort(dir(ramda_1.pipe(ramda_1.prop(sortKey), ramda_1.toUpper)), items));
+    return ramda_1.take(100, ramda_1.sort(dir(ramda_1.pipe(ramda_1.prop(sortKey), function (val) {
+      return typeof val == 'number' ? val : ramda_1.toUpper(val);
+    })), items));
   };
 
   Table.prototype.render = function () {
@@ -53360,7 +53362,7 @@ function (_super) {
     var visible = items && ramda_1.take(100, items);
     return React.createElement("div", {
       className: "sortable-table"
-    }, React.createElement("div", null, getSortButton("firstName", sortKey, sortDirection, this._sortBy), getSortButton("lastName", sortKey, sortDirection, this._sortBy)), this.state.sortDirection, " ", this.state.sortKey, items ? this._getSortedList().map(function (item) {
+    }, React.createElement("div", null, getSortButton("firstName", sortKey, sortDirection, this._sortBy), getSortButton("lastName", sortKey, sortDirection, this._sortBy), getSortButton("salary", sortKey, sortDirection, this._sortBy)), items ? this._getSortedList().map(function (item) {
       return React.createElement(TableRow_1.default, {
         key: item.key,
         row: item
@@ -53752,7 +53754,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62307" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64711" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
