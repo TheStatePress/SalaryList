@@ -26,9 +26,10 @@ const R = require("ramda");
 const input = fs.readFileSync(INPUT_FILE);
 const raw = parse(input);
 const data = R.map(item => {
-  const nameArray = item[1].split(',');
+  const [lastName, firstName] = item[1].split(',');
   const row = {
-    fullName: `${nameArray[1]} ${nameArray[0]}`,
+    firstName,
+    lastName,
     jobDescription: item[2],
     departmentDescription: item[3],
     salary: parseInt(item[4]),
