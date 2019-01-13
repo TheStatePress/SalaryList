@@ -1,7 +1,20 @@
 import * as React from "react";
 import axios from "axios";
-import { map, reduce, addIndex, assoc, prop, filter, includes } from "ramda";
+import {
+  map,
+  reduce,
+  addIndex,
+  assoc,
+  prop,
+  filter,
+  includes,
+  join,
+  indexBy,
+  values
+} from "ramda";
+import Select from "react-select";
 import { createSelector } from "reselect";
+import "./app.scss";
 
 import Table from "./Table";
 
@@ -28,33 +41,32 @@ const YEAR_TEMPLATE = year =>
 //   (filterString, year) => filter(includes(filterString), year)
 // );
 
-const getFilteredYear = state => {
-  const { years, selectedYear } = state;
-  const year = years[`ASU_${selectedYear}`];
-  if (!year) {
-    return null;
-  }
-  debugger;
-  const filterString = state.filterString.toLowerCase();
-  return filter(
-    row => includes(filterString, row.fullName.toLowerCase()),
-    year
-  );
+export type Row = {
+  firstName: string;
+  lastName: string;
+  jobDescription: string;
+  departmentDescription: string;
+  salary: number;
+  key: string;
 };
 
-type Row = {
-  fullName: string,
-  jobDescription: string,
-  departmentDescription: string,
-  salary: number,
-  key: string
-}
-
 type State = {
-  selectedYear: string,
-  filterString: string,
-  years: { [year: string]: [Row] }
-}
+  selectedYear: string;
+  filterString: string;
+  years: { [year: string]: [Row] };
+};
+
+const getOptions = (years: string[]) =>
+  indexBy(
+    prop("value"),
+    map(
+      option => ({
+        value: option,
+        label: option
+      }),
+      years
+    )
+  );
 
 class App extends React.Component<any, State> {
   constructor(props) {
@@ -68,6 +80,7 @@ class App extends React.Component<any, State> {
     this._getYear = this._getYear.bind(this);
     this._handleFilter = this._handleFilter.bind(this);
     this._handleYearSelect = this._handleYearSelect.bind(this);
+    this._getFilteredYear = this._getFilteredYear.bind(this);
   }
   async _getYear(year) {
     const { data } = await axios.get(YEAR_TEMPLATE(year));
@@ -75,36 +88,29 @@ class App extends React.Component<any, State> {
       years: assoc(`ASU_${year}`, data, this.state.years)
     });
   }
-  // async _getData() {
-  // //   const yearList = await Promise.all(map(this._getYear, YEARS));
-  // //   const yearMap = addIndex(reduce)(
-  // //     (acc, elem, i) => {
-  // //       const newItem = assoc(`ASU_${YEARS[i]}`, elem.values, acc);
-  // //       debugger;
-  // //       return newItem;
-  // //     },
-  // //     {},
-  // //     yearList
-  // //   );
-  //   // console.log(yearMap);
-  //   // debugger;
-  //   const yearMap = {
-  //     "ASU_2018": await this._getYear(2018)
-  //   }
-  //   this.setState({
-  //     years: yearMap
-  //   });
-  // }
-  _handleFilter(event: React.FormEvent<HTMLInputElement>) {
-    this.setState({ filterString: event.target.value });
-  }
-  _handleYearSelect(event: React.FormEvent<HTMLInputElement>) {
-    const selectedYear = event.target.value;
-    if (!this.state.years[selectedYear]) {
-      this._getYear(selectedYear);
+  _getFilteredYear() {
+    const { years, selectedYear } = this.state;
+    const filterString = this.state.filterString.toLowerCase();
+    const year = years[`ASU_${selectedYear}`];
+    if (!year) {
+      this._getYear(selectedYear)
+      return null;
     }
+    return filter(
+      row =>
+        includes(
+          filterString,
+          join(" ", [row.firstName, row.lastName]).toLowerCase()
+        ),
+      year
+    ) as [Row];
+  }
+  _handleFilter(event: any) {
+    this.setState({ filterString: (event.target as HTMLInputElement).value.toLowerCase() });
+  }
+  _handleYearSelect(option: { value: string }) {
     this.setState({
-      selectedYear
+      selectedYear: option.value
     });
   }
 
@@ -113,24 +119,27 @@ class App extends React.Component<any, State> {
     this._getYear(2018);
   }
   render() {
-    // const { years } = this.state;
+    const { years, selectedYear } = this.state;
+    const year = years[selectedYear];
+    const options = getOptions(YEARS);
     return (
       <div>
-        <input
-          type="text"
-          placeholder="search for someone"
-          onChange={this._handleFilter}
-          value={this.state.filterString}
-        />
-        <select
-          value={this.state.selectedYear}
-          onChange={this._handleYearSelect}
-        >
-          {YEARS.map(year => (
-            <option key={year}>{year}</option>
-          ))}
-        </select>
-        <Table items={getFilteredYear(this.state)} />
+        <form className="flex">
+          <input
+            className="filter-input"
+            type="text"
+            placeholder="search for someone"
+            onChange={this._handleFilter}
+            value={this.state.filterString}
+          />
+          <Select
+            className="select"
+            onChange={this._handleYearSelect}
+            options={values(options)}
+            value={options[selectedYear]}
+          />
+        </form>
+        <Table items={this._getFilteredYear()} />
       </div>
     );
   }

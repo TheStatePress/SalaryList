@@ -1,0 +1,15 @@
+.flex {
+  display: flex;
+}
+
+form .select {
+  flex-basis: 200px;
+}
+
+.filter-input {
+  flex: auto;
+}
+
+/* input, select {
+  padding: 5px;
+} */

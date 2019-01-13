@@ -7,7 +7,7 @@
   "author": "Chuck Dries <chuck.dries@gmail.com> (http://chuckdries.com)",
   "license": "MIT",
   "scripts": {
-    "start": "parcel src/index.html",
+    "start": "concurrently \"node dev-server.js\" \"parcel src/index.html\"",
     "build": "parcel build src/index.html",
     "convert": "node csv-to-json.js",
     "pretty": "prettier --write src/*"
@@ -17,10 +17,16 @@
     "@types/ramda": "^0.25.46",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
+    "add": "^2.0.6",
+    "concurrently": "^4.1.0",
+    "cors": "^2.8.5",
     "csv-parse": "^4.3.0",
+    "express": "^4.16.4",
     "parcel-bundler": "^1.11.0",
     "prettier": "1.15.3",
-    "typescript": "^3.2.2"
+    "sass": "^1.16.0",
+    "typescript": "^3.2.2",
+    "yarn": "^1.13.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -28,6 +34,7 @@
     "ramda": "^0.26.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
+    "react-select": "^2.2.0",
     "reselect": "^4.0.0"
   }
 }
