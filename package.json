@@ -1,5 +1,5 @@
 {
-  "name": "@TheStatePress/SalaryList-client",
+  "name": "@TheStatePress/SalaryListclient",
   "version": "1.0.0",
   "description": "A client for viewing and searching the salaries of ASU employees",
   "main": "src/index.js",
@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "babel-polyfill": "^6.26.0",
     "ramda": "^0.26.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",

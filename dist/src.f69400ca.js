@@ -53217,7 +53217,38 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"Table.tsx":[function(require,module,exports) {
+},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"TableRow.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  }
+  result["default"] = mod;
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var React = __importStar(require("react"));
+
+var getCurrencyString = function getCurrencyString(n) {
+  return "$" + n.toLocaleString();
+};
+
+var TableRow = function TableRow(_a) {
+  var row = _a.row;
+  return React.createElement("div", {
+    className: "table-row"
+  }, React.createElement("span", null, row.firstName, " ", row.lastName, " |", " "), React.createElement("span", null, row.jobDescription, " | "), React.createElement("span", null, row.departmentDescription, " | "), React.createElement("span", null, getCurrencyString(row.salary)));
+};
+
+exports.default = TableRow;
+},{"react":"../node_modules/react/index.js"}],"Table.tsx":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -53256,6 +53287,12 @@ var __importStar = this && this.__importStar || function (mod) {
   return result;
 };
 
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53264,31 +53301,78 @@ var React = __importStar(require("react"));
 
 var ramda_1 = require("ramda");
 
+var TableRow_1 = __importDefault(require("./TableRow"));
+
+var getSortButton = function getSortButton(sortKey, currentSortKey, currentSortDirection, _onClick) {
+  return React.createElement("input", {
+    type: "button",
+    onClick: function onClick() {
+      return _onClick(sortKey);
+    },
+    value: "" + sortKey + (sortKey == currentSortKey ? currentSortDirection > 0 ? " ^" : " v" : "")
+  });
+};
+
 var Table =
 /** @class */
 function (_super) {
   __extends(Table, _super);
 
-  function Table() {
-    return _super !== null && _super.apply(this, arguments) || this;
+  function Table(props) {
+    var _this = _super.call(this, props) || this;
+
+    _this.state = {
+      sortKey: "firstName",
+      sortDirection: 1
+    };
+    _this._sortBy = _this._sortBy.bind(_this);
+    return _this;
   }
+
+  Table.prototype._sortBy = function (key) {
+    var sortKey = key;
+    var sortDirection = this.state.sortDirection;
+
+    if (sortKey === this.state.sortKey) {
+      sortDirection *= -1;
+    }
+
+    this.setState({
+      sortKey: sortKey,
+      sortDirection: sortDirection
+    });
+  };
+
+  Table.prototype._getSortedList = function () {
+    var items = this.props.items;
+    var _a = this.state,
+        sortKey = _a.sortKey,
+        sortDirection = _a.sortDirection;
+    var dir = sortDirection > 0 ? ramda_1.ascend : ramda_1.descend;
+    return ramda_1.take(100, ramda_1.sort(dir(ramda_1.prop(sortKey)), items));
+  };
 
   Table.prototype.render = function () {
     var items = this.props.items;
+    var _a = this.state,
+        sortKey = _a.sortKey,
+        sortDirection = _a.sortDirection;
     var visible = items && ramda_1.take(100, items);
-    return React.createElement("div", null, items ? visible.map(function (item) {
-      return React.createElement("div", {
-        key: item.key
-      }, item.firstName, " ", item.lastName);
-    }) : "loading") // <div>{items ? items.length : 'loading'}</div>
-    ;
+    return React.createElement("div", {
+      className: "sortable-table"
+    }, React.createElement("div", null, getSortButton('firstName', sortKey, sortDirection, this._sortBy), getSortButton('lastName', sortKey, sortDirection, this._sortBy)), this.state.sortDirection, " ", this.state.sortKey, items ? this._getSortedList().map(function (item) {
+      return React.createElement(TableRow_1.default, {
+        key: item.key,
+        row: item
+      });
+    }) : "loading");
   };
 
   return Table;
 }(React.Component);
 
 exports.default = Table;
-},{"react":"../node_modules/react/index.js","ramda":"../node_modules/ramda/es/index.js"}],"App.tsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","ramda":"../node_modules/ramda/es/index.js","./TableRow":"TableRow.tsx"}],"App.tsx":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -53668,7 +53752,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62971" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52681" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
