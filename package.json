@@ -1,0 +1,32 @@
+{
+  "name": "@TheStatePress/SalaryList-client",
+  "version": "1.0.0",
+  "description": "A client for viewing and searching the salaries of ASU employees",
+  "main": "src/index.js",
+  "repository": "https://github.com/TheStatePress/SalaryList",
+  "author": "Chuck Dries <chuck.dries@gmail.com> (http://chuckdries.com)",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "convert": "node csv-to-json.js",
+    "pretty": "prettier --write src/*"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "csv-parse": "^4.3.0",
+    "parcel-bundler": "^1.11.0",
+    "prettier": "1.15.3",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
+    "ramda": "^0.26.1",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "reselect": "^4.0.0"
+  }
+}

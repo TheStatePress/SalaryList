@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,QAAQ,CAAC,cAAT,CAAwB,UAAxB,EAAoC,SAApC,GAAgD,4BAAhD","file":"client.77de5100.map","sourceRoot":"..","sourcesContent":["document.getElementById('greeting').innerText = 'Hello parcel + typescript!';"]}

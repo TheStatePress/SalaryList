@@ -1,0 +1,8 @@
+{
+  "target": "ES5",
+  "jsx": "react",
+  "files": [
+    "src/**/*.ts"
+  ]
+  // "lib": "ES5",
+}

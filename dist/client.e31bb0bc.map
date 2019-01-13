@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.js"],"names":["greeting","innerText"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAAA,QAAQ,CAACC,SAAT,GAAqB,eAArB","file":"client.e31bb0bc.map","sourceRoot":"..","sourcesContent":["greeting.innerText = 'Hello parcel!'"]}
