@@ -16,28 +16,10 @@ import Select from "react-select";
 import { createSelector } from "reselect";
 import "./app.scss";
 
-import Table from "./Table";
+import SalaryTable from "./SalaryTable";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
 const YEAR_TEMPLATE = year => `${process.env.YEAR_URL}ASU-${year}.json`;
-
-// const getYears = prop('years');
-// const getYear = createSelector(
-//   (_, year) => year,
-//   getYears,
-//   prop
-// );
-// const getSelectedYear = createSelector(
-//   (state) => state,
-//   (_, selectedYear) => selectedYear,
-//   getYear
-// );
-// const getFilterString = prop('filterString');
-// const getFilteredYear = createSelector(
-//   getSelectedYear,
-//   getFilterString,
-//   (filterString, year) => filter(includes(filterString), year)
-// );
 
 export type Row = {
   firstName: string;
@@ -124,7 +106,7 @@ class App extends React.Component<any, State> {
     const year = years[selectedYear];
     const options = getOptions(YEARS);
     return (
-      <div>
+      <div style={{ height: '100%', width: '100%'}}>
         <form className="flex">
           <input
             className="filter-input"
@@ -135,12 +117,13 @@ class App extends React.Component<any, State> {
           />
           <Select
             className="select"
+            isSearchable={false}
             onChange={this._handleYearSelect}
             options={values(options)}
             value={options[selectedYear]}
           />
         </form>
-        <Table items={this._getFilteredYear()} />
+        <SalaryTable items={this._getFilteredYear()} />
       </div>
     );
   }

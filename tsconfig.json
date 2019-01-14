@@ -2,8 +2,8 @@
     "compilerOptions": {
         "noEmitOnError": true,
         "jsx": "react",
-        "target": "es5"
-        // "lib": ["es2015"]
+        "target": "es5",
+        "lib": ["es2015"]
     },
     "parcel-plugin-typescript": {
         // If true type-checking is disabled
