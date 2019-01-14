@@ -1,5 +1,14 @@
 import * as React from "react";
-import { take, sort, prop, ascend, descend, toUpper, pipe, toString } from "ramda";
+import {
+  take,
+  sort,
+  prop,
+  ascend,
+  descend,
+  toUpper,
+  pipe,
+  toString
+} from "ramda";
 
 import { Row } from "./App";
 import TableRow from "./TableRow";
@@ -60,7 +69,7 @@ class Table extends React.Component<Props, State> {
         dir(
           pipe(
             prop(sortKey),
-            (val) => typeof val == 'number' ? val : toUpper(val)
+            val => (typeof val == "number" ? val : toUpper(val))
           )
         ),
         items

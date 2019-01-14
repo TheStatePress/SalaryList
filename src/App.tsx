@@ -19,8 +19,7 @@ import "./app.scss";
 import Table from "./Table";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
-const YEAR_TEMPLATE = year =>
-  `${process.env.YEAR_URL}ASU-${year}.json`;
+const YEAR_TEMPLATE = year => `${process.env.YEAR_URL}ASU-${year}.json`;
 
 // const getYears = prop('years');
 // const getYear = createSelector(
@@ -93,7 +92,7 @@ class App extends React.Component<any, State> {
     const filterString = this.state.filterString.toLowerCase();
     const year = years[`ASU_${selectedYear}`];
     if (!year) {
-      this._getYear(selectedYear)
+      this._getYear(selectedYear);
       return null;
     }
     return filter(
@@ -106,7 +105,9 @@ class App extends React.Component<any, State> {
     ) as [Row];
   }
   _handleFilter(event: any) {
-    this.setState({ filterString: (event.target as HTMLInputElement).value.toLowerCase() });
+    this.setState({
+      filterString: (event.target as HTMLInputElement).value.toLowerCase()
+    });
   }
   _handleYearSelect(option: { value: string }) {
     this.setState({
