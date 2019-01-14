@@ -87,44 +87,48 @@ class SalaryTable extends React.Component<Props, State> {
     const { sortKey, sortDirection } = this.state;
     const visible = items && items;
     return items ? (
-      <AutoSizer>
-        {({ height, width }) => (
-          <Table
-            width={width}
-            height={height}
-            headerHeight={20}
-            rowHeight={30}
-            rowCount={visible.length}
-            rowGetter={({ index }) => visible[index]}
-          >
-            <Column
-              flexShrink={0}
-              label="First Name"
-              dataKey="firstName"
-              width={100}
-            />
-            <Column
-              flexShrink={0}
-              label="Last Name"
-              dataKey="lastName"
-              width={100}
-            />
-            <Column
-              flexGrow={1}
-              label="Job Description"
-              dataKey="jobDescription"
-              width={300}
-            />
-            <Column
-              flexShrink={0}
-              label="Salary"
-              dataKey="salary"
-              width={100}
-              cellDataGetter={({dataKey, rowData}) => getCurrencyString(rowData[dataKey])}
-            />
-          </Table>
-        )}
-      </AutoSizer>
+      <div style={{ flex: "auto" }}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <Table
+              width={width}
+              height={height}
+              headerHeight={20}
+              rowHeight={30}
+              rowCount={visible.length}
+              rowGetter={({ index }) => visible[index]}
+            >
+              <Column
+                flexShrink={0}
+                label="First Name"
+                dataKey="firstName"
+                width={100}
+              />
+              <Column
+                flexShrink={0}
+                label="Last Name"
+                dataKey="lastName"
+                width={100}
+              />
+              <Column
+                flexGrow={1}
+                label="Job Description"
+                dataKey="jobDescription"
+                width={300}
+              />
+              <Column
+                flexShrink={0}
+                label="Salary"
+                dataKey="salary"
+                width={100}
+                cellDataGetter={({ dataKey, rowData }) =>
+                  getCurrencyString(rowData[dataKey])
+                }
+              />
+            </Table>
+          )}
+        </AutoSizer>
+      </div>
     ) : (
       "loading row data"
     );

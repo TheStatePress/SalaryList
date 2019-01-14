@@ -64,6 +64,7 @@ class App extends React.Component<any, State> {
   }
   async _getYear(year) {
     console.log(YEAR_TEMPLATE(year));
+    console.log(process.env.YEAR_URL)
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years)
@@ -106,7 +107,7 @@ class App extends React.Component<any, State> {
     const year = years[selectedYear];
     const options = getOptions(YEARS);
     return (
-      <div style={{ height: '100%', width: '100%'}}>
+      <div style={{ flex: 'auto', display: 'flex', flexDirection: 'column' }}>
         <form className="flex">
           <input
             className="filter-input"
