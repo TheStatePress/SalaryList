@@ -9,7 +9,7 @@ import {
   pipe,
   toString
 } from "ramda";
-import { AutoSizer, Column, Table } from "react-virtualized";
+import { AutoSizer, Column, Table, SortDirectionType } from "react-virtualized";
 import "react-virtualized/styles.css";
 
 import { Row } from "./App";
@@ -23,42 +23,54 @@ type Props = {
 
 type State = {
   sortKey: string;
-  sortDirection: number;
+  sortDirection: SortDirectionType;
 };
 
 const getCurrencyString = (n: number) => {
   return `$${n.toLocaleString()}`;
 };
 
-const getSortButton = (
-  sortKey,
-  currentSortKey,
-  currentSortDirection,
-  onClick
-) => (
-  <input
-    type="button"
-    onClick={() => onClick(sortKey)}
-    value={`${sortKey}${
-      sortKey == currentSortKey ? (currentSortDirection > 0 ? " ▲" : " ▼") : ""
-    }`}
-  />
-);
+// const getSortButton = (
+//   sortKey,
+//   currentSortKey,
+//   currentSortDirection,
+//   onClick
+// ) => (
+//   <input
+//     type="button"
+//     onClick={() => onClick(sortKey)}
+//     value={`${sortKey}${
+//       sortKey == currentSortKey ? (currentSortDirection > 0 ? " ▲" : " ▼") : ""
+//     }`}
+//   />
+// );
 
 class SalaryTable extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
       sortKey: "firstName",
-      sortDirection: 1
+      sortDirection: "ASC"
     };
     this._sortBy = this._sortBy.bind(this);
+    this._headerRenderer = this._headerRenderer.bind(this);
+  }
+  _headerRenderer({ dataKey, label, sortBy, sortDirection }) {
+    return (
+      <input
+        type="button"
+        onClick={() => this._sortBy(dataKey)}
+        value={`${label}${
+          dataKey == sortBy ? (sortDirection === 'ASC' ? " ▲" : " ▼") : ""
+        }`}
+      />
+    );
   }
   _sortBy(key: string) {
     const sortKey = key;
     let { sortDirection } = this.state;
     if (sortKey === this.state.sortKey) {
-      sortDirection *= -1;
+      sortDirection = sortDirection === "ASC" ? "DESC" : "ASC";
     }
     this.setState({
       sortKey,
@@ -68,7 +80,8 @@ class SalaryTable extends React.Component<Props, State> {
   _getSortedList(): Row[] {
     const { items } = this.props;
     const { sortKey, sortDirection } = this.state;
-    const dir = sortDirection > 0 ? ascend : descend;
+    const dir = sortDirection === "ASC" ? ascend : descend;
+    console.log(sortDirection, dir);
     return take(
       100,
       sort(
@@ -85,7 +98,8 @@ class SalaryTable extends React.Component<Props, State> {
   render() {
     const { items } = this.props;
     const { sortKey, sortDirection } = this.state;
-    const visible = items && items;
+    console.log(sortDirection, sortKey);
+    const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>
         <AutoSizer>
@@ -97,27 +111,33 @@ class SalaryTable extends React.Component<Props, State> {
               rowHeight={30}
               rowCount={visible.length}
               rowGetter={({ index }) => visible[index]}
+              sortBy={sortKey}
+              sortDirection={sortDirection}
             >
               <Column
                 flexShrink={0}
+                headerRenderer={this._headerRenderer}
                 label="First Name"
                 dataKey="firstName"
-                width={100}
+                width={150}
               />
               <Column
                 flexShrink={0}
+                headerRenderer={this._headerRenderer}
                 label="Last Name"
                 dataKey="lastName"
                 width={100}
               />
               <Column
                 flexGrow={1}
+                headerRenderer={this._headerRenderer}
                 label="Job Description"
                 dataKey="jobDescription"
                 width={300}
               />
               <Column
                 flexShrink={0}
+                headerRenderer={this._headerRenderer}
                 label="Salary"
                 dataKey="salary"
                 width={100}
