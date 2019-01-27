@@ -73,7 +73,7 @@ class SalaryTable extends React.Component<Props, State> {
   }
   _headerRenderer({ dataKey, label, sortBy, sortDirection }) {
     return (
-      <span>
+      <span className="custom-header-renderer">
         {`${label}${dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""}`}
       </span>
     );
@@ -108,8 +108,8 @@ class SalaryTable extends React.Component<Props, State> {
             <Table
               width={width}
               height={height}
-              headerHeight={20}
-              rowHeight={30}
+              headerHeight={30}
+              rowHeight={40}
               rowCount={visible.length}
               rowGetter={({ index }) => visible[index]}
               sort={this._sortList}

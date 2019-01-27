@@ -108,7 +108,7 @@ class App extends React.Component<any, State> {
     const options = getOptions(YEARS);
     return (
       <div style={{ flex: 'auto', display: 'flex', flexDirection: 'column' }}>
-        <form className="flex">
+        <form className="flex p1">
           <input
             className="filter-input"
             type="text"
