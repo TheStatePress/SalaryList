@@ -15,11 +15,9 @@ import urljoin from "url-join";
 import "./app.scss";
 
 import SalaryTable from "./SalaryTable";
-import findLastIndex from "ramda/es/findLastIndex";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
-// const YEAR_TEMPLATE = year => `${process.env.YEAR_URL_NGROK}ASU-${year}.json`;
-const YEAR_TEMPLATE = year => urljoin(process.env.YEAR_URL_NGROK, `ASU-${year}.json`);
+const YEAR_TEMPLATE = year => urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
 
 export type Row = {
   firstName: string;
@@ -51,8 +49,6 @@ const getOptions = (years: string[]) =>
 const urlparams = new URLSearchParams(window.location.search);
 const isEmbedded = urlparams.get('embed');
 const isFullscreen = urlparams.get('full');
-console.log(isEmbedded);
-console.log(isFullscreen);
 
 class App extends React.Component<any, State> {
   constructor(props) {
@@ -68,6 +64,7 @@ class App extends React.Component<any, State> {
     this._getFilteredYear = this._getFilteredYear.bind(this);
   }
   async _getYear(year) {
+    console.log(YEAR_TEMPLATE(year))
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years)
@@ -136,9 +133,12 @@ class App extends React.Component<any, State> {
           />
         </form>
         <SalaryTable items={this._getFilteredYear()} />
-        <div style={{textAlign: 'right', padding: '8px 0'}}>
-          {Boolean(isEmbedded) ? <a href={urljoin(process.env.SALARYLIST_URL, '?full=true')} target="_blank">view fullscreen</a> : ''}
-          {Boolean(isFullscreen) ? <a href="#" onClick={() => close()} style={{marginRight: '8px'}}>close fullscreen</a> : ''}
+        <div style={{display: 'flex', padding: '8px', justifyContent: 'space-between'}}>
+        <span style={{fontSize: '10px', marginRight: '10px', display: 'block'}}>Created for <a target="_blank" href="http://www.statepress.com/">The State Press</a> by <a target="_blank" href="https://github.com/James-Quigley">James Quigley</a> and <a target="_blank" href="https://github.com/chuckdries">Chuck Dries</a>. Original data acquired by Reilly Kneedler.</span>
+          <span style={{minWidth: '100px', display: 'block'}}>
+            {Boolean(isEmbedded) ? <a href={urljoin(process.env.SALARYLIST_URL, '?full=true')} target="_blank">view fullscreen</a> : ''}
+            {Boolean(isFullscreen) ? <a href="#" onClick={() => close()}>close fullscreen</a> : ''}
+          </span>
         </div>
       </div>
     );
