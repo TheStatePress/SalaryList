@@ -82,14 +82,14 @@ class App extends React.Component<any, State> {
       row =>
         includes(
           filterString,
-          join(" ", [row.firstName, row.lastName]).toLowerCase()
+          join(" ", [row.firstName, row.lastName, row.jobDescription]).toLowerCase()
         ),
       year
     ) as [Row];
   }
   _handleFilter(event: any) {
     this.setState({
-      filterString: (event.target as HTMLInputElement).value.toLowerCase()
+      filterString: (event.target as any).value.toLowerCase()
     });
   }
   _handleYearSelect(option: { value: string }) {
@@ -103,8 +103,8 @@ class App extends React.Component<any, State> {
     this._getYear(2018);
   }
   render() {
-    const { years, selectedYear } = this.state;
-    const year = years[selectedYear];
+    const { selectedYear } = this.state;
+    // const year = years[selectedYear];
     const options = getOptions(YEARS);
     return (
       <div style={{ flex: 'auto', display: 'flex', flexDirection: 'column' }}>

@@ -61,7 +61,6 @@ class SalaryTable extends React.Component<Props, State> {
       sortKey: "lastName",
       sortDirection: "ASC"
     };
-    console.log(this.props.items)
     this._sortBy = this._sortBy.bind(this);
     this._sortList = this._sortList.bind(this);
     this._headerRenderer = this._headerRenderer.bind(this);
@@ -85,6 +84,7 @@ class SalaryTable extends React.Component<Props, State> {
     );
   }
   _sortBy(key: string) {
+    debugger;
     const sortKey = key;
     let { sortDirection } = this.state;
     if (sortKey === this.state.sortKey) {
@@ -98,8 +98,7 @@ class SalaryTable extends React.Component<Props, State> {
   _sortList({ sortBy, sortDirection }: {sortBy: string; sortDirection: string}): void {
     const { items } = this.state;
     const dir = sortDirection === "ASC" ? ascend : descend;
-    // @ts-ignore
-    const sortedList: [Row] = sort(
+    const sortedList = sort(
       dir(
         pipe(
           prop(sortBy),
@@ -107,14 +106,13 @@ class SalaryTable extends React.Component<Props, State> {
         )
       ),
       items
-    );
+    ) as [Row];
     this.setState({
       items: sortedList
     });
   }
   render() {
-    const { items } = this.state;
-    const { sortKey, sortDirection } = this.state;
+    const { sortKey, sortDirection, items } = this.state;
     const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>
@@ -133,28 +131,28 @@ class SalaryTable extends React.Component<Props, State> {
             >
               <Column
                 flexShrink={0}
-                // headerRenderer={this._headerRenderer}
+                headerRenderer={this._headerRenderer}
                 label="First Name"
                 dataKey="firstName"
                 width={150}
               />
               <Column
                 flexShrink={0}
-                // headerRenderer={this._headerRenderer}
+                headerRenderer={this._headerRenderer}
                 label="Last Name"
                 dataKey="lastName"
                 width={100}
               />
               <Column
                 flexGrow={1}
-                // headerRenderer={this._headerRenderer}
+                headerRenderer={this._headerRenderer}
                 label="Job Description"
                 dataKey="jobDescription"
                 width={300}
               />
               <Column
                 flexShrink={0}
-                // headerRenderer={this._headerRenderer}
+                headerRenderer={this._headerRenderer}
                 label="Salary"
                 dataKey="salary"
                 width={100}
