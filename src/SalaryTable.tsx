@@ -70,7 +70,6 @@ class SalaryTable extends React.Component<Props, State> {
   }): void {
     const { items } = this.state;
     const dir = sortDirection === "ASC" ? ascend : descend;
-    console.log("sortList", sortDirection);
     const sortedList = sort(
       dir(
         pipe(
@@ -88,7 +87,6 @@ class SalaryTable extends React.Component<Props, State> {
   }
   render() {
     const { sortKey, sortDirection, items } = this.state;
-    console.log("render", sortDirection);
     const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>

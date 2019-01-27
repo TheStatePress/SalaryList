@@ -19,7 +19,7 @@ import "./app.scss";
 import SalaryTable from "./SalaryTable";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
-const YEAR_TEMPLATE = year => `${process.env.YEAR_URL_NGROK}ASU-${year}.json`;
+const YEAR_TEMPLATE = year => `${process.env.YEAR_URL}ASU-${year}.json`;
 
 export type Row = {
   firstName: string;
@@ -63,8 +63,6 @@ class App extends React.Component<any, State> {
     this._getFilteredYear = this._getFilteredYear.bind(this);
   }
   async _getYear(year) {
-    console.log(YEAR_TEMPLATE(year));
-    console.log(process.env.YEAR_URL);
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years)
