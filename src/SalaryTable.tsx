@@ -56,7 +56,6 @@ interface ISortFnProps {
 class SalaryTable extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    debugger;
     this.state = {
       items: props.items,
       sortKey: "lastName",
@@ -99,24 +98,23 @@ class SalaryTable extends React.Component<Props, State> {
   _sortList({ sortBy, sortDirection }: {sortBy: string; sortDirection: string}): void {
     const { items } = this.state;
     const dir = sortDirection === "ASC" ? ascend : descend;
-    // const sortedList = sort(
-    //   dir(
-    //     pipe(
-    //       prop(sortBy),
-    //       val => (typeof val == "number" ? val : toUpper(val))
-    //     )
-    //   ),
-    //   items
-    // );
-    console.log(sortDirection, dir);
+    // @ts-ignore
+    const sortedList: [Row] = sort(
+      dir(
+        pipe(
+          prop(sortBy),
+          val => (typeof val == "number" ? val : toUpper(val))
+        )
+      ),
+      items
+    );
     this.setState({
-      items: items.sort()
+      items: sortedList
     });
   }
   render() {
     const { items } = this.state;
     const { sortKey, sortDirection } = this.state;
-    console.log(sortDirection, sortKey);
     const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>
