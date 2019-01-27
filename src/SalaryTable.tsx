@@ -69,19 +69,27 @@ class SalaryTable extends React.Component<Props, State> {
       this.setState({
         items: nextProps.items
       });
-    } 
+    }
   }
   _headerRenderer({ dataKey, label, sortBy, sortDirection }) {
     return (
       <span className="custom-header-renderer">
-        {`${label}${dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""}`}
+        {`${label}${
+          dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""
+        }`}
       </span>
     );
   }
-  _sortList({ sortBy, sortDirection }: {sortBy: string; sortDirection: SortDirectionType}): void {
+  _sortList({
+    sortBy,
+    sortDirection
+  }: {
+    sortBy: string;
+    sortDirection: SortDirectionType;
+  }): void {
     const { items } = this.state;
     const dir = sortDirection === "ASC" ? ascend : descend;
-    console.log('sortList', sortDirection);
+    console.log("sortList", sortDirection);
     const sortedList = sort(
       dir(
         pipe(
@@ -94,23 +102,26 @@ class SalaryTable extends React.Component<Props, State> {
     this.setState({
       items: sortedList,
       sortKey: sortBy,
-      sortDirection,
+      sortDirection
     });
   }
   render() {
     const { sortKey, sortDirection, items } = this.state;
-    console.log('render', sortDirection);
+    console.log("render", sortDirection);
     const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>
         <AutoSizer>
           {({ height, width }) => (
             <Table
-              width={width}
+              width={width < 530 ? 530 : width}
               height={height}
               headerHeight={30}
               rowHeight={40}
               rowCount={visible.length}
+              rowClassName={({ index }) =>
+                index % 2 == 0 ? "even-row" : "odd-row"
+              }
               rowGetter={({ index }) => visible[index]}
               sort={this._sortList}
               sortBy={sortKey}
@@ -121,28 +132,28 @@ class SalaryTable extends React.Component<Props, State> {
                 headerRenderer={this._headerRenderer}
                 label="First Name"
                 dataKey="firstName"
-                width={150}
+                width={140}
               />
               <Column
                 flexShrink={0}
                 headerRenderer={this._headerRenderer}
                 label="Last Name"
                 dataKey="lastName"
-                width={150}
+                width={130}
               />
               <Column
                 flexGrow={1}
                 headerRenderer={this._headerRenderer}
                 label="Job Description"
                 dataKey="jobDescription"
-                width={300}
+                width={250}
               />
               <Column
                 flexShrink={0}
                 headerRenderer={this._headerRenderer}
                 label="Salary"
                 dataKey="salary"
-                width={100}
+                width={80}
                 cellDataGetter={({ dataKey, rowData }) =>
                   getCurrencyString(rowData[dataKey])
                 }

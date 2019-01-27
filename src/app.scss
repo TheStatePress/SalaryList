@@ -1,11 +1,13 @@
 * {
   box-sizing: border-box;
-  font-family: times;
-  font-weight: 400;
 }
 body {
   height: 100vh;
   margin: 0;
+  // font-family: times;
+  font-family: Lato, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
   // padding: 1em;
 }
 #app {
@@ -17,28 +19,38 @@ body {
   display: flex;
 }
 .p1 {
-  padding: .5em;
+  padding: 0.5em;
 }
 form {
   .select {
     flex-basis: 200px;
   }
+  // min-width: 600px;
 }
 .filter-input {
   flex: auto;
-  border: 1px solid hsl(0,0%,80%);
+  border: 1px solid hsl(0, 0%, 80%);
   border-radius: 4px;
   margin-right: 2px;
   padding: 2px 8px;
-  font-size: 16px;
+  // font-family: times;
 }
 
-.ReactVirtualized__Table__row:nth-child(2n) {
-  background: rgb(246, 248, 250);
+.ReactVirtualized__Table__headerRow {
+  // font-weight: bold;
+  // font-family: Arial, Helvetica, sans-serif;
+  // font-size: 12px;
+  border-bottom: 2px solid rgb(194, 194, 194);
+  background: white !important;
+  font-weight: 300 !important;
+  // -webkit-box-shadow: 0px 2px 1px 0px rgba(191, 191, 191, 1);
+  // -moz-box-shadow: 0px 2px 1px 0px rgba(191, 191, 191, 1);
+  // box-shadow: 0px 2px 1px 0px rgba(191, 191, 191, 1);
+}
+.odd-row {
+  background: hsl(49, 49%, 97%);
+  // background: hsl(210, 29%, 97%);
 }
 .ReactVirtualized__Table__row {
   border-top: 1px solid rgb(198, 203, 209);
 }
-/* input, select {
-  padding: 5px;
-} */

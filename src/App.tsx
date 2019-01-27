@@ -19,7 +19,7 @@ import "./app.scss";
 import SalaryTable from "./SalaryTable";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
-const YEAR_TEMPLATE = year => `${process.env.YEAR_URL}ASU-${year}.json`;
+const YEAR_TEMPLATE = year => `${process.env.YEAR_URL_NGROK}ASU-${year}.json`;
 
 export type Row = {
   firstName: string;
@@ -64,7 +64,7 @@ class App extends React.Component<any, State> {
   }
   async _getYear(year) {
     console.log(YEAR_TEMPLATE(year));
-    console.log(process.env.YEAR_URL)
+    console.log(process.env.YEAR_URL);
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years)
@@ -82,7 +82,11 @@ class App extends React.Component<any, State> {
       row =>
         includes(
           filterString,
-          join(" ", [row.firstName, row.lastName, row.jobDescription]).toLowerCase()
+          join(" ", [
+            row.firstName,
+            row.lastName,
+            row.jobDescription
+          ]).toLowerCase()
         ),
       year
     ) as [Row];
@@ -99,15 +103,21 @@ class App extends React.Component<any, State> {
   }
 
   componentDidMount() {
-    // this._getData();
     this._getYear(2018);
   }
   render() {
     const { selectedYear } = this.state;
-    // const year = years[selectedYear];
     const options = getOptions(YEARS);
     return (
-      <div style={{ flex: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          flex: "auto",
+          display: "flex",
+          flexDirection: "column",
+          // maxWidth: "100vw",
+          // overflowX: "scroll"
+        }}
+      >
         <form className="flex p1">
           <input
             className="filter-input"
