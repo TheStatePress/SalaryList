@@ -1,22 +1,17 @@
 import * as React from "react";
 import {
-  take,
   sort,
   prop,
   ascend,
   descend,
   toUpper,
   pipe,
-  toString
 } from "ramda";
 import { AutoSizer, Column, Table, SortDirectionType } from "react-virtualized";
 import "react-virtualized/styles.css";
 
 import { Row } from "./App";
-import TableRow from "./TableRow";
-// import sortBy from "ramda/es/sortBy";
 
-// table takes sortkey and sorts itself
 type Props = {
   items: [Row];
 };
@@ -30,21 +25,6 @@ type State = {
 const getCurrencyString = (n: number) => {
   return `$${n.toLocaleString()}`;
 };
-
-// const getSortButton = (
-//   sortKey,
-//   currentSortKey,
-//   currentSortDirection,
-//   onClick
-// ) => (
-//   <input
-//     type="button"
-//     onClick={() => onClick(sortKey)}
-//     value={`${sortKey}${
-//       sortKey == currentSortKey ? (currentSortDirection > 0 ? " ▲" : " ▼") : ""
-//     }`}
-//   />
-// );
 
 interface ISortFnProps {
   defaultSortDirection: string;
@@ -72,10 +52,11 @@ class SalaryTable extends React.Component<Props, State> {
     }
   }
   _headerRenderer({ dataKey, label, sortBy, sortDirection }) {
+    const isSortedCol = dataKey == sortBy;
     return (
-      <span className="custom-header-renderer">
+      <span className={`custom-header-renderer${isSortedCol ? ' active-sort' : ''}`}>
         {`${label}${
-          dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""
+          isSortedCol ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""
         }`}
       </span>
     );
@@ -163,22 +144,8 @@ class SalaryTable extends React.Component<Props, State> {
         </AutoSizer>
       </div>
     ) : (
-      "loading row data"
+      <div className="loader">loading salary data</div>
     );
-    // return (
-    //   <div className="sortable-table">
-    //     <div>
-    //       {getSortButton("firstName", sortKey, sortDirection, this._sortBy)}
-    //       {getSortButton("lastName", sortKey, sortDirection, this._sortBy)}
-    //       {getSortButton("salary", sortKey, sortDirection, this._sortBy)}
-    //     </div>
-    //     {items
-    //       ? this._getSortedList().map(item => (
-    //           <TableRow key={item.key} row={item} />
-    //         ))
-    //       : "loading"}
-    //   </div>
-    // );
   }
 }
 
