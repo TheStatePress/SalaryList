@@ -46,9 +46,18 @@ const getOptions = (years: string[]) =>
     )
   );
 
+const theme = (theme) => ({
+  ...theme,
+  colors: {
+  ...theme.colors,
+    primary25: '#eedde0',
+    primary: '#830920',
+  },
+})
+
 const urlparams = new URLSearchParams(window.location.search);
-const isEmbedded = urlparams.get('embed');
-const isFullscreen = urlparams.get('full');
+const isEmbedded = urlparams.get("embed");
+const isFullscreen = urlparams.get("full");
 
 class App extends React.Component<any, State> {
   constructor(props) {
@@ -64,7 +73,7 @@ class App extends React.Component<any, State> {
     this._getFilteredYear = this._getFilteredYear.bind(this);
   }
   async _getYear(year) {
-    console.log(YEAR_TEMPLATE(year))
+    console.log(YEAR_TEMPLATE(year));
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years)
@@ -113,7 +122,7 @@ class App extends React.Component<any, State> {
         style={{
           flex: "auto",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "column"
         }}
       >
         <form className="flex p1">
@@ -129,15 +138,53 @@ class App extends React.Component<any, State> {
             isSearchable={false}
             onChange={this._handleYearSelect}
             options={values(options)}
+            theme={theme}
             value={options[selectedYear]}
           />
         </form>
         <SalaryTable items={this._getFilteredYear()} />
-        <div style={{display: 'flex', padding: '8px', justifyContent: 'space-between'}}>
-        <span style={{fontSize: '10px', marginRight: '10px', display: 'block'}}>Created for <a target="_blank" href="http://www.statepress.com/">The State Press</a> by <a target="_blank" href="https://github.com/James-Quigley">James Quigley</a> and <a target="_blank" href="https://github.com/chuckdries">Chuck Dries</a>. Original data acquired by Reilly Kneedler.</span>
-          <span style={{minWidth: '100px', display: 'block'}}>
-            {Boolean(isEmbedded) ? <a href={urljoin(process.env.SALARYLIST_URL, '?full=true')} target="_blank">view fullscreen</a> : ''}
-            {Boolean(isFullscreen) ? <a href="#" onClick={() => close()}>close fullscreen</a> : ''}
+        <div
+          style={{
+            display: "flex",
+            padding: "8px",
+            justifyContent: "space-between"
+          }}
+        >
+          <span
+            style={{ fontSize: "10px", marginRight: "10px", display: "block" }}
+          >
+            Created for{" "}
+            <a target="_blank" href="http://www.statepress.com/">
+              The State Press
+            </a>{" "}
+            by{" "}
+            <a target="_blank" href="https://github.com/James-Quigley">
+              James Quigley
+            </a>{" "}
+            and{" "}
+            <a target="_blank" href="https://github.com/chuckdries">
+              Chuck Dries
+            </a>
+            . Original data acquired by Reilly Kneedler.
+          </span>
+          <span style={{ minWidth: "100px", display: "block" }}>
+            {Boolean(isEmbedded) ? (
+              <a
+                href={urljoin(process.env.SALARYLIST_URL, "?full=true")}
+                target="_blank"
+              >
+                view fullscreen
+              </a>
+            ) : (
+              ""
+            )}
+            {Boolean(isFullscreen) ? (
+              <a href="#" onClick={() => close()}>
+                close fullscreen
+              </a>
+            ) : (
+              ""
+            )}
           </span>
         </div>
       </div>

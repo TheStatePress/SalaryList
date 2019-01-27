@@ -32,7 +32,7 @@ The client is written in Javascript with React 16. I tried to use the accepted b
 ## Embedding  
 
 ```html
-<iframe src="http://218d62f6.ngrok.io?embed=true" frameborder="0" width="100%" height="400"></iframe>
+<iframe src="https://thestatepress.github.io/SalaryList/dist/index.html?embed=true" frameborder="0" width="100%" height="400"></iframe>
 ```
 
 ## Help me! (a note from Chuck)
