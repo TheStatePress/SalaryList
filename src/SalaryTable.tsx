@@ -61,7 +61,6 @@ class SalaryTable extends React.Component<Props, State> {
       sortKey: "lastName",
       sortDirection: "ASC"
     };
-    this._sortBy = this._sortBy.bind(this);
     this._sortList = this._sortList.bind(this);
     this._headerRenderer = this._headerRenderer.bind(this);
   }
@@ -74,30 +73,15 @@ class SalaryTable extends React.Component<Props, State> {
   }
   _headerRenderer({ dataKey, label, sortBy, sortDirection }) {
     return (
-      <input
-        type="button"
-        onClick={() => this._sortBy(dataKey)}
-        value={`${label}${
-          dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""
-        }`}
-      />
+      <span>
+        {`${label}${dataKey == sortBy ? (sortDirection === "ASC" ? " ▲" : " ▼") : ""}`}
+      </span>
     );
   }
-  _sortBy(key: string) {
-    debugger;
-    const sortKey = key;
-    let { sortDirection } = this.state;
-    if (sortKey === this.state.sortKey) {
-      sortDirection = sortDirection === "ASC" ? "DESC" : "ASC";
-    }
-    this.setState({
-      sortKey,
-      sortDirection
-    });
-  }
-  _sortList({ sortBy, sortDirection }: {sortBy: string; sortDirection: string}): void {
+  _sortList({ sortBy, sortDirection }: {sortBy: string; sortDirection: SortDirectionType}): void {
     const { items } = this.state;
     const dir = sortDirection === "ASC" ? ascend : descend;
+    console.log('sortList', sortDirection);
     const sortedList = sort(
       dir(
         pipe(
@@ -108,11 +92,14 @@ class SalaryTable extends React.Component<Props, State> {
       items
     ) as [Row];
     this.setState({
-      items: sortedList
+      items: sortedList,
+      sortKey: sortBy,
+      sortDirection,
     });
   }
   render() {
     const { sortKey, sortDirection, items } = this.state;
+    console.log('render', sortDirection);
     const visible = items;
     return items ? (
       <div style={{ flex: "auto" }}>
@@ -141,7 +128,7 @@ class SalaryTable extends React.Component<Props, State> {
                 headerRenderer={this._headerRenderer}
                 label="Last Name"
                 dataKey="lastName"
-                width={100}
+                width={150}
               />
               <Column
                 flexGrow={1}
