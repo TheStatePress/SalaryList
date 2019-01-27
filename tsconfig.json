@@ -3,7 +3,7 @@
         "noEmitOnError": true,
         "jsx": "react",
         "target": "es5",
-        "lib": ["es2015"]
+        "lib": ["es5", "es6", "dom"]
     },
     "parcel-plugin-typescript": {
         // If true type-checking is disabled

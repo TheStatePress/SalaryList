@@ -2,8 +2,6 @@ import * as React from "react";
 import axios from "axios";
 import {
   map,
-  reduce,
-  addIndex,
   assoc,
   prop,
   filter,
@@ -13,13 +11,15 @@ import {
   values
 } from "ramda";
 import Select from "react-select";
-import { createSelector } from "reselect";
+import urljoin from "url-join";
 import "./app.scss";
 
 import SalaryTable from "./SalaryTable";
+import findLastIndex from "ramda/es/findLastIndex";
 
 const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018"];
-const YEAR_TEMPLATE = year => `${process.env.YEAR_URL}ASU-${year}.json`;
+// const YEAR_TEMPLATE = year => `${process.env.YEAR_URL_NGROK}ASU-${year}.json`;
+const YEAR_TEMPLATE = year => urljoin(process.env.YEAR_URL_NGROK, `ASU-${year}.json`);
 
 export type Row = {
   firstName: string;
@@ -48,6 +48,12 @@ const getOptions = (years: string[]) =>
     )
   );
 
+const urlparams = new URLSearchParams(window.location.search);
+const isEmbedded = urlparams.get('embed');
+const isFullscreen = urlparams.get('full');
+console.log(isEmbedded);
+console.log(isFullscreen);
+
 class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
@@ -56,7 +62,6 @@ class App extends React.Component<any, State> {
       filterString: "",
       years: {}
     };
-    // this._getData = this._getData.bind(this);
     this._getYear = this._getYear.bind(this);
     this._handleFilter = this._handleFilter.bind(this);
     this._handleYearSelect = this._handleYearSelect.bind(this);
@@ -112,8 +117,6 @@ class App extends React.Component<any, State> {
           flex: "auto",
           display: "flex",
           flexDirection: "column",
-          // maxWidth: "100vw",
-          // overflowX: "scroll"
         }}
       >
         <form className="flex p1">
@@ -133,6 +136,10 @@ class App extends React.Component<any, State> {
           />
         </form>
         <SalaryTable items={this._getFilteredYear()} />
+        <div style={{textAlign: 'right', padding: '8px 0'}}>
+          {Boolean(isEmbedded) ? <a href={urljoin(process.env.SALARYLIST_URL, '?full=true')} target="_blank">view fullscreen</a> : ''}
+          {Boolean(isFullscreen) ? <a href="#" onClick={() => close()} style={{marginRight: '8px'}}>close fullscreen</a> : ''}
+        </div>
       </div>
     );
   }

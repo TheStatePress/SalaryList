@@ -29,6 +29,12 @@ The client is written in Javascript with React 16. I tried to use the accepted b
 `yarn start` will start the development server  
 `yarn build` will build the static files for deployment
 
+## Embedding  
+
+```html
+<iframe src="http://218d62f6.ngrok.io?embed=true" frameborder="0" width="100%" height="400"></iframe>
+```
+
 ## Help me! (a note from Chuck)
 
 If something breaks, please don't hesitate to email me. I'm the original author of this code and I'm always happy to help out my friends at The State Press.  
