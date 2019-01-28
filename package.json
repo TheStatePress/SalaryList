@@ -31,11 +31,13 @@
   "dependencies": {
     "@types/react-virtualized": "^9.18.12",
     "axios": "^0.18.0",
+    "promise-polyfill": "^8.1.0",
     "ramda": "^0.26.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-select": "^2.2.0",
     "react-virtualized": "^9.21.0",
-    "url-join": "^4.0.0"
+    "url-join": "^4.0.0",
+    "url-search-params-polyfill": "^5.0.0"
   }
 }

@@ -1,3 +1,6 @@
+import 'url-search-params-polyfill';
+import 'promise-polyfill/src/polyfill';
+
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 

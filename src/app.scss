@@ -73,6 +73,7 @@ form {
   text-decoration: underline;
 }
 input:focus {
+  text-decoration: none;
   outline: none;
   border-width: 2px;
   border-color: #830920;
