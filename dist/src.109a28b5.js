@@ -1206,4 +1206,4 @@ module.exports={default:require("core-js/library/fn/get-iterator"),__esModule:!0
 },{"react":"1n8/","axios":"dZBD","ramda":"LaNN","react-select":"IirP","url-join":"GOb2","./app.scss":"R9Jc","./SalaryTable":"rYIa"}],"zo2T":[function(require,module,exports) {
 "use strict";var e=this&&this.__importStar||function(e){if(e&&e.__esModule)return e;var r={};if(null!=e)for(var t in e)Object.hasOwnProperty.call(e,t)&&(r[t]=e[t]);return r.default=e,r},r=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("react")),u=e(require("react-dom")),a=r(require("./App"));u.render(t.createElement(a.default,null),document.getElementById("app"));
 },{"react":"1n8/","react-dom":"NKHc","./App":"/NHn"}]},{},["zo2T"], null)
-//# sourceMappingURL=/src.e0321df2.map
+//# sourceMappingURL=/src.37409f9f.map

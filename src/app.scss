@@ -68,3 +68,12 @@ form {
 .ReactVirtualized__Table__row {
   border-top: 1px solid rgb(198, 203, 209);
 }
+*:focus {
+  outline: none;
+  text-decoration: underline;
+}
+input:focus {
+  outline: none;
+  border-width: 2px;
+  border-color: #830920;
+}
