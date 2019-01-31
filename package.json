@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "concurrently \"node dev-server.js\" \"parcel src/index.html\"",
-    "build": "NODE_ENV=production parcel build src/index.html",
+    "build": "NODE_ENV=production parcel build src/index.html --public-url ./dist/ --no-source-maps",
     "convert": "node csv-to-json.js",
     "pretty": "prettier --write src/*"
   },
