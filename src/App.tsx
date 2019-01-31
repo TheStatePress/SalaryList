@@ -122,7 +122,8 @@ class App extends React.Component<any, State> {
         style={{
           flex: "auto",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          border: isEmbedded ? '1px solid lightgrey' : 'none'
         }}
       >
         <form className="flex p1">
