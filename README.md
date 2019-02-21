@@ -20,6 +20,9 @@ The existing safeembed on the website should continue to work after you follow t
 
 ### 1. Convert CSV to JSON
 ### 2. Tell the client that a new year exists
+### 3. Compile the new code and push it to github
+
+(more details incoming)
 
 ## Developing the client
 
