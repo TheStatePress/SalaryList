@@ -26,7 +26,7 @@ The existing safeembed on the website should continue to work after you follow t
 
 ## Developing the client
 
-The client is written in Javascript with React 16. I tried to use the accepted best practices at the time I wrote it. You'll need [Yarn](https://yarnpkg.com).
+The client is written in Typescript with React 16. I tried to use the accepted best practices at the time I wrote it. You'll need [Yarn](https://yarnpkg.com).
 
 `yarn` will install its dependencies
 `yarn start` will start the development server  
