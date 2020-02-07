@@ -8,23 +8,25 @@
   "license": "MIT",
   "scripts": {
     "start": "concurrently \"node dev-server.js\" \"parcel src/index.html\"",
-    "build": "NODE_ENV=production parcel build src/index.html --public-url ./ --no-source-maps",
+    "build": "cross-env NODE_ENV=production parcel build src/index.html --public-url ./ --no-source-maps",
     "convert": "node csv-to-json.js",
     "pretty": "prettier --write src/*"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
+    "@types/parcel-env": "^0.0.0",
     "@types/ramda": "^0.25.46",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
     "add": "^2.0.6",
     "concurrently": "^4.1.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.0",
     "csv-parse": "^4.3.0",
     "express": "^4.16.4",
     "parcel-bundler": "^1.11.0",
     "prettier": "1.15.3",
-    "sass": "^1.16.0",
+    "sass": "^1.25.0",
     "typescript": "^3.2.2",
     "yarn": "^1.13.0"
   },
