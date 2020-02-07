@@ -36,7 +36,7 @@ const data = R.map(item => {
   };
   return {
     ...row,
-    key: row.firstName + row.lastName + row.jobDescription + row.departmentDescription
+    key: row.firstName + " " + row.lastName + row.jobDescription + row.departmentDescription
   };
 }, raw.slice(1));
 
