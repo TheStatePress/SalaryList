@@ -29,6 +29,7 @@ The existing safeembed on the website should continue to work after you follow t
 3. Run `node csv-to-json.js` to generate a new JSON file
 #### 2. Tell the client that a new year exists
 1. Add the year to the `YEARS` array on line 19 of App.tsx
+2. Change the default `selectedYear` on line 66 of App.tsx
 #### 3. Compile the new code and push it to github
 0. Run `yarn` to install our dependencies
 1. Run `yarn start` to test your changes and make sure the new year appears in the list and works

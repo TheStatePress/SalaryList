@@ -15,7 +15,7 @@
  */
 
 // const parse = require('csv-parse');
-const YEAR = "2019";
+const YEAR = "2020";
 const INPUT_FILE = `./data-csv/${YEAR}.csv`;
 const OUTPUT_FILE = `./data-json/ASU-${YEAR}.json`;
 
@@ -25,19 +25,30 @@ const R = require("ramda");
 
 const input = fs.readFileSync(INPUT_FILE);
 const raw = parse(input);
-const data = R.map(item => {
-  const [lastName, firstName] = item[1].split(',');
+const data = R.map(rowArray => {
+  // EDIT THIS FUNCTION DOWN HERE
+  const splitName = rowArray[1].split(',');
+  const firstName = splitName[1].trim();
+  const lastName = splitName[0];
+  if (splitName.length !== 2) {
+    console.log('Unusual name: this person\'s name may parse incorrectly', splitName)
+    console.dir({
+      firstName,
+      lastName
+    })
+  }
   const row = {
     firstName,
     lastName,
-    jobDescription: item[2],
-    departmentDescription: item[3],
-    salary: parseInt(item[4]),
+    jobDescription: rowArray[2],
+    departmentDescription: rowArray[3],
+    salary: parseInt(rowArray[4]),
   };
   return {
     ...row,
     key: row.firstName + " " + row.lastName + row.jobDescription + row.departmentDescription
   };
+  // STOP EDITING
 }, raw.slice(1));
 
 console.log('First 5 items:', data.slice(0, 5));
