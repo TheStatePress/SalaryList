@@ -5,8 +5,6 @@
 //
 // anything defined in a previous bundle is accessed via the
 // orig method which is the require for previous bundles
-
-// eslint-disable-next-line no-global-assign
 parcelRequire = (function (modules, cache, entry, globalName) {
   // Save the require from previous bundle to this closure if any
   var previousRequire = typeof parcelRequire === 'function' && parcelRequire;
@@ -77,8 +75,16 @@ parcelRequire = (function (modules, cache, entry, globalName) {
     }, {}];
   };
 
+  var error;
   for (var i = 0; i < entry.length; i++) {
-    newRequire(entry[i]);
+    try {
+      newRequire(entry[i]);
+    } catch (e) {
+      // Save first error but execute all entries
+      if (!error) {
+        error = e;
+      }
+    }
   }
 
   if (entry.length) {
@@ -103,6 +109,13 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   // Override the current require with this new one
+  parcelRequire = newRequire;
+
+  if (error) {
+    // throw error from earlier, _after updating parcelRequire_
+    throw error;
+  }
+
   return newRequire;
 })({"../node_modules/url-search-params-polyfill/index.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -6310,7 +6323,7 @@ if ("development" !== "production") {
       }
 
       var eventName = 'on' + eventNameSuffix;
-      var isSupported = eventName in document;
+      var isSupported = (eventName in document);
 
       if (!isSupported) {
         var element = document.createElement('div');
@@ -15802,9 +15815,9 @@ if ("development" !== "production") {
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
       if (oldValue === newValue && (oldValue !== 0 || 1 / oldValue === 1 / newValue) || oldValue !== oldValue && newValue !== newValue // eslint-disable-line no-self-compare
       ) {
-          // No change
-          return 0;
-        } else {
+        // No change
+        return 0;
+      } else {
         var changedBits = typeof context._calculateChangedBits === 'function' ? context._calculateChangedBits(oldValue, newValue) : maxSigned31BitInt;
         {
           !((changedBits & maxSigned31BitInt) === changedBits) ? warning$1(false, 'calculateChangedBits: Expected the return value to be a ' + '31-bit integer. Instead received: %s', changedBits) : void 0;
@@ -16001,8 +16014,8 @@ if ("development" !== "production") {
 
         if (val1 === val2 && (val1 !== 0 || 1 / val1 === 1 / val2) || val1 !== val1 && val2 !== val2 // eslint-disable-line no-self-compare
         ) {
-            continue;
-          }
+          continue;
+        }
 
         return false;
       }
@@ -25129,29 +25142,16 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],"../node_modules/is-buffer/index.js":[function(require,module,exports) {
+},{}],"../node_modules/axios/node_modules/is-buffer/index.js":[function(require,module,exports) {
 /*!
  * Determine if an object is a Buffer
  *
  * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
-
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-module.exports = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-}
-
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
+module.exports = function isBuffer(obj) {
+  return obj != null && obj.constructor != null && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj);
+};
 },{}],"../node_modules/axios/lib/utils.js":[function(require,module,exports) {
 'use strict';
 
@@ -25457,7 +25457,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":"../node_modules/axios/lib/helpers/bind.js","is-buffer":"../node_modules/is-buffer/index.js"}],"../node_modules/axios/lib/helpers/normalizeHeaderName.js":[function(require,module,exports) {
+},{"./helpers/bind":"../node_modules/axios/lib/helpers/bind.js","is-buffer":"../node_modules/axios/node_modules/is-buffer/index.js"}],"../node_modules/axios/lib/helpers/normalizeHeaderName.js":[function(require,module,exports) {
 'use strict';
 
 var utils = require('../utils');
@@ -25735,45 +25735,7 @@ module.exports = (
   })()
 );
 
-},{"./../utils":"../node_modules/axios/lib/utils.js"}],"../node_modules/axios/lib/helpers/btoa.js":[function(require,module,exports) {
-'use strict';
-
-// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
-
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function E() {
-  this.message = 'String contains an invalid character';
-}
-E.prototype = new Error;
-E.prototype.code = 5;
-E.prototype.name = 'InvalidCharacterError';
-
-function btoa(input) {
-  var str = String(input);
-  var output = '';
-  for (
-    // initialize result and counter
-    var block, charCode, idx = 0, map = chars;
-    // if the next str index does not exist:
-    //   change the mapping table to "="
-    //   check if d has no fractional digits
-    str.charAt(idx | 0) || (map = '=', idx % 1);
-    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-    output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-  ) {
-    charCode = str.charCodeAt(idx += 3 / 4);
-    if (charCode > 0xFF) {
-      throw new E();
-    }
-    block = block << 8 | charCode;
-  }
-  return output;
-}
-
-module.exports = btoa;
-
-},{}],"../node_modules/axios/lib/helpers/cookies.js":[function(require,module,exports) {
+},{"./../utils":"../node_modules/axios/lib/utils.js"}],"../node_modules/axios/lib/helpers/cookies.js":[function(require,module,exports) {
 'use strict';
 
 var utils = require('./../utils');
@@ -25832,18 +25794,11 @@ module.exports = (
 'use strict';
 
 var utils = require('./../utils');
-
 var settle = require('./../core/settle');
-
 var buildURL = require('./../helpers/buildURL');
-
 var parseHeaders = require('./../helpers/parseHeaders');
-
 var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
-
 var createError = require('../core/createError');
-
-var btoa = typeof window !== 'undefined' && window.btoa && window.btoa.bind(window) || require('./../helpers/btoa');
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -25855,93 +25810,87 @@ module.exports = function xhrAdapter(config) {
     }
 
     var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false; // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
 
-    if ("development" !== 'test' && typeof window !== 'undefined' && window.XDomainRequest && !('withCredentials' in request) && !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-
-      request.onprogress = function handleProgress() {};
-
-      request.ontimeout = function handleTimeout() {};
-    } // HTTP basic authentication
-
-
+    // HTTP basic authentication
     if (config.auth) {
       var username = config.auth.username || '';
       var password = config.auth.password || '';
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true); // Set the request timeout in MS
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
 
-    request.timeout = config.timeout; // Listen for ready state
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
 
-    request[loadEvent] = function handleLoad() {
-      if (!request || request.readyState !== 4 && !xDomain) {
+    // Listen for ready state
+    request.onreadystatechange = function handleLoad() {
+      if (!request || request.readyState !== 4) {
         return;
-      } // The request errored out and we didn't get a response, this will be
+      }
+
+      // The request errored out and we didn't get a response, this will be
       // handled by onerror instead
       // With one exception: request that using file: protocol, most browsers
       // will return status as 0 even though it's a successful request
-
-
       if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
         return;
-      } // Prepare the response
+      }
 
-
+      // Prepare the response
       var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        status: request.status,
+        statusText: request.statusText,
         headers: responseHeaders,
         config: config,
         request: request
       };
-      settle(resolve, reject, response); // Clean up request
 
+      settle(resolve, reject, response);
+
+      // Clean up request
       request = null;
-    }; // Handle low level network errors
+    };
 
-
+    // Handle low level network errors
     request.onerror = function handleError() {
       // Real errors are hidden from us by the browser
       // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request)); // Clean up request
+      reject(createError('Network Error', config, null, request));
 
+      // Clean up request
       request = null;
-    }; // Handle timeout
+    };
 
-
+    // Handle timeout
     request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED', request)); // Clean up request
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
 
+      // Clean up request
       request = null;
-    }; // Add xsrf header
+    };
+
+    // Add xsrf header
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
-
-
     if (utils.isStandardBrowserEnv()) {
-      var cookies = require('./../helpers/cookies'); // Add xsrf header
+      var cookies = require('./../helpers/cookies');
 
-
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ? cookies.read(config.xsrfCookieName) : undefined;
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
 
       if (xsrfValue) {
         requestHeaders[config.xsrfHeaderName] = xsrfValue;
       }
-    } // Add headers to the request
+    }
 
-
+    // Add headers to the request
     if ('setRequestHeader' in request) {
       utils.forEach(requestHeaders, function setRequestHeader(val, key) {
         if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
@@ -25952,14 +25901,14 @@ module.exports = function xhrAdapter(config) {
           request.setRequestHeader(key, val);
         }
       });
-    } // Add withCredentials to request if needed
+    }
 
-
+    // Add withCredentials to request if needed
     if (config.withCredentials) {
       request.withCredentials = true;
-    } // Add responseType to request if needed
+    }
 
-
+    // Add responseType to request if needed
     if (config.responseType) {
       try {
         request.responseType = config.responseType;
@@ -25970,14 +25919,14 @@ module.exports = function xhrAdapter(config) {
           throw e;
         }
       }
-    } // Handle progress if needed
+    }
 
-
+    // Handle progress if needed
     if (typeof config.onDownloadProgress === 'function') {
       request.addEventListener('progress', config.onDownloadProgress);
-    } // Not all browsers support upload events
+    }
 
-
+    // Not all browsers support upload events
     if (typeof config.onUploadProgress === 'function' && request.upload) {
       request.upload.addEventListener('progress', config.onUploadProgress);
     }
@@ -25990,21 +25939,22 @@ module.exports = function xhrAdapter(config) {
         }
 
         request.abort();
-        reject(cancel); // Clean up request
-
+        reject(cancel);
+        // Clean up request
         request = null;
       });
     }
 
     if (requestData === undefined) {
       requestData = null;
-    } // Send the request
+    }
 
-
+    // Send the request
     request.send(requestData);
   });
 };
-},{"./../utils":"../node_modules/axios/lib/utils.js","./../core/settle":"../node_modules/axios/lib/core/settle.js","./../helpers/buildURL":"../node_modules/axios/lib/helpers/buildURL.js","./../helpers/parseHeaders":"../node_modules/axios/lib/helpers/parseHeaders.js","./../helpers/isURLSameOrigin":"../node_modules/axios/lib/helpers/isURLSameOrigin.js","../core/createError":"../node_modules/axios/lib/core/createError.js","./../helpers/btoa":"../node_modules/axios/lib/helpers/btoa.js","./../helpers/cookies":"../node_modules/axios/lib/helpers/cookies.js"}],"../node_modules/process/browser.js":[function(require,module,exports) {
+
+},{"./../utils":"../node_modules/axios/lib/utils.js","./../core/settle":"../node_modules/axios/lib/core/settle.js","./../helpers/buildURL":"../node_modules/axios/lib/helpers/buildURL.js","./../helpers/parseHeaders":"../node_modules/axios/lib/helpers/parseHeaders.js","./../helpers/isURLSameOrigin":"../node_modules/axios/lib/helpers/isURLSameOrigin.js","../core/createError":"../node_modules/axios/lib/core/createError.js","./../helpers/cookies":"../node_modules/axios/lib/helpers/cookies.js"}],"../node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
@@ -26176,7 +26126,6 @@ Item.prototype.run = function () {
 };
 
 process.title = 'browser';
-process.browser = true;
 process.env = {};
 process.argv = [];
 process.version = ''; // empty string to avoid regexp issues
@@ -26970,9 +26919,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.add(2, 3);       //=>  5
  *      R.add(7)(10);      //=> 17
  */
-var add =
-/*#__PURE__*/
-(0, _curry.default)(function add(a, b) {
+var add = /*#__PURE__*/(0, _curry.default)(function add(a, b) {
   return Number(a) + Number(b);
 });
 var _default = add;
@@ -27202,9 +27149,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const g = f(3);
  *      g(4); //=> 10
  */
-var curryN =
-/*#__PURE__*/
-(0, _curry3.default)(function curryN(length, fn) {
+var curryN = /*#__PURE__*/(0, _curry3.default)(function curryN(length, fn) {
   if (length === 1) {
     return (0, _curry.default)(fn);
   }
@@ -27253,9 +27198,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      mapIndexed((val, idx) => idx + '-' + val, ['f', 'o', 'o', 'b', 'a', 'r']);
  *      //=> ['0-f', '1-o', '2-o', '3-b', '4-a', '5-r']
  */
-var addIndex =
-/*#__PURE__*/
-(0, _curry.default)(function addIndex(fn) {
+var addIndex = /*#__PURE__*/(0, _curry.default)(function addIndex(fn) {
   return (0, _curryN.default)(fn.length, function () {
     var idx = 0;
     var origFn = arguments[0];
@@ -27373,9 +27316,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.adjust(-1, f, [a, b]) = [a, f(b)]
  * @symb R.adjust(0, f, [a, b]) = [f(a), b]
  */
-var adjust =
-/*#__PURE__*/
-(0, _curry.default)(function adjust(idx, fn, list) {
+var adjust = /*#__PURE__*/(0, _curry.default)(function adjust(idx, fn, list) {
   if (idx >= list.length || idx < -list.length) {
     return list;
   }
@@ -27530,9 +27471,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XAll =
-/*#__PURE__*/
-function () {
+var XAll = /*#__PURE__*/function () {
   function XAll(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -27561,9 +27500,7 @@ function () {
   return XAll;
 }();
 
-var _xall =
-/*#__PURE__*/
-(0, _curry.default)(function _xall(f, xf) {
+var _xall = /*#__PURE__*/(0, _curry.default)(function _xall(f, xf) {
   return new XAll(f, xf);
 });
 
@@ -27609,11 +27546,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.all(equals3)([3, 3, 3, 3]); //=> true
  *      R.all(equals3)([3, 3, 1, 3]); //=> false
  */
-var all =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['all'], _xall2.default, function all(fn, list) {
+var all = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['all'], _xall2.default, function all(fn, list) {
   var idx = 0;
 
   while (idx < list.length) {
@@ -27657,9 +27590,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.max(789, 123); //=> 789
  *      R.max('a', 'b'); //=> 'b'
  */
-var max =
-/*#__PURE__*/
-(0, _curry.default)(function max(a, b) {
+var max = /*#__PURE__*/(0, _curry.default)(function max(a, b) {
   return b > a ? b : a;
 });
 var _default = max;
@@ -27728,9 +27659,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      _isArrayLike({length: 10}); //=> false
  *      _isArrayLike({0: 'zero', 9: 'nine', length: 10}); //=> true
  */
-var _isArrayLike =
-/*#__PURE__*/
-(0, _curry.default)(function isArrayLike(x) {
+var _isArrayLike = /*#__PURE__*/(0, _curry.default)(function isArrayLike(x) {
   if ((0, _isArray2.default)(x)) {
     return true;
   }
@@ -27772,9 +27701,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = _xwrap;
 
-var XWrap =
-/*#__PURE__*/
-function () {
+var XWrap = /*#__PURE__*/function () {
   function XWrap(fn) {
     this.f = fn;
   }
@@ -27833,9 +27760,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // logs {a: 2}
  * @symb R.bind(f, o)(a, b) = f.call(o, a, b)
  */
-var bind =
-/*#__PURE__*/
-(0, _curry.default)(function bind(fn, thisObj) {
+var bind = /*#__PURE__*/(0, _curry.default)(function bind(fn, thisObj) {
   return (0, _arity2.default)(fn.length, function () {
     return fn.apply(thisObj, arguments);
   });
@@ -27940,9 +27865,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XMap =
-/*#__PURE__*/
-function () {
+var XMap = /*#__PURE__*/function () {
   function XMap(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -27958,9 +27881,7 @@ function () {
   return XMap;
 }();
 
-var _xmap =
-/*#__PURE__*/
-(0, _curry.default)(function _xmap(f, xf) {
+var _xmap = /*#__PURE__*/(0, _curry.default)(function _xmap(f, xf) {
   return new XMap(f, xf);
 });
 
@@ -27991,9 +27912,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var toString = Object.prototype.toString;
 
-var _isArguments =
-/*#__PURE__*/
-function () {
+var _isArguments = /*#__PURE__*/function () {
   return toString.call(arguments) === '[object Arguments]' ? function _isArguments(x) {
     return toString.call(x) === '[object Arguments]';
   } : function _isArguments(x) {
@@ -28020,16 +27939,12 @@ var _isArguments2 = _interopRequireDefault(require("./internal/_isArguments.js")
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // cover IE < 9 keys issues
-var hasEnumBug = !
-/*#__PURE__*/
-{
+var hasEnumBug = ! /*#__PURE__*/{
   toString: null
 }.propertyIsEnumerable('toString');
 var nonEnumerableProps = ['constructor', 'valueOf', 'isPrototypeOf', 'toString', 'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString']; // Safari bug
 
-var hasArgsEnumBug =
-/*#__PURE__*/
-function () {
+var hasArgsEnumBug = /*#__PURE__*/function () {
   'use strict';
 
   return arguments.propertyIsEnumerable('length');
@@ -28068,13 +27983,9 @@ var contains = function contains(list, item) {
  */
 
 
-var keys = typeof Object.keys === 'function' && !hasArgsEnumBug ?
-/*#__PURE__*/
-(0, _curry.default)(function keys(obj) {
+var keys = typeof Object.keys === 'function' && !hasArgsEnumBug ? /*#__PURE__*/(0, _curry.default)(function keys(obj) {
   return Object(obj) !== obj ? [] : Object.keys(obj);
-}) :
-/*#__PURE__*/
-(0, _curry.default)(function keys(obj) {
+}) : /*#__PURE__*/(0, _curry.default)(function keys(obj) {
   if (Object(obj) !== obj) {
     return [];
   }
@@ -28166,11 +28077,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.map(f, { x: a, y: b }) = { x: f(a), y: f(b) }
  * @symb R.map(f, functor_o) = functor_o.map(f)
  */
-var map =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['fantasy-land/map', 'map'], _xmap2.default, function map(fn, functor) {
+var map = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['fantasy-land/map', 'map'], _xmap2.default, function map(fn, functor) {
   switch (Object.prototype.toString.call(functor)) {
     case '[object Function]':
       return (0, _curryN.default)(functor.length, function () {
@@ -28219,9 +28126,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.path(['a', 'b'], {a: {b: 2}}); //=> 2
  *      R.path(['a', 'b'], {c: {b: 2}}); //=> undefined
  */
-var path =
-/*#__PURE__*/
-(0, _curry.default)(function path(paths, obj) {
+var path = /*#__PURE__*/(0, _curry.default)(function path(paths, obj) {
   var val = obj;
   var idx = 0;
 
@@ -28271,9 +28176,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.prop('x', {}); //=> undefined
  *      R.compose(R.inc, R.prop('x'))({ x: 3 }) //=> 4
  */
-var prop =
-/*#__PURE__*/
-(0, _curry.default)(function prop(p, obj) {
+var prop = /*#__PURE__*/(0, _curry.default)(function prop(p, obj) {
   return (0, _path.default)([p], obj);
 });
 var _default = prop;
@@ -28321,9 +28224,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.pluck('x', [{x: 1, y: 2}, {x: 3, y: 4}, {x: 5, y: 6}]) = [1, 3, 5]
  * @symb R.pluck(0, [[1, 2], [3, 4], [5, 6]]) = [1, 3, 5]
  */
-var pluck =
-/*#__PURE__*/
-(0, _curry.default)(function pluck(p, list) {
+var pluck = /*#__PURE__*/(0, _curry.default)(function pluck(p, list) {
   return (0, _map.default)((0, _prop.default)(p), list);
 });
 var _default = pluck;
@@ -28388,9 +28289,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @symb R.reduce(f, a, [b, c, d]) = f(f(f(a, b), c), d)
  */
-var reduce =
-/*#__PURE__*/
-(0, _curry.default)(_reduce2.default);
+var reduce = /*#__PURE__*/(0, _curry.default)(_reduce2.default);
 var _default = reduce;
 exports.default = _default;
 },{"./internal/_curry3.js":"../node_modules/ramda/es/internal/_curry3.js","./internal/_reduce.js":"../node_modules/ramda/es/internal/_reduce.js"}],"../node_modules/ramda/es/allPass.js":[function(require,module,exports) {
@@ -28438,9 +28337,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      isQueenOfSpades({rank: 'Q', suit: '♣︎'}); //=> false
  *      isQueenOfSpades({rank: 'Q', suit: '♠︎'}); //=> true
  */
-var allPass =
-/*#__PURE__*/
-(0, _curry.default)(function allPass(preds) {
+var allPass = /*#__PURE__*/(0, _curry.default)(function allPass(preds) {
   return (0, _curryN.default)((0, _reduce.default)(_max.default, 0, (0, _pluck.default)('length', preds)), function () {
     var idx = 0;
     var len = preds.length;
@@ -28489,9 +28386,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const t = R.always('Tee');
  *      t(); //=> 'Tee'
  */
-var always =
-/*#__PURE__*/
-(0, _curry.default)(function always(val) {
+var always = /*#__PURE__*/(0, _curry.default)(function always(val) {
   return function () {
     return val;
   };
@@ -28529,9 +28424,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.and(false, true); //=> false
  *      R.and(false, false); //=> false
  */
-var and =
-/*#__PURE__*/
-(0, _curry.default)(function and(a, b) {
+var and = /*#__PURE__*/(0, _curry.default)(function and(a, b) {
   return a && b;
 });
 var _default = and;
@@ -28552,9 +28445,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XAny =
-/*#__PURE__*/
-function () {
+var XAny = /*#__PURE__*/function () {
   function XAny(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -28583,9 +28474,7 @@ function () {
   return XAny;
 }();
 
-var _xany =
-/*#__PURE__*/
-(0, _curry.default)(function _xany(f, xf) {
+var _xany = /*#__PURE__*/(0, _curry.default)(function _xany(f, xf) {
   return new XAny(f, xf);
 });
 
@@ -28632,11 +28521,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.any(lessThan0)([1, 2]); //=> false
  *      R.any(lessThan2)([1, 2]); //=> true
  */
-var any =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['any'], _xany2.default, function any(fn, list) {
+var any = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['any'], _xany2.default, function any(fn, list) {
   var idx = 0;
 
   while (idx < list.length) {
@@ -28697,9 +28582,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      isBlackCard({rank: 'Q', suit: '♠'}); //=> true
  *      isBlackCard({rank: 'Q', suit: '♦'}); //=> false
  */
-var anyPass =
-/*#__PURE__*/
-(0, _curry.default)(function anyPass(preds) {
+var anyPass = /*#__PURE__*/(0, _curry.default)(function anyPass(preds) {
   return (0, _curryN.default)((0, _reduce.default)(_max.default, 0, (0, _pluck.default)('length', preds)), function () {
     var idx = 0;
     var len = preds.length;
@@ -28761,9 +28644,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.ap(R.concat, R.toUpper)('Ramda') //=> 'RamdaRAMDA'
  * @symb R.ap([f, g], [a, b]) = [f(a), f(b), g(a), g(b)]
  */
-var ap =
-/*#__PURE__*/
-(0, _curry.default)(function ap(applyF, applyX) {
+var ap = /*#__PURE__*/(0, _curry.default)(function ap(applyF, applyX) {
   return typeof applyX['fantasy-land/ap'] === 'function' ? applyX['fantasy-land/ap'](applyF) : typeof applyF.ap === 'function' ? applyF.ap(applyX) : typeof applyF === 'function' ? function (x) {
     return applyF(x)(applyX(x));
   } : (0, _reduce2.default)(function (acc, f) {
@@ -28808,9 +28689,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XAperture =
-/*#__PURE__*/
-function () {
+var XAperture = /*#__PURE__*/function () {
   function XAperture(n, xf) {
     this.xf = xf;
     this.pos = 0;
@@ -28847,9 +28726,7 @@ function () {
   return XAperture;
 }();
 
-var _xaperture =
-/*#__PURE__*/
-(0, _curry.default)(function _xaperture(n, xf) {
+var _xaperture = /*#__PURE__*/(0, _curry.default)(function _xaperture(n, xf) {
   return new XAperture(n, xf);
 });
 
@@ -28894,11 +28771,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.aperture(3, [1, 2, 3, 4, 5]); //=> [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
  *      R.aperture(7, [1, 2, 3, 4, 5]); //=> []
  */
-var aperture =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xaperture2.default, _aperture2.default));
+var aperture = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xaperture2.default, _aperture2.default));
 var _default = aperture;
 exports.default = _default;
 },{"./internal/_aperture.js":"../node_modules/ramda/es/internal/_aperture.js","./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js","./internal/_dispatchable.js":"../node_modules/ramda/es/internal/_dispatchable.js","./internal/_xaperture.js":"../node_modules/ramda/es/internal/_xaperture.js"}],"../node_modules/ramda/es/append.js":[function(require,module,exports) {
@@ -28935,9 +28808,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.append('tests', []); //=> ['tests']
  *      R.append(['tests'], ['write', 'more']); //=> ['write', 'more', ['tests']]
  */
-var append =
-/*#__PURE__*/
-(0, _curry.default)(function append(el, list) {
+var append = /*#__PURE__*/(0, _curry.default)(function append(el, list) {
   return (0, _concat2.default)(list, [el]);
 });
 var _default = append;
@@ -28974,9 +28845,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.apply(Math.max, nums); //=> 42
  * @symb R.apply(f, [a, b, c]) = f(a, b, c)
  */
-var apply =
-/*#__PURE__*/
-(0, _curry.default)(function apply(fn, args) {
+var apply = /*#__PURE__*/(0, _curry.default)(function apply(fn, args) {
   return fn.apply(this, args);
 });
 var _default = apply;
@@ -29012,9 +28881,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.values({a: 1, b: 2, c: 3}); //=> [1, 2, 3]
  */
-var values =
-/*#__PURE__*/
-(0, _curry.default)(function values(obj) {
+var values = /*#__PURE__*/(0, _curry.default)(function values(obj) {
   var props = (0, _keys.default)(obj);
   var len = props.length;
   var vals = [];
@@ -29090,9 +28957,7 @@ function mapValues(fn, obj) {
  */
 
 
-var applySpec =
-/*#__PURE__*/
-(0, _curry.default)(function applySpec(spec) {
+var applySpec = /*#__PURE__*/(0, _curry.default)(function applySpec(spec) {
   spec = mapValues(function (v) {
     return typeof v == 'function' ? v : applySpec(v);
   }, spec);
@@ -29136,9 +29001,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      t42(R.identity); //=> 42
  *      t42(R.add(1)); //=> 43
  */
-var applyTo =
-/*#__PURE__*/
-(0, _curry.default)(function applyTo(x, f) {
+var applyTo = /*#__PURE__*/(0, _curry.default)(function applyTo(x, f) {
   return f(x);
 });
 var _default = applyTo;
@@ -29180,9 +29043,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const peopleByYoungestFirst = R.sort(byAge, people);
  *        //=> [{ name: 'Mikhail', age: 62 },{ name: 'Emma', age: 70 }, { name: 'Peter', age: 78 }]
  */
-var ascend =
-/*#__PURE__*/
-(0, _curry.default)(function ascend(fn, a, b) {
+var ascend = /*#__PURE__*/(0, _curry.default)(function ascend(fn, a, b) {
   var aa = fn(a);
   var bb = fn(b);
   return aa < bb ? -1 : aa > bb ? 1 : 0;
@@ -29221,9 +29082,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.assoc('c', 3, {a: 1, b: 2}); //=> {a: 1, b: 2, c: 3}
  */
-var assoc =
-/*#__PURE__*/
-(0, _curry.default)(function assoc(prop, val, obj) {
+var assoc = /*#__PURE__*/(0, _curry.default)(function assoc(prop, val, obj) {
   var result = {};
 
   for (var p in obj) {
@@ -29285,9 +29144,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.isNil(0); //=> false
  *      R.isNil([]); //=> false
  */
-var isNil =
-/*#__PURE__*/
-(0, _curry.default)(function isNil(x) {
+var isNil = /*#__PURE__*/(0, _curry.default)(function isNil(x) {
   return x == null;
 });
 var _default = isNil;
@@ -29338,9 +29195,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // Any missing or non-object keys in path will be overridden
  *      R.assocPath(['a', 'b', 'c'], 42, {a: 5}); //=> {a: {b: {c: 42}}}
  */
-var assocPath =
-/*#__PURE__*/
-(0, _curry.default)(function assocPath(path, val, obj) {
+var assocPath = /*#__PURE__*/(0, _curry.default)(function assocPath(path, val, obj) {
   if (path.length === 0) {
     return val;
   }
@@ -29404,9 +29259,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.nAry(1, f)(a, b) = f(a)
  * @symb R.nAry(2, f)(a, b) = f(a, b)
  */
-var nAry =
-/*#__PURE__*/
-(0, _curry.default)(function nAry(n, fn) {
+var nAry = /*#__PURE__*/(0, _curry.default)(function nAry(n, fn) {
   switch (n) {
     case 0:
       return function () {
@@ -29511,9 +29364,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      takesTwoArgs(1, 2, 3); //=> [1, 2, undefined]
  * @symb R.binary(f)(a, b, c) = f(a, b)
  */
-var binary =
-/*#__PURE__*/
-(0, _curry.default)(function binary(fn) {
+var binary = /*#__PURE__*/(0, _curry.default)(function binary(fn) {
   return (0, _nAry.default)(2, fn);
 });
 var _default = binary;
@@ -29566,9 +29417,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const madd3 = R.liftN(3, (...args) => R.sum(args));
  *      madd3([1,2,3], [1,2,3], [1]); //=> [3, 4, 5, 4, 5, 6, 5, 6, 7]
  */
-var liftN =
-/*#__PURE__*/
-(0, _curry.default)(function liftN(arity, fn) {
+var liftN = /*#__PURE__*/(0, _curry.default)(function liftN(arity, fn) {
   var lifted = (0, _curryN.default)(arity, fn);
   return (0, _curryN.default)(arity, function () {
     return (0, _reduce2.default)(_ap.default, (0, _map.default)(lifted, arguments[0]), Array.prototype.slice.call(arguments, 1));
@@ -29612,9 +29461,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      madd5([1,2], [3], [4, 5], [6], [7, 8]); //=> [21, 22, 22, 23, 22, 23, 23, 24]
  */
-var lift =
-/*#__PURE__*/
-(0, _curry.default)(function lift(fn) {
+var lift = /*#__PURE__*/(0, _curry.default)(function lift(fn) {
   return (0, _liftN.default)(fn.length, fn);
 });
 var _default = lift;
@@ -29668,9 +29515,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.both(Maybe.Just(false), Maybe.Just(55)); // => Maybe.Just(false)
  *      R.both([false, false, 'a'], [11]); //=> [false, false, 11]
  */
-var both =
-/*#__PURE__*/
-(0, _curry.default)(function both(f, g) {
+var both = /*#__PURE__*/(0, _curry.default)(function both(f, g) {
   return (0, _isFunction2.default)(f) ? function _both() {
     return f.apply(this, arguments) && g.apply(this, arguments);
   } : (0, _lift.default)(_and.default)(f, g);
@@ -29732,9 +29577,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const g = f(3);
  *      g(4); //=> 10
  */
-var curry =
-/*#__PURE__*/
-(0, _curry.default)(function curry(fn) {
+var curry = /*#__PURE__*/(0, _curry.default)(function curry(fn) {
   return (0, _curryN.default)(fn.length, fn);
 });
 var _default = curry;
@@ -29783,9 +29626,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      format({indent: 2, value: 'foo\nbar\nbaz\n'}); //=> '  foo\n  bar\n  baz\n'
  * @symb R.call(f, a, b) = f(a, b)
  */
-var call =
-/*#__PURE__*/
-(0, _curry.default)(function call(fn) {
+var call = /*#__PURE__*/(0, _curry.default)(function call(fn) {
   return fn.apply(this, Array.prototype.slice.call(arguments, 1));
 });
 var _default = call;
@@ -29911,9 +29752,7 @@ var _map = _interopRequireDefault(require("../map.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _xchain =
-/*#__PURE__*/
-(0, _curry.default)(function _xchain(f, xf) {
+var _xchain = /*#__PURE__*/(0, _curry.default)(function _xchain(f, xf) {
   return (0, _map.default)(f, (0, _flatCat2.default)(xf));
 });
 
@@ -29965,11 +29804,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.chain(R.append, R.head)([1, 2, 3]); //=> [1, 2, 3, 1]
  */
-var chain =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['fantasy-land/chain', 'chain'], _xchain2.default, function chain(fn, monad) {
+var chain = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['fantasy-land/chain', 'chain'], _xchain2.default, function chain(fn, monad) {
   if (typeof monad === 'function') {
     return function (x) {
       return fn(monad(x))(x);
@@ -30012,9 +29847,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.clamp(1, 10, 15) // => 10
  *      R.clamp(1, 10, 4)  // => 4
  */
-var clamp =
-/*#__PURE__*/
-(0, _curry.default)(function clamp(min, max, value) {
+var clamp = /*#__PURE__*/(0, _curry.default)(function clamp(min, max, value) {
   if (min > max) {
     throw new Error('min must not be greater than max in clamp(min, max, value)');
   }
@@ -30071,9 +29904,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.type(() => {}); //=> "Function"
  *      R.type(undefined); //=> "Undefined"
  */
-var type =
-/*#__PURE__*/
-(0, _curry.default)(function type(val) {
+var type = /*#__PURE__*/(0, _curry.default)(function type(val) {
   return val === null ? 'Null' : val === undefined ? 'Undefined' : Object.prototype.toString.call(val).slice(8, -1);
 });
 var _default = type;
@@ -30177,9 +30008,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      objects === objectsClone; //=> false
  *      objects[0] === objectsClone[0]; //=> false
  */
-var clone =
-/*#__PURE__*/
-(0, _curry.default)(function clone(value) {
+var clone = /*#__PURE__*/(0, _curry.default)(function clone(value) {
   return value != null && typeof value.clone === 'function' ? value.clone() : (0, _clone2.default)(value, [], [], true);
 });
 var _default = clone;
@@ -30219,9 +30048,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const peopleByIncreasingAge = R.sort(byAge, people);
  *        //=> [{ name: 'Mikhail', age: 62 },{ name: 'Emma', age: 70 }, { name: 'Peter', age: 78 }]
  */
-var comparator =
-/*#__PURE__*/
-(0, _curry.default)(function comparator(pred) {
+var comparator = /*#__PURE__*/(0, _curry.default)(function comparator(pred) {
   return function (a, b) {
     return pred(a, b) ? -1 : pred(b, a) ? 1 : 0;
   };
@@ -30259,9 +30086,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.not(0); //=> true
  *      R.not(1); //=> false
  */
-var not =
-/*#__PURE__*/
-(0, _curry.default)(function not(a) {
+var not = /*#__PURE__*/(0, _curry.default)(function not(a) {
   return !a;
 });
 var _default = not;
@@ -30302,9 +30127,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      isNil(7); //=> false
  *      isNotNil(7); //=> true
  */
-var complement =
-/*#__PURE__*/
-(0, _lift.default)(_not.default);
+var complement = /*#__PURE__*/(0, _lift.default)(_not.default);
 var _default = complement;
 exports.default = _default;
 },{"./lift.js":"../node_modules/ramda/es/lift.js","./not.js":"../node_modules/ramda/es/not.js"}],"../node_modules/ramda/es/internal/_pipe.js":[function(require,module,exports) {
@@ -30392,11 +30215,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.slice(-3, -1, ['a', 'b', 'c', 'd']);      //=> ['b', 'c']
  *      R.slice(0, 3, 'ramda');                     //=> 'ram'
  */
-var slice =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _checkForMethod2.default)('slice', function slice(fromIndex, toIndex, list) {
+var slice = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _checkForMethod2.default)('slice', function slice(fromIndex, toIndex, list) {
   return Array.prototype.slice.call(list, fromIndex, toIndex);
 }));
 var _default = slice;
@@ -30444,13 +30263,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.tail('a');    //=> ''
  *      R.tail('');     //=> ''
  */
-var tail =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _checkForMethod2.default)('tail',
-/*#__PURE__*/
-(0, _slice.default)(1, Infinity)));
+var tail = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _checkForMethod2.default)('tail', /*#__PURE__*/(0, _slice.default)(1, Infinity)));
 var _default = tail;
 exports.default = _default;
 },{"./internal/_checkForMethod.js":"../node_modules/ramda/es/internal/_checkForMethod.js","./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./slice.js":"../node_modules/ramda/es/slice.js"}],"../node_modules/ramda/es/pipe.js":[function(require,module,exports) {
@@ -30539,9 +30352,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.reverse('a');        //=> 'a'
  *      R.reverse('');         //=> ''
  */
-var reverse =
-/*#__PURE__*/
-(0, _curry.default)(function reverse(list) {
+var reverse = /*#__PURE__*/(0, _curry.default)(function reverse(list) {
   return (0, _isString2.default)(list) ? list.split('').reverse().join('') : Array.prototype.slice.call(list, 0).reverse();
 });
 var _default = reverse;
@@ -30803,9 +30614,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.nth(0, [a, b, c]) = a
  * @symb R.nth(1, [a, b, c]) = b
  */
-var nth =
-/*#__PURE__*/
-(0, _curry.default)(function nth(offset, list) {
+var nth = /*#__PURE__*/(0, _curry.default)(function nth(offset, list) {
   var idx = offset < 0 ? list.length + offset : offset;
   return (0, _isString2.default)(list) ? list.charAt(idx) : list[idx];
 });
@@ -30844,9 +30653,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.head('abc'); //=> 'a'
  *      R.head(''); //=> ''
  */
-var head =
-/*#__PURE__*/
-(0, _nth.default)(0);
+var head = /*#__PURE__*/(0, _nth.default)(0);
 var _default = head;
 exports.default = _default;
 },{"./nth.js":"../node_modules/ramda/es/nth.js"}],"../node_modules/ramda/es/internal/_identity.js":[function(require,module,exports) {
@@ -30893,9 +30700,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.identity(obj) === obj; //=> true
  * @symb R.identity(a) = a
  */
-var identity =
-/*#__PURE__*/
-(0, _curry.default)(_identity2.default);
+var identity = /*#__PURE__*/(0, _curry.default)(_identity2.default);
 var _default = identity;
 exports.default = _default;
 },{"./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./internal/_identity.js":"../node_modules/ramda/es/internal/_identity.js"}],"../node_modules/ramda/es/pipeWith.js":[function(require,module,exports) {
@@ -30941,9 +30746,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      f(3, 4); // -(3^4) + 1
  * @symb R.pipeWith(f)([g, h, i])(...args) = f(i, f(h, f(g, ...args)))
  */
-var pipeWith =
-/*#__PURE__*/
-(0, _curry.default)(function pipeWith(xf, list) {
+var pipeWith = /*#__PURE__*/(0, _curry.default)(function pipeWith(xf, list) {
   if (list.length <= 0) {
     return _identity.default;
   }
@@ -30996,9 +30799,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @symb R.composeWith(f)([g, h, i])(...args) = f(g, f(h, f(i, ...args)))
  */
-var composeWith =
-/*#__PURE__*/
-(0, _curry.default)(function composeWith(xf, list) {
+var composeWith = /*#__PURE__*/(0, _curry.default)(function composeWith(xf, list) {
   return _pipeWith.default.apply(this, [xf, (0, _reverse.default)(list)]);
 });
 var _default = composeWith;
@@ -31300,9 +31101,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const b = {}; b.v = b;
  *      R.equals(a, b); //=> true
  */
-var equals =
-/*#__PURE__*/
-(0, _curry.default)(function equals(a, b) {
+var equals = /*#__PURE__*/(0, _curry.default)(function equals(a, b) {
   return (0, _equals2.default)(a, b, [], []);
 });
 var _default = equals;
@@ -31497,9 +31296,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XFilter =
-/*#__PURE__*/
-function () {
+var XFilter = /*#__PURE__*/function () {
   function XFilter(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -31515,9 +31312,7 @@ function () {
   return XFilter;
 }();
 
-var _xfilter =
-/*#__PURE__*/
-(0, _curry.default)(function _xfilter(f, xf) {
+var _xfilter = /*#__PURE__*/(0, _curry.default)(function _xfilter(f, xf) {
   return new XFilter(f, xf);
 });
 
@@ -31574,11 +31369,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.filter(isEven, {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, d: 4}
  */
-var filter =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['filter'], _xfilter2.default, function (pred, filterable) {
+var filter = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['filter'], _xfilter2.default, function (pred, filterable) {
   return (0, _isObject2.default)(filterable) ? (0, _reduce2.default)(function (acc, key) {
     if (pred(filterable[key])) {
       acc[key] = filterable[key];
@@ -31630,9 +31421,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.reject(isOdd, {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, d: 4}
  */
-var reject =
-/*#__PURE__*/
-(0, _curry.default)(function reject(pred, filterable) {
+var reject = /*#__PURE__*/(0, _curry.default)(function reject(pred, filterable) {
   return (0, _filter.default)((0, _complement2.default)(pred), filterable);
 });
 var _default = reject;
@@ -31761,9 +31550,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.toString({foo: 1, bar: 2, baz: 3}); //=> '{"bar": 2, "baz": 3, "foo": 1}'
  *      R.toString(new Date('2001-02-03T04:05:06Z')); //=> 'new Date("2001-02-03T04:05:06.000Z")'
  */
-var toString =
-/*#__PURE__*/
-(0, _curry.default)(function toString(val) {
+var toString = /*#__PURE__*/(0, _curry.default)(function toString(val) {
   return (0, _toString2.default)(val, []);
 });
 var _default = toString;
@@ -31816,9 +31603,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.concat([4, 5, 6], [1, 2, 3]); //=> [4, 5, 6, 1, 2, 3]
  *      R.concat([], []); //=> []
  */
-var concat =
-/*#__PURE__*/
-(0, _curry.default)(function concat(a, b) {
+var concat = /*#__PURE__*/(0, _curry.default)(function concat(a, b) {
   if ((0, _isArray2.default)(a)) {
     if ((0, _isArray2.default)(b)) {
       return a.concat(b);
@@ -31894,9 +31679,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      fn(50); //=> 'nothing special happens at 50°C'
  *      fn(100); //=> 'water boils at 100°C'
  */
-var cond =
-/*#__PURE__*/
-(0, _curry.default)(function cond(pairs) {
+var cond = /*#__PURE__*/(0, _curry.default)(function cond(pairs) {
   var arity = (0, _reduce.default)(_max.default, 0, (0, _map.default)(function (pair) {
     return pair[0].length;
   }, pairs));
@@ -31965,9 +31748,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // Add a dollop of Potato Chips
  *      // Add a dollop of Ketchup
  */
-var constructN =
-/*#__PURE__*/
-(0, _curry.default)(function constructN(n, Fn) {
+var constructN = /*#__PURE__*/(0, _curry.default)(function constructN(n, Fn) {
   if (n > 10) {
     throw new Error('Constructor with greater than ten arguments');
   }
@@ -32060,9 +31841,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const sightNewAnimal = R.compose(animalSighting, AnimalConstructor);
  *      R.map(sightNewAnimal, animalTypes); //=> ["It's a Lion!", "It's a Tiger!", "It's a Bear!"]
  */
-var construct =
-/*#__PURE__*/
-(0, _curry.default)(function construct(Fn) {
+var construct = /*#__PURE__*/(0, _curry.default)(function construct(Fn) {
   return (0, _constructN.default)(Fn.length, Fn);
 });
 var _default = construct;
@@ -32104,9 +31883,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.contains([42], [[42]]); //=> true
  *      R.contains('ba', 'banana'); //=>true
  */
-var contains =
-/*#__PURE__*/
-(0, _curry.default)(_includes2.default);
+var contains = /*#__PURE__*/(0, _curry.default)(_includes2.default);
 var _default = contains;
 exports.default = _default;
 },{"./internal/_includes.js":"../node_modules/ramda/es/internal/_includes.js","./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js"}],"../node_modules/ramda/es/converge.js":[function(require,module,exports) {
@@ -32159,9 +31936,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @symb R.converge(f, [g, h])(a, b) = f(g(a, b), h(a, b))
  */
-var converge =
-/*#__PURE__*/
-(0, _curry.default)(function converge(after, fns) {
+var converge = /*#__PURE__*/(0, _curry.default)(function converge(after, fns) {
   return (0, _curryN.default)((0, _reduce.default)(_max.default, 0, (0, _pluck.default)('length', fns)), function () {
     var args = arguments;
     var context = this;
@@ -32188,9 +31963,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XReduceBy =
-/*#__PURE__*/
-function () {
+var XReduceBy = /*#__PURE__*/function () {
   function XReduceBy(valueFn, valueAcc, keyFn, xf) {
     this.valueFn = valueFn;
     this.valueAcc = valueAcc;
@@ -32229,9 +32002,7 @@ function () {
   return XReduceBy;
 }();
 
-var _xreduceBy =
-/*#__PURE__*/
-(0, _curryN2.default)(4, [], function _xreduceBy(valueFn, valueAcc, keyFn, xf) {
+var _xreduceBy = /*#__PURE__*/(0, _curryN2.default)(4, [], function _xreduceBy(valueFn, valueAcc, keyFn, xf) {
   return new XReduceBy(valueFn, valueAcc, keyFn, xf);
 });
 
@@ -32298,11 +32069,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      reduceBy(groupNames, [], toGrade, students)
  *      //=> {"A": ["Dora"], "B": ["Abby", "Curt"], "F": ["Bart"]}
  */
-var reduceBy =
-/*#__PURE__*/
-(0, _curryN2.default)(4, [],
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xreduceBy2.default, function reduceBy(valueFn, valueAcc, keyFn, list) {
+var reduceBy = /*#__PURE__*/(0, _curryN2.default)(4, [], /*#__PURE__*/(0, _dispatchable2.default)([], _xreduceBy2.default, function reduceBy(valueFn, valueAcc, keyFn, list) {
   return (0, _reduce2.default)(function (acc, elt) {
     var key = keyFn(elt);
     acc[key] = valueFn((0, _has2.default)(key, acc) ? acc[key] : valueAcc, elt);
@@ -32347,9 +32114,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const letters = ['a', 'b', 'A', 'a', 'B', 'c'];
  *      R.countBy(R.toLower)(letters);   //=> {'a': 3, 'b': 2, 'c': 1}
  */
-var countBy =
-/*#__PURE__*/
-(0, _reduceBy.default)(function (acc, elem) {
+var countBy = /*#__PURE__*/(0, _reduceBy.default)(function (acc, elem) {
   return acc + 1;
 }, 0);
 var _default = countBy;
@@ -32381,9 +32146,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.dec(42); //=> 41
  */
-var dec =
-/*#__PURE__*/
-(0, _add.default)(-1);
+var dec = /*#__PURE__*/(0, _add.default)(-1);
 var _default = dec;
 exports.default = _default;
 },{"./add.js":"../node_modules/ramda/es/add.js"}],"../node_modules/ramda/es/defaultTo.js":[function(require,module,exports) {
@@ -32421,9 +32184,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // parseInt('string') results in NaN
  *      defaultTo42(parseInt('string')); //=> 42
  */
-var defaultTo =
-/*#__PURE__*/
-(0, _curry.default)(function defaultTo(d, v) {
+var defaultTo = /*#__PURE__*/(0, _curry.default)(function defaultTo(d, v) {
   return v == null || v !== v ? d : v;
 });
 var _default = defaultTo;
@@ -32465,9 +32226,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const peopleByOldestFirst = R.sort(byAge, people);
  *        //=> [{ name: 'Peter', age: 78 }, { name: 'Emma', age: 70 }, { name: 'Mikhail', age: 62 }]
  */
-var descend =
-/*#__PURE__*/
-(0, _curry.default)(function descend(fn, a, b) {
+var descend = /*#__PURE__*/(0, _curry.default)(function descend(fn, a, b) {
   var aa = fn(a);
   var bb = fn(b);
   return aa > bb ? -1 : aa < bb ? 1 : 0;
@@ -32486,9 +32245,7 @@ var _includes2 = _interopRequireDefault(require("./_includes.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _Set =
-/*#__PURE__*/
-function () {
+var _Set = /*#__PURE__*/function () {
   function _Set() {
     /* globals Set */
     this._nativeSet = typeof Set === 'function' ? new Set() : null;
@@ -32720,9 +32477,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.difference([7,6,5,4,3], [1,2,3,4]); //=> [7,6,5]
  *      R.difference([{a: 1}, {b: 2}], [{a: 1}, {c: 3}]) //=> [{b: 2}]
  */
-var difference =
-/*#__PURE__*/
-(0, _curry.default)(function difference(first, second) {
+var difference = /*#__PURE__*/(0, _curry.default)(function difference(first, second) {
   var out = [];
   var idx = 0;
   var firstLen = first.length;
@@ -32781,9 +32536,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const l2 = [{a: 3}, {a: 4}];
  *      R.differenceWith(cmp, l1, l2); //=> [{a: 1}, {a: 2}]
  */
-var differenceWith =
-/*#__PURE__*/
-(0, _curry.default)(function differenceWith(pred, first, second) {
+var differenceWith = /*#__PURE__*/(0, _curry.default)(function differenceWith(pred, first, second) {
   var out = [];
   var idx = 0;
   var firstLen = first.length;
@@ -32828,9 +32581,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.dissoc('b', {a: 1, b: 2, c: 3}); //=> {a: 1, c: 3}
  */
-var dissoc =
-/*#__PURE__*/
-(0, _curry.default)(function dissoc(prop, obj) {
+var dissoc = /*#__PURE__*/(0, _curry.default)(function dissoc(prop, obj) {
   var result = {};
 
   for (var p in obj) {
@@ -32874,9 +32625,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.remove(2, 3, [1,2,3,4,5,6,7,8]); //=> [1,2,6,7,8]
  */
-var remove =
-/*#__PURE__*/
-(0, _curry.default)(function remove(start, count, list) {
+var remove = /*#__PURE__*/(0, _curry.default)(function remove(start, count, list) {
   var result = Array.prototype.slice.call(list, 0);
   result.splice(start, count);
   return result;
@@ -32921,9 +32670,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.update(0, a, [b, c]) = [a, c]
  * @symb R.update(1, a, [b, c]) = [b, a]
  */
-var update =
-/*#__PURE__*/
-(0, _curry.default)(function update(idx, x, list) {
+var update = /*#__PURE__*/(0, _curry.default)(function update(idx, x, list) {
   return (0, _adjust.default)(idx, (0, _always.default)(x), list);
 });
 var _default = update;
@@ -32971,9 +32718,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.dissocPath(['a', 'b', 'c'], {a: {b: {c: 42}}}); //=> {a: {b: {}}}
  */
-var dissocPath =
-/*#__PURE__*/
-(0, _curry.default)(function dissocPath(path, obj) {
+var dissocPath = /*#__PURE__*/(0, _curry.default)(function dissocPath(path, obj) {
   switch (path.length) {
     case 0:
       return obj;
@@ -33031,9 +32776,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const reciprocal = R.divide(1);
  *      reciprocal(4);   //=> 0.25
  */
-var divide =
-/*#__PURE__*/
-(0, _curry.default)(function divide(a, b) {
+var divide = /*#__PURE__*/(0, _curry.default)(function divide(a, b) {
   return a / b;
 });
 var _default = divide;
@@ -33052,9 +32795,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XDrop =
-/*#__PURE__*/
-function () {
+var XDrop = /*#__PURE__*/function () {
   function XDrop(n, xf) {
     this.xf = xf;
     this.n = n;
@@ -33075,9 +32816,7 @@ function () {
   return XDrop;
 }();
 
-var _xdrop =
-/*#__PURE__*/
-(0, _curry.default)(function _xdrop(n, xf) {
+var _xdrop = /*#__PURE__*/(0, _curry.default)(function _xdrop(n, xf) {
   return new XDrop(n, xf);
 });
 
@@ -33125,11 +32864,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.drop(4, ['foo', 'bar', 'baz']); //=> []
  *      R.drop(3, 'ramda');               //=> 'da'
  */
-var drop =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['drop'], _xdrop2.default, function drop(n, xs) {
+var drop = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['drop'], _xdrop2.default, function drop(n, xs) {
   return (0, _slice.default)(Math.max(0, n), Infinity, xs);
 }));
 var _default = drop;
@@ -33150,9 +32885,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XTake =
-/*#__PURE__*/
-function () {
+var XTake = /*#__PURE__*/function () {
   function XTake(n, xf) {
     this.xf = xf;
     this.n = n;
@@ -33171,9 +32904,7 @@ function () {
   return XTake;
 }();
 
-var _xtake =
-/*#__PURE__*/
-(0, _curry.default)(function _xtake(n, xf) {
+var _xtake = /*#__PURE__*/(0, _curry.default)(function _xtake(n, xf) {
   return new XTake(n, xf);
 });
 
@@ -33240,11 +32971,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.take(1, [a, b]) = [a]
  * @symb R.take(2, [a, b]) = [a, b]
  */
-var take =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['take'], _xtake2.default, function take(n, xs) {
+var take = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['take'], _xtake2.default, function take(n, xs) {
   return (0, _slice.default)(0, n < 0 ? Infinity : n, xs);
 }));
 var _default = take;
@@ -33278,9 +33005,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XDropLast =
-/*#__PURE__*/
-function () {
+var XDropLast = /*#__PURE__*/function () {
   function XDropLast(n, xf) {
     this.xf = xf;
     this.pos = 0;
@@ -33317,9 +33042,7 @@ function () {
   return XDropLast;
 }();
 
-var _xdropLast =
-/*#__PURE__*/
-(0, _curry.default)(function _xdropLast(n, xf) {
+var _xdropLast = /*#__PURE__*/(0, _curry.default)(function _xdropLast(n, xf) {
   return new XDropLast(n, xf);
 });
 
@@ -33366,11 +33089,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.dropLast(4, ['foo', 'bar', 'baz']); //=> []
  *      R.dropLast(3, 'ramda');               //=> 'ra'
  */
-var dropLast =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xdropLast2.default, _dropLast2.default));
+var dropLast = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xdropLast2.default, _dropLast2.default));
 var _default = dropLast;
 exports.default = _default;
 },{"./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js","./internal/_dispatchable.js":"../node_modules/ramda/es/internal/_dispatchable.js","./internal/_dropLast.js":"../node_modules/ramda/es/internal/_dropLast.js","./internal/_xdropLast.js":"../node_modules/ramda/es/internal/_xdropLast.js"}],"../node_modules/ramda/es/internal/_dropLastWhile.js":[function(require,module,exports) {
@@ -33410,9 +33129,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XDropLastWhile =
-/*#__PURE__*/
-function () {
+var XDropLastWhile = /*#__PURE__*/function () {
   function XDropLastWhile(fn, xf) {
     this.f = fn;
     this.retained = [];
@@ -33444,9 +33161,7 @@ function () {
   return XDropLastWhile;
 }();
 
-var _xdropLastWhile =
-/*#__PURE__*/
-(0, _curry.default)(function _xdropLastWhile(fn, xf) {
+var _xdropLastWhile = /*#__PURE__*/(0, _curry.default)(function _xdropLastWhile(fn, xf) {
   return new XDropLastWhile(fn, xf);
 });
 
@@ -33497,11 +33212,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.dropLastWhile(x => x !== 'd' , 'Ramda'); //=> 'Ramd'
  */
-var dropLastWhile =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xdropLastWhile2.default, _dropLastWhile2.default));
+var dropLastWhile = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xdropLastWhile2.default, _dropLastWhile2.default));
 var _default = dropLastWhile;
 exports.default = _default;
 },{"./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js","./internal/_dispatchable.js":"../node_modules/ramda/es/internal/_dispatchable.js","./internal/_dropLastWhile.js":"../node_modules/ramda/es/internal/_dropLastWhile.js","./internal/_xdropLastWhile.js":"../node_modules/ramda/es/internal/_xdropLastWhile.js"}],"../node_modules/ramda/es/internal/_xdropRepeatsWith.js":[function(require,module,exports) {
@@ -33518,9 +33229,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XDropRepeatsWith =
-/*#__PURE__*/
-function () {
+var XDropRepeatsWith = /*#__PURE__*/function () {
   function XDropRepeatsWith(pred, xf) {
     this.xf = xf;
     this.pred = pred;
@@ -33547,9 +33256,7 @@ function () {
   return XDropRepeatsWith;
 }();
 
-var _xdropRepeatsWith =
-/*#__PURE__*/
-(0, _curry.default)(function _xdropRepeatsWith(pred, xf) {
+var _xdropRepeatsWith = /*#__PURE__*/(0, _curry.default)(function _xdropRepeatsWith(pred, xf) {
   return new XDropRepeatsWith(pred, xf);
 });
 
@@ -33587,9 +33294,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.last('abc'); //=> 'c'
  *      R.last(''); //=> ''
  */
-var last =
-/*#__PURE__*/
-(0, _nth.default)(-1);
+var last = /*#__PURE__*/(0, _nth.default)(-1);
 var _default = last;
 exports.default = _default;
 },{"./nth.js":"../node_modules/ramda/es/nth.js"}],"../node_modules/ramda/es/dropRepeatsWith.js":[function(require,module,exports) {
@@ -33631,11 +33336,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const l = [1, -1, 1, 3, 4, -4, -4, -5, 5, 3, 3];
  *      R.dropRepeatsWith(R.eqBy(Math.abs), l); //=> [1, 3, 4, -5, 3]
  */
-var dropRepeatsWith =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xdropRepeatsWith2.default, function dropRepeatsWith(pred, list) {
+var dropRepeatsWith = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xdropRepeatsWith2.default, function dropRepeatsWith(pred, list) {
   var result = [];
   var idx = 1;
   var len = list.length;
@@ -33694,15 +33395,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *     R.dropRepeats([1, 1, 1, 2, 3, 4, 4, 2, 2]); //=> [1, 2, 3, 4, 2]
  */
-var dropRepeats =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([],
-/*#__PURE__*/
-(0, _xdropRepeatsWith2.default)(_equals.default),
-/*#__PURE__*/
-(0, _dropRepeatsWith.default)(_equals.default)));
+var dropRepeats = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], /*#__PURE__*/(0, _xdropRepeatsWith2.default)(_equals.default), /*#__PURE__*/(0, _dropRepeatsWith.default)(_equals.default)));
 var _default = dropRepeats;
 exports.default = _default;
 },{"./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./internal/_dispatchable.js":"../node_modules/ramda/es/internal/_dispatchable.js","./internal/_xdropRepeatsWith.js":"../node_modules/ramda/es/internal/_xdropRepeatsWith.js","./dropRepeatsWith.js":"../node_modules/ramda/es/dropRepeatsWith.js","./equals.js":"../node_modules/ramda/es/equals.js"}],"../node_modules/ramda/es/internal/_xdropWhile.js":[function(require,module,exports) {
@@ -33719,9 +33412,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XDropWhile =
-/*#__PURE__*/
-function () {
+var XDropWhile = /*#__PURE__*/function () {
   function XDropWhile(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -33745,9 +33436,7 @@ function () {
   return XDropWhile;
 }();
 
-var _xdropWhile =
-/*#__PURE__*/
-(0, _curry.default)(function _xdropWhile(f, xf) {
+var _xdropWhile = /*#__PURE__*/(0, _curry.default)(function _xdropWhile(f, xf) {
   return new XDropWhile(f, xf);
 });
 
@@ -33799,11 +33488,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.dropWhile(x => x !== 'd' , 'Ramda'); //=> 'da'
  */
-var dropWhile =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['dropWhile'], _xdropWhile2.default, function dropWhile(pred, xs) {
+var dropWhile = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['dropWhile'], _xdropWhile2.default, function dropWhile(pred, xs) {
   var idx = 0;
   var len = xs.length;
 
@@ -33847,9 +33532,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.or(false, true); //=> true
  *      R.or(false, false); //=> false
  */
-var or =
-/*#__PURE__*/
-(0, _curry.default)(function or(a, b) {
+var or = /*#__PURE__*/(0, _curry.default)(function or(a, b) {
   return a || b;
 });
 var _default = or;
@@ -33902,9 +33585,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.either(Maybe.Just(false), Maybe.Just(55)); // => Maybe.Just(55)
  *      R.either([false, false, 'a'], [11]) // => [11, 11, "a"]
  */
-var either =
-/*#__PURE__*/
-(0, _curry.default)(function either(f, g) {
+var either = /*#__PURE__*/(0, _curry.default)(function either(f, g) {
   return (0, _isFunction2.default)(f) ? function _either() {
     return f.apply(this, arguments) || g.apply(this, arguments);
   } : (0, _lift.default)(_or.default)(f, g);
@@ -33954,9 +33635,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.empty('unicorns');    //=> ''
  *      R.empty({x: 1, y: 2});  //=> {}
  */
-var empty =
-/*#__PURE__*/
-(0, _curry.default)(function empty(x) {
+var empty = /*#__PURE__*/(0, _curry.default)(function empty(x) {
   return x != null && typeof x['fantasy-land/empty'] === 'function' ? x['fantasy-land/empty']() : x != null && x.constructor != null && typeof x.constructor['fantasy-land/empty'] === 'function' ? x.constructor['fantasy-land/empty']() : x != null && typeof x.empty === 'function' ? x.empty() : x != null && x.constructor != null && typeof x.constructor.empty === 'function' ? x.constructor.empty() : (0, _isArray2.default)(x) ? [] : (0, _isString2.default)(x) ? '' : (0, _isObject2.default)(x) ? {} : (0, _isArguments2.default)(x) ? function () {
     return arguments;
   }() : void 0 // else
@@ -34000,9 +33679,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.takeLast(4, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']
  *      R.takeLast(3, 'ramda');               //=> 'mda'
  */
-var takeLast =
-/*#__PURE__*/
-(0, _curry.default)(function takeLast(n, xs) {
+var takeLast = /*#__PURE__*/(0, _curry.default)(function takeLast(n, xs) {
   return (0, _drop.default)(n >= 0 ? xs.length - n : 0, xs);
 });
 var _default = takeLast;
@@ -34045,9 +33722,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.endsWith(['c'], ['a', 'b', 'c'])    //=> true
  *      R.endsWith(['b'], ['a', 'b', 'c'])    //=> false
  */
-var endsWith =
-/*#__PURE__*/
-(0, _curry.default)(function (suffix, list) {
+var endsWith = /*#__PURE__*/(0, _curry.default)(function (suffix, list) {
   return (0, _equals.default)((0, _takeLast.default)(suffix.length, list), suffix);
 });
 var _default = endsWith;
@@ -34083,9 +33758,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.eqBy(Math.abs, 5, -5); //=> true
  */
-var eqBy =
-/*#__PURE__*/
-(0, _curry.default)(function eqBy(f, x, y) {
+var eqBy = /*#__PURE__*/(0, _curry.default)(function eqBy(f, x, y) {
   return (0, _equals.default)(f(x), f(y));
 });
 var _default = eqBy;
@@ -34125,9 +33798,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.eqProps('a', o1, o2); //=> false
  *      R.eqProps('c', o1, o2); //=> true
  */
-var eqProps =
-/*#__PURE__*/
-(0, _curry.default)(function eqProps(prop, obj1, obj2) {
+var eqProps = /*#__PURE__*/(0, _curry.default)(function eqProps(prop, obj1, obj2) {
   return (0, _equals.default)(obj1[prop], obj2[prop]);
 });
 var _default = eqProps;
@@ -34171,9 +33842,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      };
  *      R.evolve(transformations, tomato); //=> {firstName: 'Tomato', data: {elapsed: 101, remaining: 1399}, id:123}
  */
-var evolve =
-/*#__PURE__*/
-(0, _curry.default)(function evolve(transformations, object) {
+var evolve = /*#__PURE__*/(0, _curry.default)(function evolve(transformations, object) {
   var result = object instanceof Array ? [] : {};
   var transformation, key, type;
 
@@ -34203,9 +33872,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XFind =
-/*#__PURE__*/
-function () {
+var XFind = /*#__PURE__*/function () {
   function XFind(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -34234,9 +33901,7 @@ function () {
   return XFind;
 }();
 
-var _xfind =
-/*#__PURE__*/
-(0, _curry.default)(function _xfind(f, xf) {
+var _xfind = /*#__PURE__*/(0, _curry.default)(function _xfind(f, xf) {
   return new XFind(f, xf);
 });
 
@@ -34282,11 +33947,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.find(R.propEq('a', 2))(xs); //=> {a: 2}
  *      R.find(R.propEq('a', 4))(xs); //=> undefined
  */
-var find =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['find'], _xfind2.default, function find(fn, list) {
+var find = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['find'], _xfind2.default, function find(fn, list) {
   var idx = 0;
   var len = list.length;
 
@@ -34316,9 +33977,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XFindIndex =
-/*#__PURE__*/
-function () {
+var XFindIndex = /*#__PURE__*/function () {
   function XFindIndex(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -34350,9 +34009,7 @@ function () {
   return XFindIndex;
 }();
 
-var _xfindIndex =
-/*#__PURE__*/
-(0, _curry.default)(function _xfindIndex(f, xf) {
+var _xfindIndex = /*#__PURE__*/(0, _curry.default)(function _xfindIndex(f, xf) {
   return new XFindIndex(f, xf);
 });
 
@@ -34396,11 +34053,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.findIndex(R.propEq('a', 2))(xs); //=> 1
  *      R.findIndex(R.propEq('a', 4))(xs); //=> -1
  */
-var findIndex =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xfindIndex2.default, function findIndex(fn, list) {
+var findIndex = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xfindIndex2.default, function findIndex(fn, list) {
   var idx = 0;
   var len = list.length;
 
@@ -34430,9 +34083,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XFindLast =
-/*#__PURE__*/
-function () {
+var XFindLast = /*#__PURE__*/function () {
   function XFindLast(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -34455,9 +34106,7 @@ function () {
   return XFindLast;
 }();
 
-var _xfindLast =
-/*#__PURE__*/
-(0, _curry.default)(function _xfindLast(f, xf) {
+var _xfindLast = /*#__PURE__*/(0, _curry.default)(function _xfindLast(f, xf) {
   return new XFindLast(f, xf);
 });
 
@@ -34501,11 +34150,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.findLast(R.propEq('a', 1))(xs); //=> {a: 1, b: 1}
  *      R.findLast(R.propEq('a', 4))(xs); //=> undefined
  */
-var findLast =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xfindLast2.default, function findLast(fn, list) {
+var findLast = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xfindLast2.default, function findLast(fn, list) {
   var idx = list.length - 1;
 
   while (idx >= 0) {
@@ -34532,9 +34177,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XFindLastIndex =
-/*#__PURE__*/
-function () {
+var XFindLastIndex = /*#__PURE__*/function () {
   function XFindLastIndex(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -34561,9 +34204,7 @@ function () {
   return XFindLastIndex;
 }();
 
-var _xfindLastIndex =
-/*#__PURE__*/
-(0, _curry.default)(function _xfindLastIndex(f, xf) {
+var _xfindLastIndex = /*#__PURE__*/(0, _curry.default)(function _xfindLastIndex(f, xf) {
   return new XFindLastIndex(f, xf);
 });
 
@@ -34607,11 +34248,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.findLastIndex(R.propEq('a', 1))(xs); //=> 1
  *      R.findLastIndex(R.propEq('a', 4))(xs); //=> -1
  */
-var findLastIndex =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xfindLastIndex2.default, function findLastIndex(fn, list) {
+var findLastIndex = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xfindLastIndex2.default, function findLastIndex(fn, list) {
   var idx = list.length - 1;
 
   while (idx >= 0) {
@@ -34657,11 +34294,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.flatten([1, 2, [3, 4], 5, [6, [7, 8, [9, [10, 11], 12]]]]);
  *      //=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
  */
-var flatten =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _makeFlat2.default)(true));
+var flatten = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _makeFlat2.default)(true));
 var _default = flatten;
 exports.default = _default;
 },{"./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./internal/_makeFlat.js":"../node_modules/ramda/es/internal/_makeFlat.js"}],"../node_modules/ramda/es/flip.js":[function(require,module,exports) {
@@ -34698,9 +34331,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.flip(mergeThree)(1, 2, 3); //=> [2, 1, 3]
  * @symb R.flip(f)(a, b, c) = f(b, a, c)
  */
-var flip =
-/*#__PURE__*/
-(0, _curry.default)(function flip(fn) {
+var flip = /*#__PURE__*/(0, _curry.default)(function flip(fn) {
   return (0, _curryN.default)(fn.length, function (a, b) {
     var args = Array.prototype.slice.call(arguments, 0);
     args[0] = b;
@@ -34758,11 +34389,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // logs 8
  * @symb R.forEach(f, [a, b, c]) = [a, b, c]
  */
-var forEach =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _checkForMethod2.default)('forEach', function forEach(fn, list) {
+var forEach = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _checkForMethod2.default)('forEach', function forEach(fn, list) {
   var len = list.length;
   var idx = 0;
 
@@ -34811,9 +34438,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // logs y:2
  * @symb R.forEachObjIndexed(f, {x: a, y: b}) = {x: a, y: b}
  */
-var forEachObjIndexed =
-/*#__PURE__*/
-(0, _curry.default)(function forEachObjIndexed(fn, obj) {
+var forEachObjIndexed = /*#__PURE__*/(0, _curry.default)(function forEachObjIndexed(fn, obj) {
   var keyList = (0, _keys.default)(obj);
   var idx = 0;
 
@@ -34855,9 +34480,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.fromPairs([['a', 1], ['b', 2], ['c', 3]]); //=> {a: 1, b: 2, c: 3}
  */
-var fromPairs =
-/*#__PURE__*/
-(0, _curry.default)(function fromPairs(pairs) {
+var fromPairs = /*#__PURE__*/(0, _curry.default)(function fromPairs(pairs) {
   var result = {};
   var idx = 0;
 
@@ -34926,13 +34549,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      //   'F': [{name: 'Eddy', score: 58}]
  *      // }
  */
-var groupBy =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _checkForMethod2.default)('groupBy',
-/*#__PURE__*/
-(0, _reduceBy.default)(function (acc, item) {
+var groupBy = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _checkForMethod2.default)('groupBy', /*#__PURE__*/(0, _reduceBy.default)(function (acc, item) {
   if (acc == null) {
     acc = [];
   }
@@ -34984,9 +34601,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * R.groupWith(R.eqBy(isVowel), 'aestiou')
  * //=> ['ae', 'st', 'iou']
  */
-var groupWith =
-/*#__PURE__*/
-(0, _curry.default)(function (fn, list) {
+var groupWith = /*#__PURE__*/(0, _curry.default)(function (fn, list) {
   var res = [];
   var idx = 0;
   var len = list.length;
@@ -35039,9 +34654,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.gt('a', 'z'); //=> false
  *      R.gt('z', 'a'); //=> true
  */
-var gt =
-/*#__PURE__*/
-(0, _curry.default)(function gt(a, b) {
+var gt = /*#__PURE__*/(0, _curry.default)(function gt(a, b) {
   return a > b;
 });
 var _default = gt;
@@ -35079,9 +34692,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.gte('a', 'z'); //=> false
  *      R.gte('z', 'a'); //=> true
  */
-var gte =
-/*#__PURE__*/
-(0, _curry.default)(function gte(a, b) {
+var gte = /*#__PURE__*/(0, _curry.default)(function gte(a, b) {
   return a >= b;
 });
 var _default = gte;
@@ -35121,9 +34732,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.hasPath(['a', 'b'], {a: {c: 2}});         // => false
  *      R.hasPath(['a', 'b'], {});                  // => false
  */
-var hasPath =
-/*#__PURE__*/
-(0, _curry.default)(function hasPath(_path, obj) {
+var hasPath = /*#__PURE__*/(0, _curry.default)(function hasPath(_path, obj) {
   if (_path.length === 0) {
     return false;
   }
@@ -35182,9 +34791,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      pointHas('y');  //=> true
  *      pointHas('z');  //=> false
  */
-var has =
-/*#__PURE__*/
-(0, _curry.default)(function has(prop, obj) {
+var has = /*#__PURE__*/(0, _curry.default)(function has(prop, obj) {
   return (0, _hasPath.default)([prop], obj);
 });
 var _default = has;
@@ -35227,9 +34834,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.hasIn('width', square);  //=> true
  *      R.hasIn('area', square);  //=> true
  */
-var hasIn =
-/*#__PURE__*/
-(0, _curry.default)(function hasIn(prop, obj) {
+var hasIn = /*#__PURE__*/(0, _curry.default)(function hasIn(prop, obj) {
   return prop in obj;
 });
 var _default = hasIn;
@@ -35273,9 +34878,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.identical(0, -0); //=> false
  *      R.identical(NaN, NaN); //=> true
  */
-var identical =
-/*#__PURE__*/
-(0, _curry.default)(_objectIs2.default);
+var identical = /*#__PURE__*/(0, _curry.default)(_objectIs2.default);
 var _default = identical;
 exports.default = _default;
 },{"./internal/_objectIs.js":"../node_modules/ramda/es/internal/_objectIs.js","./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js"}],"../node_modules/ramda/es/ifElse.js":[function(require,module,exports) {
@@ -35317,9 +34920,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      incCount({});           //=> { count: 1 }
  *      incCount({ count: 1 }); //=> { count: 2 }
  */
-var ifElse =
-/*#__PURE__*/
-(0, _curry.default)(function ifElse(condition, onTrue, onFalse) {
+var ifElse = /*#__PURE__*/(0, _curry.default)(function ifElse(condition, onTrue, onFalse) {
   return (0, _curryN.default)(Math.max(condition.length, onTrue.length, onFalse.length), function _ifElse() {
     return condition.apply(this, arguments) ? onTrue.apply(this, arguments) : onFalse.apply(this, arguments);
   });
@@ -35353,9 +34954,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.inc(42); //=> 43
  */
-var inc =
-/*#__PURE__*/
-(0, _add.default)(1);
+var inc = /*#__PURE__*/(0, _add.default)(1);
 var _default = inc;
 exports.default = _default;
 },{"./add.js":"../node_modules/ramda/es/add.js"}],"../node_modules/ramda/es/includes.js":[function(require,module,exports) {
@@ -35394,9 +34993,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.includes([42], [[42]]); //=> true
  *      R.includes('ba', 'banana'); //=>true
  */
-var includes =
-/*#__PURE__*/
-(0, _curry.default)(_includes2.default);
+var includes = /*#__PURE__*/(0, _curry.default)(_includes2.default);
 var _default = includes;
 exports.default = _default;
 },{"./internal/_includes.js":"../node_modules/ramda/es/internal/_includes.js","./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js"}],"../node_modules/ramda/es/indexBy.js":[function(require,module,exports) {
@@ -35433,9 +35030,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.indexBy(R.prop('id'), list);
  *      //=> {abc: {id: 'abc', title: 'B'}, xyz: {id: 'xyz', title: 'A'}}
  */
-var indexBy =
-/*#__PURE__*/
-(0, _reduceBy.default)(function (acc, elem) {
+var indexBy = /*#__PURE__*/(0, _reduceBy.default)(function (acc, elem) {
   return elem;
 }, null);
 var _default = indexBy;
@@ -35475,9 +35070,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.indexOf(3, [1,2,3,4]); //=> 2
  *      R.indexOf(10, [1,2,3,4]); //=> -1
  */
-var indexOf =
-/*#__PURE__*/
-(0, _curry.default)(function indexOf(target, xs) {
+var indexOf = /*#__PURE__*/(0, _curry.default)(function indexOf(target, xs) {
   return typeof xs.indexOf === 'function' && !(0, _isArray2.default)(xs) ? xs.indexOf(target) : (0, _indexOf2.default)(xs, target, 0);
 });
 var _default = indexOf;
@@ -35518,9 +35111,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.init('a');    //=> ''
  *      R.init('');     //=> ''
  */
-var init =
-/*#__PURE__*/
-(0, _slice.default)(0, -1);
+var init = /*#__PURE__*/(0, _slice.default)(0, -1);
 var _default = init;
 exports.default = _default;
 },{"./slice.js":"../node_modules/ramda/es/slice.js"}],"../node_modules/ramda/es/innerJoin.js":[function(require,module,exports) {
@@ -35574,9 +35165,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      );
  *      //=> [{id: 456, name: 'Stephen Stills'}, {id: 177, name: 'Neil Young'}]
  */
-var innerJoin =
-/*#__PURE__*/
-(0, _curry.default)(function innerJoin(pred, xs, ys) {
+var innerJoin = /*#__PURE__*/(0, _curry.default)(function innerJoin(pred, xs, ys) {
   return (0, _filter2.default)(function (x) {
     return (0, _includesWith2.default)(pred, x, ys);
   }, xs);
@@ -35614,9 +35203,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.insert(2, 'x', [1,2,3,4]); //=> [1,2,'x',3,4]
  */
-var insert =
-/*#__PURE__*/
-(0, _curry.default)(function insert(idx, elt, list) {
+var insert = /*#__PURE__*/(0, _curry.default)(function insert(idx, elt, list) {
   idx = idx < list.length && idx >= 0 ? idx : list.length;
   var result = Array.prototype.slice.call(list, 0);
   result.splice(idx, 0, elt);
@@ -35654,9 +35241,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.insertAll(2, ['x','y','z'], [1,2,3,4]); //=> [1,2,'x','y','z',3,4]
  */
-var insertAll =
-/*#__PURE__*/
-(0, _curry.default)(function insertAll(idx, elts, list) {
+var insertAll = /*#__PURE__*/(0, _curry.default)(function insertAll(idx, elts, list) {
   idx = idx < list.length && idx >= 0 ? idx : list.length;
   return [].concat(Array.prototype.slice.call(list, 0, idx), elts, Array.prototype.slice.call(list, idx));
 });
@@ -35694,9 +35279,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.uniqBy(Math.abs, [-1, -5, 2, 10, 1, 2]); //=> [-1, -5, 2, 10]
  */
-var uniqBy =
-/*#__PURE__*/
-(0, _curry.default)(function uniqBy(fn, list) {
+var uniqBy = /*#__PURE__*/(0, _curry.default)(function uniqBy(fn, list) {
   var set = new _Set2.default();
   var result = [];
   var idx = 0;
@@ -35748,9 +35331,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.uniq([1, '1']);     //=> [1, '1']
  *      R.uniq([[42], [42]]); //=> [[42]]
  */
-var uniq =
-/*#__PURE__*/
-(0, _uniqBy.default)(_identity.default);
+var uniq = /*#__PURE__*/(0, _uniqBy.default)(_identity.default);
 var _default = uniq;
 exports.default = _default;
 },{"./identity.js":"../node_modules/ramda/es/identity.js","./uniqBy.js":"../node_modules/ramda/es/uniqBy.js"}],"../node_modules/ramda/es/intersection.js":[function(require,module,exports) {
@@ -35790,9 +35371,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.intersection([1,2,3,4], [7,6,5,4,3]); //=> [4, 3]
  */
-var intersection =
-/*#__PURE__*/
-(0, _curry.default)(function intersection(list1, list2) {
+var intersection = /*#__PURE__*/(0, _curry.default)(function intersection(list1, list2) {
   var lookupList, filteredList;
 
   if (list1.length > list2.length) {
@@ -35838,11 +35417,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.intersperse('a', ['b', 'n', 'n', 's']); //=> ['b', 'a', 'n', 'a', 'n', 'a', 's']
  */
-var intersperse =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _checkForMethod2.default)('intersperse', function intersperse(separator, list) {
+var intersperse = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _checkForMethod2.default)('intersperse', function intersperse(separator, list) {
   var out = [];
   var idx = 0;
   var length = list.length;
@@ -35935,9 +35510,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      );
  *      matchPhrases(['foo', 'bar', 'baz']); //=> {must: [{match_phrase: 'foo'}, {match_phrase: 'bar'}, {match_phrase: 'baz'}]}
  */
-var objOf =
-/*#__PURE__*/
-(0, _curry.default)(function objOf(key, val) {
+var objOf = /*#__PURE__*/(0, _curry.default)(function objOf(key, val) {
   var obj = {};
   obj[key] = val;
   return obj;
@@ -36065,9 +35638,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const intoArray = R.into([]);
  *      intoArray(transducer, numbers); //=> [2, 3]
  */
-var into =
-/*#__PURE__*/
-(0, _curry.default)(function into(acc, xf, list) {
+var into = /*#__PURE__*/(0, _curry.default)(function into(acc, xf, list) {
   return (0, _isTransformer2.default)(acc) ? (0, _reduce2.default)(xf(acc), acc['@@transducer/init'](), list) : (0, _reduce2.default)(xf((0, _stepCat2.default)(acc)), (0, _clone2.default)(acc, [], [], false), list);
 });
 var _default = into;
@@ -36110,9 +35681,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.invert(raceResultsByFirstName);
  *      //=> { 'alice': ['first', 'third'], 'jake':['second'] }
  */
-var invert =
-/*#__PURE__*/
-(0, _curry.default)(function invert(obj) {
+var invert = /*#__PURE__*/(0, _curry.default)(function invert(obj) {
   var props = (0, _keys.default)(obj);
   var len = props.length;
   var idx = 0;
@@ -36171,9 +35740,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.invertObj(raceResults);
  *      //=> { 'alice': '0', 'jake':'1' }
  */
-var invertObj =
-/*#__PURE__*/
-(0, _curry.default)(function invertObj(obj) {
+var invertObj = /*#__PURE__*/(0, _curry.default)(function invertObj(obj) {
   var props = (0, _keys.default)(obj);
   var len = props.length;
   var idx = 0;
@@ -36234,9 +35801,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.invoker(1, 'method')(a, o) = o['method'](a)
  * @symb R.invoker(2, 'method')(a, b, o) = o['method'](a, b)
  */
-var invoker =
-/*#__PURE__*/
-(0, _curry.default)(function invoker(arity, method) {
+var invoker = /*#__PURE__*/(0, _curry.default)(function invoker(arity, method) {
   return (0, _curryN.default)(arity + 1, function () {
     var target = arguments[arity];
 
@@ -36284,9 +35849,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.is(Object, 's'); //=> false
  *      R.is(Number, {}); //=> false
  */
-var is =
-/*#__PURE__*/
-(0, _curry.default)(function is(Ctor, val) {
+var is = /*#__PURE__*/(0, _curry.default)(function is(Ctor, val) {
   return val != null && val.constructor === Ctor || val instanceof Ctor;
 });
 var _default = is;
@@ -36328,9 +35891,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.isEmpty({});          //=> true
  *      R.isEmpty({length: 0}); //=> false
  */
-var isEmpty =
-/*#__PURE__*/
-(0, _curry.default)(function isEmpty(x) {
+var isEmpty = /*#__PURE__*/(0, _curry.default)(function isEmpty(x) {
   return x != null && (0, _equals.default)(x, (0, _empty.default)(x));
 });
 var _default = isEmpty;
@@ -36366,9 +35927,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      spacer(['a', 2, 3.4]);   //=> 'a 2 3.4'
  *      R.join('|', [1, 2, 3]);    //=> '1|2|3'
  */
-var join =
-/*#__PURE__*/
-(0, _invoker.default)(1, 'join');
+var join = /*#__PURE__*/(0, _invoker.default)(1, 'join');
 var _default = join;
 exports.default = _default;
 },{"./invoker.js":"../node_modules/ramda/es/invoker.js"}],"../node_modules/ramda/es/juxt.js":[function(require,module,exports) {
@@ -36402,9 +35961,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      getRange(3, 4, 9, -3); //=> [-3, 9]
  * @symb R.juxt([f, g, h])(a, b) = [f(a, b), g(a, b), h(a, b)]
  */
-var juxt =
-/*#__PURE__*/
-(0, _curry.default)(function juxt(fns) {
+var juxt = /*#__PURE__*/(0, _curry.default)(function juxt(fns) {
   return (0, _converge.default)(function () {
     return Array.prototype.slice.call(arguments, 0);
   }, fns);
@@ -36444,9 +36001,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const f = new F();
  *      R.keysIn(f); //=> ['x', 'y']
  */
-var keysIn =
-/*#__PURE__*/
-(0, _curry.default)(function keysIn(obj) {
+var keysIn = /*#__PURE__*/(0, _curry.default)(function keysIn(obj) {
   var prop;
   var ks = [];
 
@@ -36493,9 +36048,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.lastIndexOf(3, [-1,3,3,0,1,2,3,4]); //=> 6
  *      R.lastIndexOf(10, [1,2,3,4]); //=> -1
  */
-var lastIndexOf =
-/*#__PURE__*/
-(0, _curry.default)(function lastIndexOf(target, xs) {
+var lastIndexOf = /*#__PURE__*/(0, _curry.default)(function lastIndexOf(target, xs) {
   if (typeof xs.lastIndexOf === 'function' && !(0, _isArray2.default)(xs)) {
     return xs.lastIndexOf(target);
   } else {
@@ -36554,9 +36107,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.length([]); //=> 0
  *      R.length([1, 2, 3]); //=> 3
  */
-var length =
-/*#__PURE__*/
-(0, _curry.default)(function length(list) {
+var length = /*#__PURE__*/(0, _curry.default)(function length(list) {
   return list != null && (0, _isNumber2.default)(list.length) ? list.length : NaN;
 });
 var _default = length;
@@ -36598,9 +36149,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.set(xLens, 4, {x: 1, y: 2});          //=> {x: 4, y: 2}
  *      R.over(xLens, R.negate, {x: 1, y: 2});  //=> {x: -1, y: 2}
  */
-var lens =
-/*#__PURE__*/
-(0, _curry.default)(function lens(getter, setter) {
+var lens = /*#__PURE__*/(0, _curry.default)(function lens(getter, setter) {
   return function (toFunctorFn) {
     return function (target) {
       return (0, _map.default)(function (focus) {
@@ -36649,9 +36198,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.set(headLens, 'x', ['a', 'b', 'c']);        //=> ['x', 'b', 'c']
  *      R.over(headLens, R.toUpper, ['a', 'b', 'c']); //=> ['A', 'b', 'c']
  */
-var lensIndex =
-/*#__PURE__*/
-(0, _curry.default)(function lensIndex(n) {
+var lensIndex = /*#__PURE__*/(0, _curry.default)(function lensIndex(n) {
   return (0, _lens.default)((0, _nth.default)(n), (0, _update.default)(n));
 });
 var _default = lensIndex;
@@ -36698,9 +36245,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.over(xHeadYLens, R.negate, {x: [{y: 2, z: 3}, {y: 4, z: 5}]});
  *      //=> {x: [{y: -2, z: 3}, {y: 4, z: 5}]}
  */
-var lensPath =
-/*#__PURE__*/
-(0, _curry.default)(function lensPath(p) {
+var lensPath = /*#__PURE__*/(0, _curry.default)(function lensPath(p) {
   return (0, _lens.default)((0, _path.default)(p), (0, _assocPath.default)(p));
 });
 var _default = lensPath;
@@ -36743,9 +36288,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.set(xLens, 4, {x: 1, y: 2});          //=> {x: 4, y: 2}
  *      R.over(xLens, R.negate, {x: 1, y: 2});  //=> {x: -1, y: 2}
  */
-var lensProp =
-/*#__PURE__*/
-(0, _curry.default)(function lensProp(k) {
+var lensProp = /*#__PURE__*/(0, _curry.default)(function lensProp(k) {
   return (0, _lens.default)((0, _prop.default)(k), (0, _assoc.default)(k));
 });
 var _default = lensProp;
@@ -36783,9 +36326,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.lt('a', 'z'); //=> true
  *      R.lt('z', 'a'); //=> false
  */
-var lt =
-/*#__PURE__*/
-(0, _curry.default)(function lt(a, b) {
+var lt = /*#__PURE__*/(0, _curry.default)(function lt(a, b) {
   return a < b;
 });
 var _default = lt;
@@ -36823,9 +36364,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.lte('a', 'z'); //=> true
  *      R.lte('z', 'a'); //=> false
  */
-var lte =
-/*#__PURE__*/
-(0, _curry.default)(function lte(a, b) {
+var lte = /*#__PURE__*/(0, _curry.default)(function lte(a, b) {
   return a <= b;
 });
 var _default = lte;
@@ -36876,9 +36415,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *   ]
  * ]
  */
-var mapAccum =
-/*#__PURE__*/
-(0, _curry.default)(function mapAccum(fn, acc, list) {
+var mapAccum = /*#__PURE__*/(0, _curry.default)(function mapAccum(fn, acc, list) {
   var idx = 0;
   var len = list.length;
   var result = [];
@@ -36943,9 +36480,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *   ]
  * ]
  */
-var mapAccumRight =
-/*#__PURE__*/
-(0, _curry.default)(function mapAccumRight(fn, acc, list) {
+var mapAccumRight = /*#__PURE__*/(0, _curry.default)(function mapAccumRight(fn, acc, list) {
   var idx = list.length - 1;
   var result = [];
   var tuple = [acc];
@@ -36997,9 +36532,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.mapObjIndexed(prependKeyAndDouble, xyz); //=> { x: 'x2', y: 'y4', z: 'z6' }
  */
-var mapObjIndexed =
-/*#__PURE__*/
-(0, _curry.default)(function mapObjIndexed(fn, obj) {
+var mapObjIndexed = /*#__PURE__*/(0, _curry.default)(function mapObjIndexed(fn, obj) {
   return (0, _reduce2.default)(function (acc, key) {
     acc[key] = fn(obj[key], key, obj);
     return acc;
@@ -37040,9 +36573,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.match(/a/, 'b'); //=> []
  *      R.match(/a/, null); //=> TypeError: null does not have a method named "match"
  */
-var match =
-/*#__PURE__*/
-(0, _curry.default)(function match(rx, str) {
+var match = /*#__PURE__*/(0, _curry.default)(function match(rx, str) {
   return str.match(rx) || [];
 });
 var _default = match;
@@ -37094,9 +36625,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      seventeenMod(4);  //=> 1
  *      seventeenMod(10); //=> 7
  */
-var mathMod =
-/*#__PURE__*/
-(0, _curry.default)(function mathMod(m, p) {
+var mathMod = /*#__PURE__*/(0, _curry.default)(function mathMod(m, p) {
   if (!(0, _isInteger2.default)(m)) {
     return NaN;
   }
@@ -37145,9 +36674,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.reduce(R.maxBy(square), 0, [3, -5, 4, 1, -2]); //=> -5
  *      R.reduce(R.maxBy(square), 0, []); //=> 0
  */
-var maxBy =
-/*#__PURE__*/
-(0, _curry.default)(function maxBy(f, a, b) {
+var maxBy = /*#__PURE__*/(0, _curry.default)(function maxBy(f, a, b) {
   return f(b) > f(a) ? b : a;
 });
 var _default = maxBy;
@@ -37181,9 +36708,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.sum([2,4,6,8,100,1]); //=> 121
  */
-var sum =
-/*#__PURE__*/
-(0, _reduce.default)(_add.default, 0);
+var sum = /*#__PURE__*/(0, _reduce.default)(_add.default, 0);
 var _default = sum;
 exports.default = _default;
 },{"./add.js":"../node_modules/ramda/es/add.js","./reduce.js":"../node_modules/ramda/es/reduce.js"}],"../node_modules/ramda/es/mean.js":[function(require,module,exports) {
@@ -37216,9 +36741,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.mean([2, 7, 9]); //=> 6
  *      R.mean([]); //=> NaN
  */
-var mean =
-/*#__PURE__*/
-(0, _curry.default)(function mean(list) {
+var mean = /*#__PURE__*/(0, _curry.default)(function mean(list) {
   return (0, _sum.default)(list) / list.length;
 });
 var _default = mean;
@@ -37254,9 +36777,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.median([7, 2, 10, 9]); //=> 8
  *      R.median([]); //=> NaN
  */
-var median =
-/*#__PURE__*/
-(0, _curry.default)(function median(list) {
+var median = /*#__PURE__*/(0, _curry.default)(function median(list) {
   var len = list.length;
 
   if (len === 0) {
@@ -37315,9 +36836,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      factorial(5); //=> 120
  *      count; //=> 1
  */
-var memoizeWith =
-/*#__PURE__*/
-(0, _curry.default)(function memoizeWith(mFn, fn) {
+var memoizeWith = /*#__PURE__*/(0, _curry.default)(function memoizeWith(mFn, fn) {
   var cache = {};
   return (0, _arity2.default)(fn.length, function () {
     var key = mFn.apply(this, arguments);
@@ -37369,9 +36888,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      withDefaults({y: 2}); //=> {x: 0, y: 2}
  * @symb R.merge(a, b) = {...a, ...b}
  */
-var merge =
-/*#__PURE__*/
-(0, _curry.default)(function merge(l, r) {
+var merge = /*#__PURE__*/(0, _curry.default)(function merge(l, r) {
   return (0, _objectAssign2.default)({}, l, r);
 });
 var _default = merge;
@@ -37407,9 +36924,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.mergeAll([{foo:1},{foo:2},{bar:2}]); //=> {foo:2,bar:2}
  * @symb R.mergeAll([{ x: 1 }, { y: 2 }, { z: 3 }]) = { x: 1, y: 2, z: 3 }
  */
-var mergeAll =
-/*#__PURE__*/
-(0, _curry.default)(function mergeAll(list) {
+var mergeAll = /*#__PURE__*/(0, _curry.default)(function mergeAll(list) {
   return _objectAssign2.default.apply(null, [{}].concat(list));
 });
 var _default = mergeAll;
@@ -37453,9 +36968,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      //=> { a: true, b: true, thing: 'bar', values: [10, 20, 15, 35] }
  * @symb R.mergeWithKey(f, { x: 1, y: 2 }, { y: 5, z: 3 }) = { x: 1, y: f('y', 2, 5), z: 3 }
  */
-var mergeWithKey =
-/*#__PURE__*/
-(0, _curry.default)(function mergeWithKey(fn, l, r) {
+var mergeWithKey = /*#__PURE__*/(0, _curry.default)(function mergeWithKey(fn, l, r) {
   var result = {};
   var k;
 
@@ -37519,9 +37032,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *                         { b: true, c: { thing: 'bar', values: [15, 35] }});
  *      //=> { a: true, b: true, c: { thing: 'bar', values: [10, 20, 15, 35] }}
  */
-var mergeDeepWithKey =
-/*#__PURE__*/
-(0, _curry.default)(function mergeDeepWithKey(fn, lObj, rObj) {
+var mergeDeepWithKey = /*#__PURE__*/(0, _curry.default)(function mergeDeepWithKey(fn, lObj, rObj) {
   return (0, _mergeWithKey.default)(function (k, lVal, rVal) {
     if ((0, _isObject2.default)(lVal) && (0, _isObject2.default)(rVal)) {
       return mergeDeepWithKey(fn, lVal, rVal);
@@ -37567,9 +37078,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *                      { age: 40, contact: { email: 'baa@example.com' }});
  *      //=> { name: 'fred', age: 10, contact: { email: 'moo@example.com' }}
  */
-var mergeDeepLeft =
-/*#__PURE__*/
-(0, _curry.default)(function mergeDeepLeft(lObj, rObj) {
+var mergeDeepLeft = /*#__PURE__*/(0, _curry.default)(function mergeDeepLeft(lObj, rObj) {
   return (0, _mergeDeepWithKey.default)(function (k, lVal, rVal) {
     return lVal;
   }, lObj, rObj);
@@ -37611,9 +37120,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *                       { age: 40, contact: { email: 'baa@example.com' }});
  *      //=> { name: 'fred', age: 40, contact: { email: 'baa@example.com' }}
  */
-var mergeDeepRight =
-/*#__PURE__*/
-(0, _curry.default)(function mergeDeepRight(lObj, rObj) {
+var mergeDeepRight = /*#__PURE__*/(0, _curry.default)(function mergeDeepRight(lObj, rObj) {
   return (0, _mergeDeepWithKey.default)(function (k, lVal, rVal) {
     return rVal;
   }, lObj, rObj);
@@ -37661,9 +37168,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *                      { b: true, c: { values: [15, 35] }});
  *      //=> { a: true, b: true, c: { values: [10, 20, 15, 35] }}
  */
-var mergeDeepWith =
-/*#__PURE__*/
-(0, _curry.default)(function mergeDeepWith(fn, lObj, rObj) {
+var mergeDeepWith = /*#__PURE__*/(0, _curry.default)(function mergeDeepWith(fn, lObj, rObj) {
   return (0, _mergeDeepWithKey.default)(function (k, lVal, rVal) {
     return fn(lVal, rVal);
   }, lObj, rObj);
@@ -37706,9 +37211,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      resetToDefault({x: 5, y: 2}); //=> {x: 0, y: 2}
  * @symb R.mergeLeft(a, b) = {...b, ...a}
  */
-var mergeLeft =
-/*#__PURE__*/
-(0, _curry.default)(function mergeLeft(l, r) {
+var mergeLeft = /*#__PURE__*/(0, _curry.default)(function mergeLeft(l, r) {
   return (0, _objectAssign2.default)({}, r, l);
 });
 var _default = mergeLeft;
@@ -37749,9 +37252,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      withDefaults({y: 2}); //=> {x: 0, y: 2}
  * @symb R.mergeRight(a, b) = {...a, ...b}
  */
-var mergeRight =
-/*#__PURE__*/
-(0, _curry.default)(function mergeRight(l, r) {
+var mergeRight = /*#__PURE__*/(0, _curry.default)(function mergeRight(l, r) {
   return (0, _objectAssign2.default)({}, l, r);
 });
 var _default = mergeRight;
@@ -37793,9 +37294,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *                  { b: true, values: [15, 35] });
  *      //=> { a: true, b: true, values: [10, 20, 15, 35] }
  */
-var mergeWith =
-/*#__PURE__*/
-(0, _curry.default)(function mergeWith(fn, l, r) {
+var mergeWith = /*#__PURE__*/(0, _curry.default)(function mergeWith(fn, l, r) {
   return (0, _mergeWithKey.default)(function (_, _l, _r) {
     return fn(_l, _r);
   }, l, r);
@@ -37831,9 +37330,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.min(789, 123); //=> 123
  *      R.min('a', 'b'); //=> 'a'
  */
-var min =
-/*#__PURE__*/
-(0, _curry.default)(function min(a, b) {
+var min = /*#__PURE__*/(0, _curry.default)(function min(a, b) {
   return b < a ? b : a;
 });
 var _default = min;
@@ -37874,9 +37371,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.reduce(R.minBy(square), Infinity, [3, -5, 4, 1, -2]); //=> 1
  *      R.reduce(R.minBy(square), Infinity, []); //=> Infinity
  */
-var minBy =
-/*#__PURE__*/
-(0, _curry.default)(function minBy(f, a, b) {
+var minBy = /*#__PURE__*/(0, _curry.default)(function minBy(f, a, b) {
   return f(b) < f(a) ? b : a;
 });
 var _default = minBy;
@@ -37918,9 +37413,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      isOdd(42); //=> 0
  *      isOdd(21); //=> 1
  */
-var modulo =
-/*#__PURE__*/
-(0, _curry.default)(function modulo(a, b) {
+var modulo = /*#__PURE__*/(0, _curry.default)(function modulo(a, b) {
   return a % b;
 });
 var _default = modulo;
@@ -37954,9 +37447,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.move(0, 2, ['a', 'b', 'c', 'd', 'e', 'f']); //=> ['b', 'c', 'a', 'd', 'e', 'f']
  *      R.move(-1, 0, ['a', 'b', 'c', 'd', 'e', 'f']); //=> ['f', 'a', 'b', 'c', 'd', 'e'] list rotation
  */
-var move =
-/*#__PURE__*/
-(0, _curry.default)(function (from, to, list) {
+var move = /*#__PURE__*/(0, _curry.default)(function (from, to, list) {
   var length = list.length;
   var result = list.slice();
   var positiveFrom = from < 0 ? length + from : from;
@@ -37998,9 +37489,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      triple(4);       //=> 12
  *      R.multiply(2, 5);  //=> 10
  */
-var multiply =
-/*#__PURE__*/
-(0, _curry.default)(function multiply(a, b) {
+var multiply = /*#__PURE__*/(0, _curry.default)(function multiply(a, b) {
   return a * b;
 });
 var _default = multiply;
@@ -38031,9 +37520,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.negate(42); //=> -42
  */
-var negate =
-/*#__PURE__*/
-(0, _curry.default)(function negate(n) {
+var negate = /*#__PURE__*/(0, _curry.default)(function negate(n) {
   return -n;
 });
 var _default = negate;
@@ -38079,9 +37566,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.none(isEven, [1, 3, 5, 7, 9, 11]); //=> true
  *      R.none(isOdd, [1, 3, 5, 7, 8, 11]); //=> false
  */
-var none =
-/*#__PURE__*/
-(0, _curry.default)(function none(fn, input) {
+var none = /*#__PURE__*/(0, _curry.default)(function none(fn, input) {
   return (0, _all.default)((0, _complement2.default)(fn), input);
 });
 var _default = none;
@@ -38120,9 +37605,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.nthArg(0)(a, b, c) = a
  * @symb R.nthArg(1)(a, b, c) = b
  */
-var nthArg =
-/*#__PURE__*/
-(0, _curry.default)(function nthArg(n) {
+var nthArg = /*#__PURE__*/(0, _curry.default)(function nthArg(n) {
   var arity = n < 0 ? 1 : n + 1;
   return (0, _curryN.default)(arity, function () {
     return (0, _nth.default)(n, arguments);
@@ -38169,9 +37652,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @symb R.o(f, g, x) = f(g(x))
  */
-var o =
-/*#__PURE__*/
-(0, _curry.default)(function o(f, g, x) {
+var o = /*#__PURE__*/(0, _curry.default)(function o(f, g, x) {
   return f(g(x));
 });
 var _default = o;
@@ -38219,9 +37700,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.of(null); //=> [null]
  *      R.of([42]); //=> [[42]]
  */
-var of =
-/*#__PURE__*/
-(0, _curry.default)(_of2.default);
+var of = /*#__PURE__*/(0, _curry.default)(_of2.default);
 var _default = of;
 exports.default = _default;
 },{"./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./internal/_of.js":"../node_modules/ramda/es/internal/_of.js"}],"../node_modules/ramda/es/omit.js":[function(require,module,exports) {
@@ -38252,9 +37731,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.omit(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, c: 3}
  */
-var omit =
-/*#__PURE__*/
-(0, _curry.default)(function omit(names, obj) {
+var omit = /*#__PURE__*/(0, _curry.default)(function omit(names, obj) {
   var result = {};
   var index = {};
   var idx = 0;
@@ -38308,9 +37785,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      addOneOnce(10); //=> 11
  *      addOneOnce(addOneOnce(50)); //=> 11
  */
-var once =
-/*#__PURE__*/
-(0, _curry.default)(function once(fn) {
+var once = /*#__PURE__*/(0, _curry.default)(function once(fn) {
   var called = false;
   var result;
   return (0, _arity2.default)(fn.length, function () {
@@ -38385,9 +37860,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      );
  *      recoverFromFailure(12345).then(console.log)
  */
-var otherwise =
-/*#__PURE__*/
-(0, _curry.default)(function otherwise(f, p) {
+var otherwise = /*#__PURE__*/(0, _curry.default)(function otherwise(f, p) {
   (0, _assertPromise2.default)('otherwise', p);
   return p.then(null, f);
 });
@@ -38439,9 +37912,7 @@ var Identity = function (x) {
  */
 
 
-var over =
-/*#__PURE__*/
-(0, _curry.default)(function over(lens, f, x) {
+var over = /*#__PURE__*/(0, _curry.default)(function over(lens, f, x) {
   // The value returned by the getter function is first transformed with `f`,
   // then set as the value of an `Identity`. This is then mapped over with the
   // setter function of the lens.
@@ -38479,9 +37950,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.pair('foo', 'bar'); //=> ['foo', 'bar']
  */
-var pair =
-/*#__PURE__*/
-(0, _curry.default)(function pair(fst, snd) {
+var pair = /*#__PURE__*/(0, _curry.default)(function pair(fst, snd) {
   return [fst, snd];
 });
 var _default = pair;
@@ -38549,9 +38018,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      sayHelloToMs('Jane', 'Jones'); //=> 'Hello, Ms. Jane Jones!'
  * @symb R.partial(f, [a, b])(c, d) = f(a, b, c, d)
  */
-var partial =
-/*#__PURE__*/
-(0, _createPartialApplicator2.default)(_concat2.default);
+var partial = /*#__PURE__*/(0, _createPartialApplicator2.default)(_concat2.default);
 var _default = partial;
 exports.default = _default;
 },{"./internal/_concat.js":"../node_modules/ramda/es/internal/_concat.js","./internal/_createPartialApplicator.js":"../node_modules/ramda/es/internal/_createPartialApplicator.js"}],"../node_modules/ramda/es/partialRight.js":[function(require,module,exports) {
@@ -38594,11 +38061,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      greetMsJaneJones('Hello'); //=> 'Hello, Ms. Jane Jones!'
  * @symb R.partialRight(f, [a, b])(c, d) = f(c, d, a, b)
  */
-var partialRight =
-/*#__PURE__*/
-(0, _createPartialApplicator2.default)(
-/*#__PURE__*/
-(0, _flip.default)(_concat2.default));
+var partialRight = /*#__PURE__*/(0, _createPartialApplicator2.default)( /*#__PURE__*/(0, _flip.default)(_concat2.default));
 var _default = partialRight;
 exports.default = _default;
 },{"./internal/_concat.js":"../node_modules/ramda/es/internal/_concat.js","./internal/_createPartialApplicator.js":"../node_modules/ramda/es/internal/_createPartialApplicator.js","./flip.js":"../node_modules/ramda/es/flip.js"}],"../node_modules/ramda/es/partition.js":[function(require,module,exports) {
@@ -38641,9 +38104,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.partition(R.includes('s'), { a: 'sss', b: 'ttt', foo: 'bars' });
  *      // => [ { a: 'sss', foo: 'bars' }, { b: 'ttt' }  ]
  */
-var partition =
-/*#__PURE__*/
-(0, _juxt.default)([_filter.default, _reject.default]);
+var partition = /*#__PURE__*/(0, _juxt.default)([_filter.default, _reject.default]);
 var _default = partition;
 exports.default = _default;
 },{"./filter.js":"../node_modules/ramda/es/filter.js","./juxt.js":"../node_modules/ramda/es/juxt.js","./reject.js":"../node_modules/ramda/es/reject.js"}],"../node_modules/ramda/es/pathEq.js":[function(require,module,exports) {
@@ -38686,9 +38147,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const isFamous = R.pathEq(['address', 'zipCode'], 90210);
  *      R.filter(isFamous, users); //=> [ user1 ]
  */
-var pathEq =
-/*#__PURE__*/
-(0, _curry.default)(function pathEq(_path, val, obj) {
+var pathEq = /*#__PURE__*/(0, _curry.default)(function pathEq(_path, val, obj) {
   return (0, _equals.default)((0, _path2.default)(_path, obj), val);
 });
 var _default = pathEq;
@@ -38728,9 +38187,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.pathOr('N/A', ['a', 'b'], {a: {b: 2}}); //=> 2
  *      R.pathOr('N/A', ['a', 'b'], {c: {b: 2}}); //=> "N/A"
  */
-var pathOr =
-/*#__PURE__*/
-(0, _curry.default)(function pathOr(d, p, obj) {
+var pathOr = /*#__PURE__*/(0, _curry.default)(function pathOr(d, p, obj) {
   return (0, _defaultTo.default)(d, (0, _path.default)(p, obj));
 });
 var _default = pathOr;
@@ -38768,9 +38225,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.pathSatisfies(y => y > 0, ['x', 'y'], {x: {y: 2}}); //=> true
  */
-var pathSatisfies =
-/*#__PURE__*/
-(0, _curry.default)(function pathSatisfies(pred, propPath, obj) {
+var pathSatisfies = /*#__PURE__*/(0, _curry.default)(function pathSatisfies(pred, propPath, obj) {
   return propPath.length > 0 && pred((0, _path.default)(propPath, obj));
 });
 var _default = pathSatisfies;
@@ -38805,9 +38260,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.pick(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, d: 4}
  *      R.pick(['a', 'e', 'f'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1}
  */
-var pick =
-/*#__PURE__*/
-(0, _curry.default)(function pick(names, obj) {
+var pick = /*#__PURE__*/(0, _curry.default)(function pick(names, obj) {
   var result = {};
   var idx = 0;
 
@@ -38853,9 +38306,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.pickAll(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, d: 4}
  *      R.pickAll(['a', 'e', 'f'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, e: undefined, f: undefined}
  */
-var pickAll =
-/*#__PURE__*/
-(0, _curry.default)(function pickAll(names, obj) {
+var pickAll = /*#__PURE__*/(0, _curry.default)(function pickAll(names, obj) {
   var result = {};
   var idx = 0;
   var len = names.length;
@@ -38902,9 +38353,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const isUpperCase = (val, key) => key.toUpperCase() === key;
  *      R.pickBy(isUpperCase, {a: 1, b: 2, A: 3, B: 4}); //=> {A: 3, B: 4}
  */
-var pickBy =
-/*#__PURE__*/
-(0, _curry.default)(function pickBy(test, obj) {
+var pickBy = /*#__PURE__*/(0, _curry.default)(function pickBy(test, obj) {
   var result = {};
 
   for (var prop in obj) {
@@ -39004,9 +38453,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.prepend('fee', ['fi', 'fo', 'fum']); //=> ['fee', 'fi', 'fo', 'fum']
  */
-var prepend =
-/*#__PURE__*/
-(0, _curry.default)(function prepend(el, list) {
+var prepend = /*#__PURE__*/(0, _curry.default)(function prepend(el, list) {
   return (0, _concat2.default)([el], list);
 });
 var _default = prepend;
@@ -39040,9 +38487,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.product([2,4,6,8,100,1]); //=> 38400
  */
-var product =
-/*#__PURE__*/
-(0, _reduce.default)(_multiply.default, 1);
+var product = /*#__PURE__*/(0, _reduce.default)(_multiply.default, 1);
 var _default = product;
 exports.default = _default;
 },{"./multiply.js":"../node_modules/ramda/es/multiply.js","./reduce.js":"../node_modules/ramda/es/reduce.js"}],"../node_modules/ramda/es/useWith.js":[function(require,module,exports) {
@@ -39088,9 +38533,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.useWith(Math.pow, [R.dec, R.inc])(3)(4); //=> 32
  * @symb R.useWith(f, [g, h])(a, b) = f(g(a), h(b))
  */
-var useWith =
-/*#__PURE__*/
-(0, _curry.default)(function useWith(fn, transformers) {
+var useWith = /*#__PURE__*/(0, _curry.default)(function useWith(fn, transformers) {
   return (0, _curryN.default)(transformers.length, function () {
     var args = [];
     var idx = 0;
@@ -39142,9 +38585,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const kids = [abby, fred];
  *      R.project(['name', 'grade'], kids); //=> [{name: 'Abby', grade: 2}, {name: 'Fred', grade: 7}]
  */
-var project =
-/*#__PURE__*/
-(0, _useWith.default)(_map2.default, [_pickAll.default, _identity.default]); // passing `identity` gives correct arity
+var project = /*#__PURE__*/(0, _useWith.default)(_map2.default, [_pickAll.default, _identity.default]); // passing `identity` gives correct arity
 
 var _default = project;
 exports.default = _default;
@@ -39187,9 +38628,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const hasBrownHair = R.propEq('hair', 'brown');
  *      R.filter(hasBrownHair, kids); //=> [fred, rusty]
  */
-var propEq =
-/*#__PURE__*/
-(0, _curry.default)(function propEq(name, val, obj) {
+var propEq = /*#__PURE__*/(0, _curry.default)(function propEq(name, val, obj) {
   return (0, _equals.default)(val, obj[name]);
 });
 var _default = propEq;
@@ -39228,9 +38667,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.propIs(Number, 'x', {x: 'foo'});    //=> false
  *      R.propIs(Number, 'x', {});            //=> false
  */
-var propIs =
-/*#__PURE__*/
-(0, _curry.default)(function propIs(type, name, obj) {
+var propIs = /*#__PURE__*/(0, _curry.default)(function propIs(type, name, obj) {
   return (0, _is.default)(type, obj[name]);
 });
 var _default = propIs;
@@ -39275,9 +38712,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      favorite(alice);  //=> undefined
  *      favoriteWithDefault(alice);  //=> 'Ramda'
  */
-var propOr =
-/*#__PURE__*/
-(0, _curry.default)(function propOr(val, p, obj) {
+var propOr = /*#__PURE__*/(0, _curry.default)(function propOr(val, p, obj) {
   return (0, _pathOr.default)(val, [p], obj);
 });
 var _default = propOr;
@@ -39313,9 +38748,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.propSatisfies(x => x > 0, 'x', {x: 1, y: 2}); //=> true
  */
-var propSatisfies =
-/*#__PURE__*/
-(0, _curry.default)(function propSatisfies(pred, name, obj) {
+var propSatisfies = /*#__PURE__*/(0, _curry.default)(function propSatisfies(pred, name, obj) {
   return pred(obj[name]);
 });
 var _default = propSatisfies;
@@ -39352,9 +38785,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const fullName = R.compose(R.join(' '), R.props(['first', 'last']));
  *      fullName({last: 'Bullet-Tooth', age: 33, first: 'Tony'}); //=> 'Tony Bullet-Tooth'
  */
-var props =
-/*#__PURE__*/
-(0, _curry.default)(function props(ps, obj) {
+var props = /*#__PURE__*/(0, _curry.default)(function props(ps, obj) {
   var len = ps.length;
   var out = [];
   var idx = 0;
@@ -39398,9 +38829,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.range(1, 5);    //=> [1, 2, 3, 4]
  *      R.range(50, 53);  //=> [50, 51, 52]
  */
-var range =
-/*#__PURE__*/
-(0, _curry.default)(function range(from, to) {
+var range = /*#__PURE__*/(0, _curry.default)(function range(from, to) {
   if (!((0, _isNumber2.default)(from) && (0, _isNumber2.default)(to))) {
     throw new TypeError('Both arguments to range must be numbers');
   }
@@ -39471,9 +38900,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  * @symb R.reduceRight(f, a, [b, c, d]) = f(b, f(c, f(d, a)))
  */
-var reduceRight =
-/*#__PURE__*/
-(0, _curry.default)(function reduceRight(fn, acc, list) {
+var reduceRight = /*#__PURE__*/(0, _curry.default)(function reduceRight(fn, acc, list) {
   var idx = list.length - 1;
 
   while (idx >= 0) {
@@ -39530,9 +38957,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const ys = [2, 4, 6]
  *      R.reduceWhile(isOdd, R.add, 111, ys); //=> 111
  */
-var reduceWhile =
-/*#__PURE__*/
-(0, _curryN2.default)(4, [], function _reduceWhile(pred, fn, a, list) {
+var reduceWhile = /*#__PURE__*/(0, _curryN2.default)(4, [], function _reduceWhile(pred, fn, a, list) {
   return (0, _reduce2.default)(function (acc, x) {
     return pred(acc, x) ? fn(acc, x) : (0, _reduced2.default)(acc);
   }, a, list);
@@ -39578,9 +39003,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *       [],
  *       [1, 2, 3, 4, 5]) // [1, 2, 3]
  */
-var reduced =
-/*#__PURE__*/
-(0, _curry.default)(_reduced2.default);
+var reduced = /*#__PURE__*/(0, _curry.default)(_reduced2.default);
 var _default = reduced;
 exports.default = _default;
 },{"./internal/_curry1.js":"../node_modules/ramda/es/internal/_curry1.js","./internal/_reduced.js":"../node_modules/ramda/es/internal/_reduced.js"}],"../node_modules/ramda/es/times.js":[function(require,module,exports) {
@@ -39618,9 +39041,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.times(f, 1) = [f(0)]
  * @symb R.times(f, 2) = [f(0), f(1)]
  */
-var times =
-/*#__PURE__*/
-(0, _curry.default)(function times(fn, n) {
+var times = /*#__PURE__*/(0, _curry.default)(function times(fn, n) {
   var len = Number(n);
   var idx = 0;
   var list;
@@ -39679,9 +39100,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.repeat(a, 1) = [a]
  * @symb R.repeat(a, 2) = [a, a]
  */
-var repeat =
-/*#__PURE__*/
-(0, _curry.default)(function repeat(value, n) {
+var repeat = /*#__PURE__*/(0, _curry.default)(function repeat(value, n) {
   return (0, _times.default)((0, _always.default)(value), n);
 });
 var _default = repeat;
@@ -39722,9 +39141,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // Use the "g" (global) flag to replace all occurrences:
  *      R.replace(/foo/g, 'bar', 'foo foo foo'); //=> 'bar bar bar'
  */
-var replace =
-/*#__PURE__*/
-(0, _curry.default)(function replace(regex, replacement, str) {
+var replace = /*#__PURE__*/(0, _curry.default)(function replace(regex, replacement, str) {
   return str.replace(regex, replacement);
 });
 var _default = replace;
@@ -39762,9 +39179,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const factorials = R.scan(R.multiply, 1, numbers); //=> [1, 1, 2, 6, 24]
  * @symb R.scan(f, a, [b, c]) = [a, f(a, b), f(f(a, b), c)]
  */
-var scan =
-/*#__PURE__*/
-(0, _curry.default)(function scan(fn, acc, list) {
+var scan = /*#__PURE__*/(0, _curry.default)(function scan(fn, acc, list) {
   var idx = 0;
   var len = list.length;
   var result = [acc];
@@ -39823,9 +39238,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.sequence(R.of, Just([1, 2, 3])); //=> [Just(1), Just(2), Just(3)]
  *      R.sequence(R.of, Nothing());       //=> [Nothing()]
  */
-var sequence =
-/*#__PURE__*/
-(0, _curry.default)(function sequence(of, traversable) {
+var sequence = /*#__PURE__*/(0, _curry.default)(function sequence(of, traversable) {
   return typeof traversable.sequence === 'function' ? traversable.sequence(of) : (0, _reduceRight.default)(function (x, acc) {
     return (0, _ap.default)((0, _map.default)(_prepend.default, x), acc);
   }, of([]), traversable);
@@ -39870,9 +39283,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.set(xLens, 4, {x: 1, y: 2});  //=> {x: 4, y: 2}
  *      R.set(xLens, 8, {x: 1, y: 2});  //=> {x: 8, y: 2}
  */
-var set =
-/*#__PURE__*/
-(0, _curry.default)(function set(lens, v, x) {
+var set = /*#__PURE__*/(0, _curry.default)(function set(lens, v, x) {
   return (0, _over.default)(lens, (0, _always.default)(v), x);
 });
 var _default = set;
@@ -39909,9 +39320,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const diff = function(a, b) { return a - b; };
  *      R.sort(diff, [4,2,7,5]); //=> [2, 4, 5, 7]
  */
-var sort =
-/*#__PURE__*/
-(0, _curry.default)(function sort(comparator, list) {
+var sort = /*#__PURE__*/(0, _curry.default)(function sort(comparator, list) {
   return Array.prototype.slice.call(list, 0).sort(comparator);
 });
 var _default = sort;
@@ -39961,9 +39370,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const people = [clara, bob, alice];
  *      sortByNameCaseInsensitive(people); //=> [alice, bob, clara]
  */
-var sortBy =
-/*#__PURE__*/
-(0, _curry.default)(function sortBy(fn, list) {
+var sortBy = /*#__PURE__*/(0, _curry.default)(function sortBy(fn, list) {
   return Array.prototype.slice.call(list, 0).sort(function (a, b) {
     var aa = fn(a);
     var bb = fn(b);
@@ -40016,9 +39423,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      ]);
  *      ageNameSort(people); //=> [alice, clara, bob]
  */
-var sortWith =
-/*#__PURE__*/
-(0, _curry.default)(function sortWith(fns, list) {
+var sortWith = /*#__PURE__*/(0, _curry.default)(function sortWith(fns, list) {
   return Array.prototype.slice.call(list, 0).sort(function (a, b) {
     var result = 0;
     var i = 0;
@@ -40065,9 +39470,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.split('.', 'a.b.c.xyz.d'); //=> ['a', 'b', 'c', 'xyz', 'd']
  */
-var split =
-/*#__PURE__*/
-(0, _invoker.default)(1, 'split');
+var split = /*#__PURE__*/(0, _invoker.default)(1, 'split');
 var _default = split;
 exports.default = _default;
 },{"./invoker.js":"../node_modules/ramda/es/invoker.js"}],"../node_modules/ramda/es/splitAt.js":[function(require,module,exports) {
@@ -40104,9 +39507,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.splitAt(5, 'hello world');      //=> ['hello', ' world']
  *      R.splitAt(-1, 'foobar');          //=> ['fooba', 'r']
  */
-var splitAt =
-/*#__PURE__*/
-(0, _curry.default)(function splitAt(index, array) {
+var splitAt = /*#__PURE__*/(0, _curry.default)(function splitAt(index, array) {
   return [(0, _slice.default)(0, index, array), (0, _slice.default)(index, (0, _length.default)(array), array)];
 });
 var _default = splitAt;
@@ -40142,9 +39543,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.splitEvery(3, [1, 2, 3, 4, 5, 6, 7]); //=> [[1, 2, 3], [4, 5, 6], [7]]
  *      R.splitEvery(3, 'foobarbaz'); //=> ['foo', 'bar', 'baz']
  */
-var splitEvery =
-/*#__PURE__*/
-(0, _curry.default)(function splitEvery(n, list) {
+var splitEvery = /*#__PURE__*/(0, _curry.default)(function splitEvery(n, list) {
   if (n <= 0) {
     throw new Error('First argument to splitEvery must be a positive integer');
   }
@@ -40191,9 +39590,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.splitWhen(R.equals(2), [1, 2, 3, 1, 2, 3]);   //=> [[1], [2, 3, 1, 2, 3]]
  */
-var splitWhen =
-/*#__PURE__*/
-(0, _curry.default)(function splitWhen(pred, list) {
+var splitWhen = /*#__PURE__*/(0, _curry.default)(function splitWhen(pred, list) {
   var idx = 0;
   var len = list.length;
   var prefix = [];
@@ -40245,9 +39642,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.startsWith(['a'], ['a', 'b', 'c'])    //=> true
  *      R.startsWith(['b'], ['a', 'b', 'c'])    //=> false
  */
-var startsWith =
-/*#__PURE__*/
-(0, _curry.default)(function (prefix, list) {
+var startsWith = /*#__PURE__*/(0, _curry.default)(function (prefix, list) {
   return (0, _equals.default)((0, _take.default)(prefix.length, list), prefix);
 });
 var _default = startsWith;
@@ -40287,9 +39682,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      complementaryAngle(30); //=> 60
  *      complementaryAngle(72); //=> 18
  */
-var subtract =
-/*#__PURE__*/
-(0, _curry.default)(function subtract(a, b) {
+var subtract = /*#__PURE__*/(0, _curry.default)(function subtract(a, b) {
   return Number(a) - Number(b);
 });
 var _default = subtract;
@@ -40328,9 +39721,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.symmetricDifference([1,2,3,4], [7,6,5,4,3]); //=> [1,2,7,6,5]
  *      R.symmetricDifference([7,6,5,4,3], [1,2,3,4]); //=> [7,6,5,1,2]
  */
-var symmetricDifference =
-/*#__PURE__*/
-(0, _curry.default)(function symmetricDifference(list1, list2) {
+var symmetricDifference = /*#__PURE__*/(0, _curry.default)(function symmetricDifference(list1, list2) {
   return (0, _concat.default)((0, _difference.default)(list1, list2), (0, _difference.default)(list2, list1));
 });
 var _default = symmetricDifference;
@@ -40373,9 +39764,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const l2 = [{a: 3}, {a: 4}, {a: 5}, {a: 6}];
  *      R.symmetricDifferenceWith(eqA, l1, l2); //=> [{a: 1}, {a: 2}, {a: 5}, {a: 6}]
  */
-var symmetricDifferenceWith =
-/*#__PURE__*/
-(0, _curry.default)(function symmetricDifferenceWith(pred, list1, list2) {
+var symmetricDifferenceWith = /*#__PURE__*/(0, _curry.default)(function symmetricDifferenceWith(pred, list1, list2) {
   return (0, _concat.default)((0, _differenceWith.default)(pred, list1, list2), (0, _differenceWith.default)(pred, list2, list1));
 });
 var _default = symmetricDifferenceWith;
@@ -40419,9 +39808,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.takeLastWhile(x => x !== 'R' , 'Ramda'); //=> 'amda'
  */
-var takeLastWhile =
-/*#__PURE__*/
-(0, _curry.default)(function takeLastWhile(fn, xs) {
+var takeLastWhile = /*#__PURE__*/(0, _curry.default)(function takeLastWhile(fn, xs) {
   var idx = xs.length - 1;
 
   while (idx >= 0 && fn(xs[idx])) {
@@ -40448,9 +39835,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XTakeWhile =
-/*#__PURE__*/
-function () {
+var XTakeWhile = /*#__PURE__*/function () {
   function XTakeWhile(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -40466,9 +39851,7 @@ function () {
   return XTakeWhile;
 }();
 
-var _xtakeWhile =
-/*#__PURE__*/
-(0, _curry.default)(function _xtakeWhile(f, xf) {
+var _xtakeWhile = /*#__PURE__*/(0, _curry.default)(function _xtakeWhile(f, xf) {
   return new XTakeWhile(f, xf);
 });
 
@@ -40521,11 +39904,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.takeWhile(x => x !== 'd' , 'Ramda'); //=> 'Ram'
  */
-var takeWhile =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)(['takeWhile'], _xtakeWhile2.default, function takeWhile(fn, xs) {
+var takeWhile = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)(['takeWhile'], _xtakeWhile2.default, function takeWhile(fn, xs) {
   var idx = 0;
   var len = xs.length;
 
@@ -40551,9 +39930,7 @@ var _xfBase2 = _interopRequireDefault(require("./_xfBase.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var XTap =
-/*#__PURE__*/
-function () {
+var XTap = /*#__PURE__*/function () {
   function XTap(f, xf) {
     this.xf = xf;
     this.f = f;
@@ -40570,9 +39947,7 @@ function () {
   return XTap;
 }();
 
-var _xtap =
-/*#__PURE__*/
-(0, _curry.default)(function _xtap(f, xf) {
+var _xtap = /*#__PURE__*/(0, _curry.default)(function _xtap(f, xf) {
   return new XTap(f, xf);
 });
 
@@ -40614,11 +39989,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      // logs 'x is 100'
  * @symb R.tap(f, a) = a
  */
-var tap =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _dispatchable2.default)([], _xtap2.default, function tap(fn, x) {
+var tap = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _dispatchable2.default)([], _xtap2.default, function tap(fn, x) {
   fn(x);
   return x;
 }));
@@ -40670,9 +40041,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.test(/^x/, 'xyz'); //=> true
  *      R.test(/^y/, 'xyz'); //=> false
  */
-var test =
-/*#__PURE__*/
-(0, _curry.default)(function test(pattern, str) {
+var test = /*#__PURE__*/(0, _curry.default)(function test(pattern, str) {
   if (!(0, _isRegExp2.default)(pattern)) {
     throw new TypeError('‘test’ requires a value of type RegExp as its first argument; received ' + (0, _toString.default)(pattern));
   }
@@ -40720,9 +40089,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *        R.then(R.pick(['firstName', 'lastName']))
  *      );
  */
-var then =
-/*#__PURE__*/
-(0, _curry.default)(function then(f, p) {
+var then = /*#__PURE__*/(0, _curry.default)(function then(f, p) {
   (0, _assertPromise2.default)('then', p);
   return p.then(f);
 });
@@ -40755,9 +40122,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.toLower('XYZ'); //=> 'xyz'
  */
-var toLower =
-/*#__PURE__*/
-(0, _invoker.default)(0, 'toLowerCase');
+var toLower = /*#__PURE__*/(0, _invoker.default)(0, 'toLowerCase');
 var _default = toLower;
 exports.default = _default;
 },{"./invoker.js":"../node_modules/ramda/es/invoker.js"}],"../node_modules/ramda/es/toPairs.js":[function(require,module,exports) {
@@ -40792,9 +40157,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.toPairs({a: 1, b: 2, c: 3}); //=> [['a', 1], ['b', 2], ['c', 3]]
  */
-var toPairs =
-/*#__PURE__*/
-(0, _curry.default)(function toPairs(obj) {
+var toPairs = /*#__PURE__*/(0, _curry.default)(function toPairs(obj) {
   var pairs = [];
 
   for (var prop in obj) {
@@ -40840,9 +40203,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const f = new F();
  *      R.toPairsIn(f); //=> [['x','X'], ['y','Y']]
  */
-var toPairsIn =
-/*#__PURE__*/
-(0, _curry.default)(function toPairsIn(obj) {
+var toPairsIn = /*#__PURE__*/(0, _curry.default)(function toPairsIn(obj) {
   var pairs = [];
 
   for (var prop in obj) {
@@ -40880,9 +40241,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.toUpper('abc'); //=> 'ABC'
  */
-var toUpper =
-/*#__PURE__*/
-(0, _invoker.default)(0, 'toUpperCase');
+var toUpper = /*#__PURE__*/(0, _invoker.default)(0, 'toUpperCase');
 var _default = toUpper;
 exports.default = _default;
 },{"./invoker.js":"../node_modules/ramda/es/invoker.js"}],"../node_modules/ramda/es/transduce.js":[function(require,module,exports) {
@@ -40948,9 +40307,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const firstOddTransducer = R.compose(R.filter(isOdd), R.take(1));
  *      R.transduce(firstOddTransducer, R.flip(R.append), [], R.range(0, 100)); //=> [1]
  */
-var transduce =
-/*#__PURE__*/
-(0, _curryN.default)(4, function transduce(xf, fn, acc, list) {
+var transduce = /*#__PURE__*/(0, _curryN.default)(4, function transduce(xf, fn, acc, list) {
   return (0, _reduce2.default)(xf(typeof fn === 'function' ? (0, _xwrap2.default)(fn) : fn), acc, list);
 });
 var _default = transduce;
@@ -40991,9 +40348,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @symb R.transpose([[a, b], [c, d]]) = [[a, c], [b, d]]
  * @symb R.transpose([[a, b], [c]]) = [[a, c], [b]]
  */
-var transpose =
-/*#__PURE__*/
-(0, _curry.default)(function transpose(outerlist) {
+var transpose = /*#__PURE__*/(0, _curry.default)(function transpose(outerlist) {
   var i = 0;
   var result = [];
 
@@ -41059,9 +40414,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.traverse(Maybe.of, safeDiv(10), [2, 4, 5]); //=> Maybe.Just([5, 2.5, 2])
  *      R.traverse(Maybe.of, safeDiv(10), [2, 0, 5]); //=> Maybe.Nothing
  */
-var traverse =
-/*#__PURE__*/
-(0, _curry.default)(function traverse(of, f, traversable) {
+var traverse = /*#__PURE__*/(0, _curry.default)(function traverse(of, f, traversable) {
   return typeof traversable['fantasy-land/traverse'] === 'function' ? traversable['fantasy-land/traverse'](f, of) : (0, _sequence.default)(of, (0, _map.default)(f, traversable));
 });
 var _default = traverse;
@@ -41097,19 +40450,11 @@ var hasProtoTrim = typeof String.prototype.trim === 'function';
  *      R.map(R.trim, R.split(',', 'x, y, z')); //=> ['x', 'y', 'z']
  */
 
-var trim = !hasProtoTrim ||
-/*#__PURE__*/
-ws.trim() || !
-/*#__PURE__*/
-zeroWidth.trim() ?
-/*#__PURE__*/
-(0, _curry.default)(function trim(str) {
+var trim = !hasProtoTrim || /*#__PURE__*/ws.trim() || ! /*#__PURE__*/zeroWidth.trim() ? /*#__PURE__*/(0, _curry.default)(function trim(str) {
   var beginRx = new RegExp('^[' + ws + '][' + ws + ']*');
   var endRx = new RegExp('[' + ws + '][' + ws + ']*$');
   return str.replace(beginRx, '').replace(endRx, '');
-}) :
-/*#__PURE__*/
-(0, _curry.default)(function trim(str) {
+}) : /*#__PURE__*/(0, _curry.default)(function trim(str) {
   return str.trim();
 });
 var _default = trim;
@@ -41152,9 +40497,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.tryCatch(() => { throw 'foo'}, R.always('catched'))('bar') // => 'catched'
  *      R.tryCatch(R.times(R.identity), R.always([]))('s') // => []
  `` */
-var tryCatch =
-/*#__PURE__*/
-(0, _curry.default)(function _tryCatch(tryer, catcher) {
+var tryCatch = /*#__PURE__*/(0, _curry.default)(function _tryCatch(tryer, catcher) {
   return (0, _arity2.default)(tryer.length, function () {
     try {
       return tryer.apply(this, arguments);
@@ -41201,9 +40544,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.unapply(JSON.stringify)(1, 2, 3); //=> '[1,2,3]'
  * @symb R.unapply(f)(a, b) = f([a, b])
  */
-var unapply =
-/*#__PURE__*/
-(0, _curry.default)(function unapply(fn) {
+var unapply = /*#__PURE__*/(0, _curry.default)(function unapply(fn) {
   return function () {
     return fn(Array.prototype.slice.call(arguments, 0));
   };
@@ -41252,9 +40593,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      takesOneArg(1, 2); //=> [1, undefined]
  * @symb R.unary(f)(a, b, c) = f(a)
  */
-var unary =
-/*#__PURE__*/
-(0, _curry.default)(function unary(fn) {
+var unary = /*#__PURE__*/(0, _curry.default)(function unary(fn) {
   return (0, _nAry.default)(1, fn);
 });
 var _default = unary;
@@ -41292,9 +40631,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const uncurriedAddFour = R.uncurryN(4, addFour);
  *      uncurriedAddFour(1, 2, 3, 4); //=> 10
  */
-var uncurryN =
-/*#__PURE__*/
-(0, _curry.default)(function uncurryN(depth, fn) {
+var uncurryN = /*#__PURE__*/(0, _curry.default)(function uncurryN(depth, fn) {
   return (0, _curryN.default)(depth, function () {
     var currentDepth = 1;
     var value = fn;
@@ -41350,9 +40687,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.unfold(f, 10); //=> [-10, -20, -30, -40, -50]
  * @symb R.unfold(f, x) = [f(x)[0], f(f(x)[1])[0], f(f(f(x)[1])[1])[0], ...]
  */
-var unfold =
-/*#__PURE__*/
-(0, _curry.default)(function unfold(fn, seed) {
+var unfold = /*#__PURE__*/(0, _curry.default)(function unfold(fn, seed) {
   var pair = fn(seed);
   var result = [];
 
@@ -41400,11 +40735,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.union([1, 2, 3], [2, 3, 4]); //=> [1, 2, 3, 4]
  */
-var union =
-/*#__PURE__*/
-(0, _curry.default)(
-/*#__PURE__*/
-(0, _compose.default)(_uniq.default, _concat2.default));
+var union = /*#__PURE__*/(0, _curry.default)( /*#__PURE__*/(0, _compose.default)(_uniq.default, _concat2.default));
 var _default = union;
 exports.default = _default;
 },{"./internal/_concat.js":"../node_modules/ramda/es/internal/_concat.js","./internal/_curry2.js":"../node_modules/ramda/es/internal/_curry2.js","./compose.js":"../node_modules/ramda/es/compose.js","./uniq.js":"../node_modules/ramda/es/uniq.js"}],"../node_modules/ramda/es/uniqWith.js":[function(require,module,exports) {
@@ -41443,9 +40774,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.uniqWith(strEq)([1, '1', 1]);    //=> [1]
  *      R.uniqWith(strEq)(['1', 1, 1]);    //=> ['1']
  */
-var uniqWith =
-/*#__PURE__*/
-(0, _curry.default)(function uniqWith(pred, list) {
+var uniqWith = /*#__PURE__*/(0, _curry.default)(function uniqWith(pred, list) {
   var idx = 0;
   var len = list.length;
   var result = [];
@@ -41503,9 +40832,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const l2 = [{a: 1}, {a: 4}];
  *      R.unionWith(R.eqBy(R.prop('a')), l1, l2); //=> [{a: 1}, {a: 2}, {a: 4}]
  */
-var unionWith =
-/*#__PURE__*/
-(0, _curry.default)(function unionWith(pred, list1, list2) {
+var unionWith = /*#__PURE__*/(0, _curry.default)(function unionWith(pred, list1, list2) {
   return (0, _uniqWith.default)(pred, (0, _concat2.default)(list1, list2));
 });
 var _default = unionWith;
@@ -41546,9 +40873,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      safeInc(null); //=> null
  *      safeInc(1); //=> 2
  */
-var unless =
-/*#__PURE__*/
-(0, _curry.default)(function unless(pred, whenFalseFn, x) {
+var unless = /*#__PURE__*/(0, _curry.default)(function unless(pred, whenFalseFn, x) {
   return pred(x) ? x : whenFalseFn(x);
 });
 var _default = unless;
@@ -41584,9 +40909,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.unnest([1, [2], [[3]]]); //=> [1, 2, [3]]
  *      R.unnest([[1, 2], [3, 4], [5, 6]]); //=> [1, 2, 3, 4, 5, 6]
  */
-var unnest =
-/*#__PURE__*/
-(0, _chain.default)(_identity2.default);
+var unnest = /*#__PURE__*/(0, _chain.default)(_identity2.default);
 var _default = unnest;
 exports.default = _default;
 },{"./internal/_identity.js":"../node_modules/ramda/es/internal/_identity.js","./chain.js":"../node_modules/ramda/es/chain.js"}],"../node_modules/ramda/es/until.js":[function(require,module,exports) {
@@ -41620,9 +40943,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.until(R.gt(R.__, 100), R.multiply(2))(1) // => 128
  */
-var until =
-/*#__PURE__*/
-(0, _curry.default)(function until(pred, fn, init) {
+var until = /*#__PURE__*/(0, _curry.default)(function until(pred, fn, init) {
   var val = init;
 
   while (!pred(val)) {
@@ -41666,9 +40987,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      const f = new F();
  *      R.valuesIn(f); //=> ['X', 'Y']
  */
-var valuesIn =
-/*#__PURE__*/
-(0, _curry.default)(function valuesIn(obj) {
+var valuesIn = /*#__PURE__*/(0, _curry.default)(function valuesIn(obj) {
   var prop;
   var vs = [];
 
@@ -41724,9 +41043,7 @@ var Const = function (x) {
  */
 
 
-var view =
-/*#__PURE__*/
-(0, _curry.default)(function view(lens, x) {
+var view = /*#__PURE__*/(0, _curry.default)(function view(lens, x) {
   // Using `Const` effectively ignores the setter function of the `lens`,
   // leaving the value returned by the getter function unmodified.
   return lens(Const)(x).value;
@@ -41773,9 +41090,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      truncate('12345');         //=> '12345'
  *      truncate('0123456789ABC'); //=> '0123456789…'
  */
-var when =
-/*#__PURE__*/
-(0, _curry.default)(function when(pred, whenTrueFn, x) {
+var when = /*#__PURE__*/(0, _curry.default)(function when(pred, whenTrueFn, x) {
   return pred(x) ? whenTrueFn(x) : x;
 });
 var _default = when;
@@ -41829,9 +41144,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      pred({a: 'foo', b: 'xxx', x: 10, y: 19}); //=> false
  *      pred({a: 'foo', b: 'xxx', x: 11, y: 20}); //=> false
  */
-var where =
-/*#__PURE__*/
-(0, _curry.default)(function where(spec, testObj) {
+var where = /*#__PURE__*/(0, _curry.default)(function where(spec, testObj) {
   for (var prop in spec) {
     if ((0, _has2.default)(prop, spec) && !spec[prop](testObj[prop])) {
       return false;
@@ -41888,9 +41201,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      pred({a: 1, b: 2, c: 3});  //=> true
  *      pred({a: 1, b: 1});        //=> false
  */
-var whereEq =
-/*#__PURE__*/
-(0, _curry.default)(function whereEq(spec, testObj) {
+var whereEq = /*#__PURE__*/(0, _curry.default)(function whereEq(spec, testObj) {
   return (0, _where.default)((0, _map.default)(_equals.default, spec), testObj);
 });
 var _default = whereEq;
@@ -41932,9 +41243,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.without([1, 2], [1, 2, 1, 3, 4]); //=> [3, 4]
  */
-var without =
-/*#__PURE__*/
-(0, _curry.default)(function (xs, list) {
+var without = /*#__PURE__*/(0, _curry.default)(function (xs, list) {
   return (0, _reject.default)((0, _flip.default)(_includes2.default)(xs), list);
 });
 var _default = without;
@@ -41969,9 +41278,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.xprod([1, 2], ['a', 'b']); //=> [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b']]
  * @symb R.xprod([a, b], [c, d]) = [[a, c], [a, d], [b, c], [b, d]]
  */
-var xprod =
-/*#__PURE__*/
-(0, _curry.default)(function xprod(a, b) {
+var xprod = /*#__PURE__*/(0, _curry.default)(function xprod(a, b) {
   // = xprodWith(prepend); (takes about 3 times as long...)
   var idx = 0;
   var ilen = a.length;
@@ -42025,9 +41332,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.zip([1, 2, 3], ['a', 'b', 'c']); //=> [[1, 'a'], [2, 'b'], [3, 'c']]
  * @symb R.zip([a, b, c], [d, e, f]) = [[a, d], [b, e], [c, f]]
  */
-var zip =
-/*#__PURE__*/
-(0, _curry.default)(function zip(a, b) {
+var zip = /*#__PURE__*/(0, _curry.default)(function zip(a, b) {
   var rv = [];
   var idx = 0;
   var len = Math.min(a.length, b.length);
@@ -42070,9 +41375,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *      R.zipObj(['a', 'b', 'c'], [1, 2, 3]); //=> {a: 1, b: 2, c: 3}
  */
-var zipObj =
-/*#__PURE__*/
-(0, _curry.default)(function zipObj(keys, values) {
+var zipObj = /*#__PURE__*/(0, _curry.default)(function zipObj(keys, values) {
   var idx = 0;
   var len = Math.min(keys.length, values.length);
   var out = {};
@@ -42122,9 +41425,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      //=> [f(1, 'a'), f(2, 'b'), f(3, 'c')]
  * @symb R.zipWith(fn, [a, b, c], [d, e, f]) = [fn(a, d), fn(b, e), fn(c, f)]
  */
-var zipWith =
-/*#__PURE__*/
-(0, _curry.default)(function zipWith(fn, a, b) {
+var zipWith = /*#__PURE__*/(0, _curry.default)(function zipWith(fn, a, b) {
   var rv = [];
   var idx = 0;
   var len = Math.min(a.length, b.length);
@@ -42169,9 +41470,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *      R.thunkify(R.identity)(42)(); //=> 42
  *      R.thunkify((a, b) => a + b)(25, 17)(); //=> 42
  */
-var thunkify =
-/*#__PURE__*/
-(0, _curry.default)(function thunkify(fn) {
+var thunkify = /*#__PURE__*/(0, _curry.default)(function thunkify(fn) {
   return (0, _curryN.default)(fn.length, function createThunk() {
     var fnArgs = arguments;
     return function invokeThunk() {
@@ -43489,6 +42788,12 @@ Object.defineProperty(exports, "then", {
     return _then.default;
   }
 });
+Object.defineProperty(exports, "thunkify", {
+  enumerable: true,
+  get: function () {
+    return _thunkify.default;
+  }
+});
 Object.defineProperty(exports, "times", {
   enumerable: true,
   get: function () {
@@ -43709,12 +43014,6 @@ Object.defineProperty(exports, "zipWith", {
   enumerable: true,
   get: function () {
     return _zipWith.default;
-  }
-});
-Object.defineProperty(exports, "thunkify", {
-  enumerable: true,
-  get: function () {
-    return _thunkify.default;
   }
 });
 
@@ -45032,9 +44331,7 @@ function createStyleElement(options) {
   return tag;
 }
 
-var StyleSheet =
-/*#__PURE__*/
-function () {
+var StyleSheet = /*#__PURE__*/function () {
   function StyleSheet(options) {
     this.isSpeedy = options.speedy === undefined ? "development" === 'production' : options.speedy;
     this.tags = [];
@@ -46908,11 +46205,11 @@ exports.default = _default;
 },{}],"../node_modules/@babel/runtime/helpers/interopRequireDefault.js":[function(require,module,exports) {
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
-    default: obj
+    "default": obj
   };
 }
 
-module.exports = _interopRequireDefault;
+module.exports = _interopRequireDefault, module.exports.__esModule = true, module.exports["default"] = module.exports;
 },{}],"../node_modules/dom-helpers/class/hasClass.js":[function(require,module,exports) {
 "use strict";
 
@@ -47306,9 +46603,7 @@ var EXITING = 'exiting';
 
 exports.EXITING = EXITING;
 
-var Transition =
-/*#__PURE__*/
-function (_React$Component) {
+var Transition = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(Transition, _React$Component);
 
   function Transition(props, context) {
@@ -47974,9 +47269,7 @@ var propTypes = "development" !== "production" ? _extends({}, _Transition.defaul
  * added in the next tick. This is a convention based on the `classNames` prop.
  */
 
-var CSSTransition =
-/*#__PURE__*/
-function (_React$Component) {
+var CSSTransition = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(CSSTransition, _React$Component);
 
   function CSSTransition() {
@@ -48423,9 +47716,7 @@ var defaultProps = {
 
 };
 
-var TransitionGroup =
-/*#__PURE__*/
-function (_React$Component) {
+var TransitionGroup = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(TransitionGroup, _React$Component);
 
   function TransitionGroup(props, context) {
@@ -48584,9 +47875,7 @@ var propTypes = "development" !== "production" ? {
  * ```
  */
 
-var ReplaceTransition =
-/*#__PURE__*/
-function (_React$Component) {
+var ReplaceTransition = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(ReplaceTransition, _React$Component);
 
   function ReplaceTransition() {
@@ -48723,8 +48012,8 @@ module.exports = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.makeAnimated = exports.defaultTheme = exports.default = exports.createFilter = exports.components = exports.SelectBase = exports.Creatable = exports.AsyncCreatable = exports.Async = void 0;
 exports.mergeStyles = mergeStyles;
-exports.defaultTheme = exports.components = exports.makeAnimated = exports.createFilter = exports.Creatable = exports.AsyncCreatable = exports.Async = exports.SelectBase = exports.default = void 0;
 
 var _raf = _interopRequireDefault(require("raf"));
 
@@ -48742,7 +48031,9 @@ var _memoizeOne = _interopRequireDefault(require("memoize-one"));
 
 var _reactTransitionGroup = require("react-transition-group");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -53871,7 +53162,7 @@ function getBundleURL() {
   try {
     throw new Error();
   } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
 
     if (matches) {
       return getBaseURL(matches[0]);
@@ -53882,7 +53173,7 @@ function getBundleURL() {
 }
 
 function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
 }
 
 exports.getBundleURL = getBundleURLCached;
@@ -53948,7 +53239,7 @@ module.exports = function (it, key) {
 };
 
 },{}],"../node_modules/core-js/library/modules/_core.js":[function(require,module,exports) {
-var core = module.exports = { version: '2.6.2' };
+var core = module.exports = { version: '2.6.12' };
 if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 },{}],"../node_modules/core-js/library/modules/_global.js":[function(require,module,exports) {
@@ -53975,7 +53266,7 @@ var store = global[SHARED] || (global[SHARED] = {});
 })('versions', []).push({
   version: core.version,
   mode: require('./_library') ? 'pure' : 'global',
-  copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
+  copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
 });
 
 },{"./_core":"../node_modules/core-js/library/modules/_core.js","./_global":"../node_modules/core-js/library/modules/_global.js","./_library":"../node_modules/core-js/library/modules/_library.js"}],"../node_modules/core-js/library/modules/_uid.js":[function(require,module,exports) {
@@ -54837,12 +54128,14 @@ var enumKeys = require('./_enum-keys');
 var isArray = require('./_is-array');
 var anObject = require('./_an-object');
 var isObject = require('./_is-object');
+var toObject = require('./_to-object');
 var toIObject = require('./_to-iobject');
 var toPrimitive = require('./_to-primitive');
 var createDesc = require('./_property-desc');
 var _create = require('./_object-create');
 var gOPNExt = require('./_object-gopn-ext');
 var $GOPD = require('./_object-gopd');
+var $GOPS = require('./_object-gops');
 var $DP = require('./_object-dp');
 var $keys = require('./_object-keys');
 var gOPD = $GOPD.f;
@@ -54859,7 +54152,7 @@ var SymbolRegistry = shared('symbol-registry');
 var AllSymbols = shared('symbols');
 var OPSymbols = shared('op-symbols');
 var ObjectProto = Object[PROTOTYPE];
-var USE_NATIVE = typeof $Symbol == 'function';
+var USE_NATIVE = typeof $Symbol == 'function' && !!$GOPS.f;
 var QObject = global.QObject;
 // Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
 var setter = !QObject || !QObject[PROTOTYPE] || !QObject[PROTOTYPE].findChild;
@@ -54969,7 +54262,7 @@ if (!USE_NATIVE) {
   $DP.f = $defineProperty;
   require('./_object-gopn').f = gOPNExt.f = $getOwnPropertyNames;
   require('./_object-pie').f = $propertyIsEnumerable;
-  require('./_object-gops').f = $getOwnPropertySymbols;
+  $GOPS.f = $getOwnPropertySymbols;
 
   if (DESCRIPTORS && !require('./_library')) {
     redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
@@ -55020,6 +54313,16 @@ $export($export.S + $export.F * !USE_NATIVE, 'Object', {
   getOwnPropertySymbols: $getOwnPropertySymbols
 });
 
+// Chrome 38 and 39 `Object.getOwnPropertySymbols` fails on primitives
+// https://bugs.chromium.org/p/v8/issues/detail?id=3443
+var FAILS_ON_PRIMITIVES = $fails(function () { $GOPS.f(1); });
+
+$export($export.S + $export.F * FAILS_ON_PRIMITIVES, 'Object', {
+  getOwnPropertySymbols: function getOwnPropertySymbols(it) {
+    return $GOPS.f(toObject(it));
+  }
+});
+
 // 24.3.2 JSON.stringify(value [, replacer [, space]])
 $JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function () {
   var S = $Symbol();
@@ -55053,7 +54356,7 @@ setToStringTag(Math, 'Math', true);
 // 24.3.3 JSON[@@toStringTag]
 setToStringTag(global.JSON, 'JSON', true);
 
-},{"./_global":"../node_modules/core-js/library/modules/_global.js","./_has":"../node_modules/core-js/library/modules/_has.js","./_descriptors":"../node_modules/core-js/library/modules/_descriptors.js","./_export":"../node_modules/core-js/library/modules/_export.js","./_redefine":"../node_modules/core-js/library/modules/_redefine.js","./_meta":"../node_modules/core-js/library/modules/_meta.js","./_fails":"../node_modules/core-js/library/modules/_fails.js","./_shared":"../node_modules/core-js/library/modules/_shared.js","./_set-to-string-tag":"../node_modules/core-js/library/modules/_set-to-string-tag.js","./_uid":"../node_modules/core-js/library/modules/_uid.js","./_wks":"../node_modules/core-js/library/modules/_wks.js","./_wks-ext":"../node_modules/core-js/library/modules/_wks-ext.js","./_wks-define":"../node_modules/core-js/library/modules/_wks-define.js","./_enum-keys":"../node_modules/core-js/library/modules/_enum-keys.js","./_is-array":"../node_modules/core-js/library/modules/_is-array.js","./_an-object":"../node_modules/core-js/library/modules/_an-object.js","./_is-object":"../node_modules/core-js/library/modules/_is-object.js","./_to-iobject":"../node_modules/core-js/library/modules/_to-iobject.js","./_to-primitive":"../node_modules/core-js/library/modules/_to-primitive.js","./_property-desc":"../node_modules/core-js/library/modules/_property-desc.js","./_object-create":"../node_modules/core-js/library/modules/_object-create.js","./_object-gopn-ext":"../node_modules/core-js/library/modules/_object-gopn-ext.js","./_object-gopd":"../node_modules/core-js/library/modules/_object-gopd.js","./_object-dp":"../node_modules/core-js/library/modules/_object-dp.js","./_object-keys":"../node_modules/core-js/library/modules/_object-keys.js","./_object-gopn":"../node_modules/core-js/library/modules/_object-gopn.js","./_object-pie":"../node_modules/core-js/library/modules/_object-pie.js","./_object-gops":"../node_modules/core-js/library/modules/_object-gops.js","./_library":"../node_modules/core-js/library/modules/_library.js","./_hide":"../node_modules/core-js/library/modules/_hide.js"}],"../node_modules/core-js/library/modules/es6.object.to-string.js":[function(require,module,exports) {
+},{"./_global":"../node_modules/core-js/library/modules/_global.js","./_has":"../node_modules/core-js/library/modules/_has.js","./_descriptors":"../node_modules/core-js/library/modules/_descriptors.js","./_export":"../node_modules/core-js/library/modules/_export.js","./_redefine":"../node_modules/core-js/library/modules/_redefine.js","./_meta":"../node_modules/core-js/library/modules/_meta.js","./_fails":"../node_modules/core-js/library/modules/_fails.js","./_shared":"../node_modules/core-js/library/modules/_shared.js","./_set-to-string-tag":"../node_modules/core-js/library/modules/_set-to-string-tag.js","./_uid":"../node_modules/core-js/library/modules/_uid.js","./_wks":"../node_modules/core-js/library/modules/_wks.js","./_wks-ext":"../node_modules/core-js/library/modules/_wks-ext.js","./_wks-define":"../node_modules/core-js/library/modules/_wks-define.js","./_enum-keys":"../node_modules/core-js/library/modules/_enum-keys.js","./_is-array":"../node_modules/core-js/library/modules/_is-array.js","./_an-object":"../node_modules/core-js/library/modules/_an-object.js","./_is-object":"../node_modules/core-js/library/modules/_is-object.js","./_to-object":"../node_modules/core-js/library/modules/_to-object.js","./_to-iobject":"../node_modules/core-js/library/modules/_to-iobject.js","./_to-primitive":"../node_modules/core-js/library/modules/_to-primitive.js","./_property-desc":"../node_modules/core-js/library/modules/_property-desc.js","./_object-create":"../node_modules/core-js/library/modules/_object-create.js","./_object-gopn-ext":"../node_modules/core-js/library/modules/_object-gopn-ext.js","./_object-gopd":"../node_modules/core-js/library/modules/_object-gopd.js","./_object-gops":"../node_modules/core-js/library/modules/_object-gops.js","./_object-dp":"../node_modules/core-js/library/modules/_object-dp.js","./_object-keys":"../node_modules/core-js/library/modules/_object-keys.js","./_object-gopn":"../node_modules/core-js/library/modules/_object-gopn.js","./_object-pie":"../node_modules/core-js/library/modules/_object-pie.js","./_library":"../node_modules/core-js/library/modules/_library.js","./_hide":"../node_modules/core-js/library/modules/_hide.js"}],"../node_modules/core-js/library/modules/es6.object.to-string.js":[function(require,module,exports) {
 
 },{}],"../node_modules/core-js/library/modules/es7.symbol.async-iterator.js":[function(require,module,exports) {
 require('./_wks-define')('asyncIterator');
@@ -55199,6 +54502,7 @@ exports.default = function (subClass, superClass) {
 },{"../core-js/object/set-prototype-of":"../node_modules/babel-runtime/core-js/object/set-prototype-of.js","../core-js/object/create":"../node_modules/babel-runtime/core-js/object/create.js","../helpers/typeof":"../node_modules/babel-runtime/helpers/typeof.js"}],"../node_modules/core-js/library/modules/_object-assign.js":[function(require,module,exports) {
 'use strict';
 // 19.1.2.1 Object.assign(target, source, ...)
+var DESCRIPTORS = require('./_descriptors');
 var getKeys = require('./_object-keys');
 var gOPS = require('./_object-gops');
 var pIE = require('./_object-pie');
@@ -55228,11 +54532,14 @@ module.exports = !$assign || require('./_fails')(function () {
     var length = keys.length;
     var j = 0;
     var key;
-    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
+    while (length > j) {
+      key = keys[j++];
+      if (!DESCRIPTORS || isEnum.call(S, key)) T[key] = S[key];
+    }
   } return T;
 } : $assign;
 
-},{"./_object-keys":"../node_modules/core-js/library/modules/_object-keys.js","./_object-gops":"../node_modules/core-js/library/modules/_object-gops.js","./_object-pie":"../node_modules/core-js/library/modules/_object-pie.js","./_to-object":"../node_modules/core-js/library/modules/_to-object.js","./_iobject":"../node_modules/core-js/library/modules/_iobject.js","./_fails":"../node_modules/core-js/library/modules/_fails.js"}],"../node_modules/core-js/library/modules/es6.object.assign.js":[function(require,module,exports) {
+},{"./_descriptors":"../node_modules/core-js/library/modules/_descriptors.js","./_object-keys":"../node_modules/core-js/library/modules/_object-keys.js","./_object-gops":"../node_modules/core-js/library/modules/_object-gops.js","./_object-pie":"../node_modules/core-js/library/modules/_object-pie.js","./_to-object":"../node_modules/core-js/library/modules/_to-object.js","./_iobject":"../node_modules/core-js/library/modules/_iobject.js","./_fails":"../node_modules/core-js/library/modules/_fails.js"}],"../node_modules/core-js/library/modules/es6.object.assign.js":[function(require,module,exports) {
 // 19.1.3.1 Object.assign(target, source)
 var $export = require('./_export');
 
@@ -55377,7 +54684,7 @@ exports.default = function (obj, keys) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.bpfrpt_proptype_VisibleCellRange = exports.bpfrpt_proptype_Alignment = exports.bpfrpt_proptype_OverscanIndicesGetter = exports.bpfrpt_proptype_OverscanIndices = exports.bpfrpt_proptype_OverscanIndicesGetterParams = exports.bpfrpt_proptype_RenderedSection = exports.bpfrpt_proptype_ScrollbarPresenceChange = exports.bpfrpt_proptype_Scroll = exports.bpfrpt_proptype_NoContentRenderer = exports.bpfrpt_proptype_CellSize = exports.bpfrpt_proptype_CellSizeGetter = exports.bpfrpt_proptype_CellRangeRenderer = exports.bpfrpt_proptype_CellRangeRendererParams = exports.bpfrpt_proptype_StyleCache = exports.bpfrpt_proptype_CellCache = exports.bpfrpt_proptype_CellRenderer = exports.bpfrpt_proptype_CellRendererParams = exports.bpfrpt_proptype_CellPosition = void 0;
+exports.bpfrpt_proptype_VisibleCellRange = exports.bpfrpt_proptype_StyleCache = exports.bpfrpt_proptype_ScrollbarPresenceChange = exports.bpfrpt_proptype_Scroll = exports.bpfrpt_proptype_RenderedSection = exports.bpfrpt_proptype_OverscanIndicesGetterParams = exports.bpfrpt_proptype_OverscanIndicesGetter = exports.bpfrpt_proptype_OverscanIndices = exports.bpfrpt_proptype_NoContentRenderer = exports.bpfrpt_proptype_CellSizeGetter = exports.bpfrpt_proptype_CellSize = exports.bpfrpt_proptype_CellRendererParams = exports.bpfrpt_proptype_CellRenderer = exports.bpfrpt_proptype_CellRangeRendererParams = exports.bpfrpt_proptype_CellRangeRenderer = exports.bpfrpt_proptype_CellPosition = exports.bpfrpt_proptype_CellCache = exports.bpfrpt_proptype_Alignment = void 0;
 
 var React = _interopRequireWildcard(require("react"));
 
@@ -55387,7 +54694,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var bpfrpt_proptype_CellPosition = "development" === 'production' ? null : {
   columnIndex: _propTypes.default.number.isRequired,
@@ -56103,8 +55412,8 @@ function createCallbackMemoizer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = defaultOverscanIndicesGetter;
 exports.SCROLL_DIRECTION_VERTICAL = exports.SCROLL_DIRECTION_HORIZONTAL = exports.SCROLL_DIRECTION_FORWARD = exports.SCROLL_DIRECTION_BACKWARD = void 0;
+exports.default = defaultOverscanIndicesGetter;
 
 var _types = require("./types");
 
@@ -57099,7 +56408,7 @@ module.exports = { "default": require("core-js/library/fn/promise"), __esModule:
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.caf = exports.raf = void 0;
+exports.raf = exports.caf = void 0;
 // Properly handle server-side rendering.
 var win = void 0;
 
@@ -57131,7 +56440,7 @@ exports.caf = caf;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.bpfrpt_proptype_AnimationTimeoutId = exports.requestAnimationTimeout = exports.cancelAnimationTimeout = void 0;
+exports.requestAnimationTimeout = exports.cancelAnimationTimeout = exports.bpfrpt_proptype_AnimationTimeoutId = void 0;
 
 var _promise = _interopRequireDefault(require("babel-runtime/core-js/promise"));
 
@@ -57229,7 +56538,9 @@ var _types = require("./types");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -58653,8 +57964,8 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = defaultOverscanIndicesGetter;
 exports.SCROLL_DIRECTION_VERTICAL = exports.SCROLL_DIRECTION_HORIZONTAL = exports.SCROLL_DIRECTION_FORWARD = exports.SCROLL_DIRECTION_BACKWARD = void 0;
+exports.default = defaultOverscanIndicesGetter;
 
 var _types = require("./types");
 
@@ -58701,12 +58012,6 @@ function defaultOverscanIndicesGetter(_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _Grid.default;
-  }
-});
 Object.defineProperty(exports, "Grid", {
   enumerable: true,
   get: function () {
@@ -58717,24 +58022,6 @@ Object.defineProperty(exports, "accessibilityOverscanIndicesGetter", {
   enumerable: true,
   get: function () {
     return _accessibilityOverscanIndicesGetter.default;
-  }
-});
-Object.defineProperty(exports, "defaultCellRangeRenderer", {
-  enumerable: true,
-  get: function () {
-    return _defaultCellRangeRenderer.default;
-  }
-});
-Object.defineProperty(exports, "defaultOverscanIndicesGetter", {
-  enumerable: true,
-  get: function () {
-    return _defaultOverscanIndicesGetter.default;
-  }
-});
-Object.defineProperty(exports, "bpfrpt_proptype_NoContentRenderer", {
-  enumerable: true,
-  get: function () {
-    return _types.bpfrpt_proptype_NoContentRenderer;
   }
 });
 Object.defineProperty(exports, "bpfrpt_proptype_Alignment", {
@@ -58749,10 +58036,22 @@ Object.defineProperty(exports, "bpfrpt_proptype_CellPosition", {
     return _types.bpfrpt_proptype_CellPosition;
   }
 });
+Object.defineProperty(exports, "bpfrpt_proptype_CellRendererParams", {
+  enumerable: true,
+  get: function () {
+    return _types.bpfrpt_proptype_CellRendererParams;
+  }
+});
 Object.defineProperty(exports, "bpfrpt_proptype_CellSize", {
   enumerable: true,
   get: function () {
     return _types.bpfrpt_proptype_CellSize;
+  }
+});
+Object.defineProperty(exports, "bpfrpt_proptype_NoContentRenderer", {
+  enumerable: true,
+  get: function () {
+    return _types.bpfrpt_proptype_NoContentRenderer;
   }
 });
 Object.defineProperty(exports, "bpfrpt_proptype_OverscanIndicesGetter", {
@@ -58767,16 +58066,28 @@ Object.defineProperty(exports, "bpfrpt_proptype_RenderedSection", {
     return _types.bpfrpt_proptype_RenderedSection;
   }
 });
-Object.defineProperty(exports, "bpfrpt_proptype_CellRendererParams", {
-  enumerable: true,
-  get: function () {
-    return _types.bpfrpt_proptype_CellRendererParams;
-  }
-});
 Object.defineProperty(exports, "bpfrpt_proptype_Scroll", {
   enumerable: true,
   get: function () {
     return _types.bpfrpt_proptype_Scroll;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _Grid.default;
+  }
+});
+Object.defineProperty(exports, "defaultCellRangeRenderer", {
+  enumerable: true,
+  get: function () {
+    return _defaultCellRangeRenderer.default;
+  }
+});
+Object.defineProperty(exports, "defaultOverscanIndicesGetter", {
+  enumerable: true,
+  get: function () {
+    return _defaultOverscanIndicesGetter.default;
   }
 });
 
@@ -58836,7 +58147,9 @@ var _types = require("./types");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -59025,12 +58338,6 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _ArrowKeyStepper.default;
-  }
-});
 Object.defineProperty(exports, "ArrowKeyStepper", {
   enumerable: true,
   get: function () {
@@ -59041,6 +58348,12 @@ Object.defineProperty(exports, "bpfrpt_proptype_ScrollIndices", {
   enumerable: true,
   get: function () {
     return _types.bpfrpt_proptype_ScrollIndices;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _ArrowKeyStepper.default;
   }
 });
 
@@ -59290,7 +58603,9 @@ var _detectElementResize = _interopRequireDefault(require("../vendor/detectEleme
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -59472,13 +58787,13 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "default", {
+Object.defineProperty(exports, "AutoSizer", {
   enumerable: true,
   get: function () {
     return _AutoSizer.default;
   }
 });
-Object.defineProperty(exports, "AutoSizer", {
+Object.defineProperty(exports, "default", {
   enumerable: true,
   get: function () {
     return _AutoSizer.default;
@@ -59535,7 +58850,9 @@ var _types = require("./types");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -59984,7 +59301,9 @@ var _createCallbackMemoizer = _interopRequireDefault(require("../utils/createCal
 
 var _scrollbarSize = _interopRequireDefault(require("dom-helpers/util/scrollbarSize"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -60938,7 +60257,9 @@ var _getUpdatedOffsetForIndex = _interopRequireDefault(require("../utils/getUpda
 
 var _types = require("./types");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61239,7 +60560,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var React = _interopRequireWildcard(require("react"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61367,10 +60690,10 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
+exports.forceUpdateReactVirtualizedComponent = forceUpdateReactVirtualizedComponent;
 exports.isRangeVisible = isRangeVisible;
 exports.scanForUnloadedRanges = scanForUnloadedRanges;
-exports.forceUpdateReactVirtualizedComponent = forceUpdateReactVirtualizedComponent;
-exports.default = void 0;
 
 var _getPrototypeOf = _interopRequireDefault(require("babel-runtime/core-js/object/get-prototype-of"));
 
@@ -61388,7 +60711,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _createCallbackMemoizer = _interopRequireDefault(require("../utils/createCallbackMemoizer"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61714,7 +61039,7 @@ module.exports = { "default": require("core-js/library/fn/object/get-own-propert
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.bpfrpt_proptype_Scroll = exports.bpfrpt_proptype_RenderedRows = exports.bpfrpt_proptype_RowRenderer = exports.bpfrpt_proptype_RowRendererParams = void 0;
+exports.bpfrpt_proptype_Scroll = exports.bpfrpt_proptype_RowRendererParams = exports.bpfrpt_proptype_RowRenderer = exports.bpfrpt_proptype_RenderedRows = void 0;
 
 var React = _interopRequireWildcard(require("react"));
 
@@ -61722,7 +61047,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var bpfrpt_proptype_RowRendererParams = "development" === 'production' ? null : {
   index: _propTypes.default.number.isRequired,
@@ -61780,7 +61107,9 @@ var _types = require("./types");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -62101,12 +61430,6 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _List.default;
-  }
-});
 Object.defineProperty(exports, "List", {
   enumerable: true,
   get: function () {
@@ -62117,6 +61440,12 @@ Object.defineProperty(exports, "bpfrpt_proptype_RowRendererParams", {
   enumerable: true,
   get: function () {
     return _types.bpfrpt_proptype_RowRendererParams;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function () {
+    return _List.default;
   }
 });
 
@@ -63038,7 +62367,7 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.bpfrpt_proptype_Positioner = exports.bpfrpt_proptype_CellMeasurerCache = exports.default = exports.DEFAULT_SCROLLING_RESET_TIME_INTERVAL = void 0;
+exports.default = exports.bpfrpt_proptype_Positioner = exports.bpfrpt_proptype_CellMeasurerCache = exports.DEFAULT_SCROLLING_RESET_TIME_INTERVAL = void 0;
 
 var _extends2 = _interopRequireDefault(require("babel-runtime/helpers/extends"));
 
@@ -63066,7 +62395,9 @@ var _requestAnimationTimeout = require("../utils/requestAnimationTimeout");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -63555,16 +62886,16 @@ function createCellPositioner(_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "createCellPositioner", {
-  enumerable: true,
-  get: function () {
-    return _createCellPositioner.default;
-  }
-});
 Object.defineProperty(exports, "Masonry", {
   enumerable: true,
   get: function () {
     return _Masonry.default;
+  }
+});
+Object.defineProperty(exports, "createCellPositioner", {
+  enumerable: true,
+  get: function () {
+    return _createCellPositioner.default;
   }
 });
 exports.default = void 0;
@@ -63720,7 +63051,9 @@ var _CellMeasurerCacheDecorator = _interopRequireDefault(require("./CellMeasurer
 
 var _Grid = _interopRequireDefault(require("../Grid"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -64563,7 +63896,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var React = _interopRequireWildcard(require("react"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -64749,7 +64084,7 @@ function createMultiSort(sortCallback) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.bpfrpt_proptype_RowRendererParams = exports.bpfrpt_proptype_HeaderRendererParams = exports.bpfrpt_proptype_HeaderRowRendererParams = exports.bpfrpt_proptype_CellRendererParams = exports.bpfrpt_proptype_CellDataGetterParams = void 0;
+exports.bpfrpt_proptype_RowRendererParams = exports.bpfrpt_proptype_HeaderRowRendererParams = exports.bpfrpt_proptype_HeaderRendererParams = exports.bpfrpt_proptype_CellRendererParams = exports.bpfrpt_proptype_CellDataGetterParams = void 0;
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
@@ -64889,7 +64224,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function defaultHeaderRowRenderer(_ref) {
   var className = _ref.className,
@@ -64941,7 +64278,9 @@ var React = _interopRequireWildcard(require("react"));
 
 var _SortDirection = _interopRequireDefault(require("./SortDirection"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -64990,7 +64329,9 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 /**
  * Default table header renderer.
@@ -65034,7 +64375,9 @@ var _types = require("./types");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -65149,7 +64492,9 @@ var _defaultCellDataGetter = _interopRequireDefault(require("./defaultCellDataGe
 
 var _SortDirection = _interopRequireDefault(require("./SortDirection"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -65283,7 +64628,9 @@ var _defaultHeaderRowRenderer = _interopRequireDefault(require("./defaultHeaderR
 
 var _SortDirection = _interopRequireDefault(require("./SortDirection"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -66067,42 +65414,6 @@ Table.propTypes = "development" !== "production" ? {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "createMultiSort", {
-  enumerable: true,
-  get: function () {
-    return _createMultiSort.default;
-  }
-});
-Object.defineProperty(exports, "defaultCellDataGetter", {
-  enumerable: true,
-  get: function () {
-    return _defaultCellDataGetter.default;
-  }
-});
-Object.defineProperty(exports, "defaultCellRenderer", {
-  enumerable: true,
-  get: function () {
-    return _defaultCellRenderer.default;
-  }
-});
-Object.defineProperty(exports, "defaultHeaderRowRenderer", {
-  enumerable: true,
-  get: function () {
-    return _defaultHeaderRowRenderer.default;
-  }
-});
-Object.defineProperty(exports, "defaultHeaderRenderer", {
-  enumerable: true,
-  get: function () {
-    return _defaultHeaderRenderer.default;
-  }
-});
-Object.defineProperty(exports, "defaultRowRenderer", {
-  enumerable: true,
-  get: function () {
-    return _defaultRowRenderer.default;
-  }
-});
 Object.defineProperty(exports, "Column", {
   enumerable: true,
   get: function () {
@@ -66127,7 +65438,43 @@ Object.defineProperty(exports, "Table", {
     return _Table.default;
   }
 });
+Object.defineProperty(exports, "createMultiSort", {
+  enumerable: true,
+  get: function () {
+    return _createMultiSort.default;
+  }
+});
 exports.default = void 0;
+Object.defineProperty(exports, "defaultCellDataGetter", {
+  enumerable: true,
+  get: function () {
+    return _defaultCellDataGetter.default;
+  }
+});
+Object.defineProperty(exports, "defaultCellRenderer", {
+  enumerable: true,
+  get: function () {
+    return _defaultCellRenderer.default;
+  }
+});
+Object.defineProperty(exports, "defaultHeaderRenderer", {
+  enumerable: true,
+  get: function () {
+    return _defaultHeaderRenderer.default;
+  }
+});
+Object.defineProperty(exports, "defaultHeaderRowRenderer", {
+  enumerable: true,
+  get: function () {
+    return _defaultHeaderRowRenderer.default;
+  }
+});
+Object.defineProperty(exports, "defaultRowRenderer", {
+  enumerable: true,
+  get: function () {
+    return _defaultRowRenderer.default;
+  }
+});
 
 var _createMultiSort = _interopRequireDefault(require("./createMultiSort"));
 
@@ -66361,7 +65708,9 @@ var _detectElementResize = _interopRequireDefault(require("../vendor/detectEleme
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -66610,23 +65959,25 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "WindowScroller", {
-  enumerable: true,
-  get: function () {
-    return _WindowScroller.default;
-  }
-});
 Object.defineProperty(exports, "IS_SCROLLING_TIMEOUT", {
   enumerable: true,
   get: function () {
     return _WindowScroller.IS_SCROLLING_TIMEOUT;
   }
 });
+Object.defineProperty(exports, "WindowScroller", {
+  enumerable: true,
+  get: function () {
+    return _WindowScroller.default;
+  }
+});
 exports.default = void 0;
 
 var _WindowScroller = _interopRequireWildcard(require("./WindowScroller"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var _default = _WindowScroller.default;
 exports.default = _default;
@@ -66666,28 +66017,16 @@ Object.defineProperty(exports, "Collection", {
     return _Collection.Collection;
   }
 });
+Object.defineProperty(exports, "Column", {
+  enumerable: true,
+  get: function () {
+    return _Table.Column;
+  }
+});
 Object.defineProperty(exports, "ColumnSizer", {
   enumerable: true,
   get: function () {
     return _ColumnSizer.ColumnSizer;
-  }
-});
-Object.defineProperty(exports, "accessibilityOverscanIndicesGetter", {
-  enumerable: true,
-  get: function () {
-    return _Grid.accessibilityOverscanIndicesGetter;
-  }
-});
-Object.defineProperty(exports, "defaultCellRangeRenderer", {
-  enumerable: true,
-  get: function () {
-    return _Grid.defaultCellRangeRenderer;
-  }
-});
-Object.defineProperty(exports, "defaultOverscanIndicesGetter", {
-  enumerable: true,
-  get: function () {
-    return _Grid.defaultOverscanIndicesGetter;
   }
 });
 Object.defineProperty(exports, "Grid", {
@@ -66708,12 +66047,6 @@ Object.defineProperty(exports, "List", {
     return _List.List;
   }
 });
-Object.defineProperty(exports, "createMasonryCellPositioner", {
-  enumerable: true,
-  get: function () {
-    return _Masonry.createCellPositioner;
-  }
-});
 Object.defineProperty(exports, "Masonry", {
   enumerable: true,
   get: function () {
@@ -66732,10 +66065,58 @@ Object.defineProperty(exports, "ScrollSync", {
     return _ScrollSync.ScrollSync;
   }
 });
+Object.defineProperty(exports, "SortDirection", {
+  enumerable: true,
+  get: function () {
+    return _Table.SortDirection;
+  }
+});
+Object.defineProperty(exports, "SortIndicator", {
+  enumerable: true,
+  get: function () {
+    return _Table.SortIndicator;
+  }
+});
+Object.defineProperty(exports, "Table", {
+  enumerable: true,
+  get: function () {
+    return _Table.Table;
+  }
+});
+Object.defineProperty(exports, "WindowScroller", {
+  enumerable: true,
+  get: function () {
+    return _WindowScroller.WindowScroller;
+  }
+});
+Object.defineProperty(exports, "accessibilityOverscanIndicesGetter", {
+  enumerable: true,
+  get: function () {
+    return _Grid.accessibilityOverscanIndicesGetter;
+  }
+});
+Object.defineProperty(exports, "createMasonryCellPositioner", {
+  enumerable: true,
+  get: function () {
+    return _Masonry.createCellPositioner;
+  }
+});
 Object.defineProperty(exports, "createTableMultiSort", {
   enumerable: true,
   get: function () {
     return _Table.createMultiSort;
+  }
+});
+Object.defineProperty(exports, "defaultCellRangeRenderer", {
+  enumerable: true,
+  get: function () {
+    return _Grid.defaultCellRangeRenderer;
+  }
+});
+Object.defineProperty(exports, "defaultOverscanIndicesGetter", {
+  enumerable: true,
+  get: function () {
+    return _Grid.defaultOverscanIndicesGetter;
   }
 });
 Object.defineProperty(exports, "defaultTableCellDataGetter", {
@@ -66766,36 +66147,6 @@ Object.defineProperty(exports, "defaultTableRowRenderer", {
   enumerable: true,
   get: function () {
     return _Table.defaultRowRenderer;
-  }
-});
-Object.defineProperty(exports, "Table", {
-  enumerable: true,
-  get: function () {
-    return _Table.Table;
-  }
-});
-Object.defineProperty(exports, "Column", {
-  enumerable: true,
-  get: function () {
-    return _Table.Column;
-  }
-});
-Object.defineProperty(exports, "SortDirection", {
-  enumerable: true,
-  get: function () {
-    return _Table.SortDirection;
-  }
-});
-Object.defineProperty(exports, "SortIndicator", {
-  enumerable: true,
-  get: function () {
-    return _Table.SortIndicator;
-  }
-});
-Object.defineProperty(exports, "WindowScroller", {
-  enumerable: true,
-  get: function () {
-    return _WindowScroller.WindowScroller;
   }
 });
 
@@ -67226,7 +66577,7 @@ require("./app.scss");
 
 var SalaryTable_1 = __importDefault(require("./SalaryTable"));
 
-var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"];
+var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"];
 
 var YEAR_TEMPLATE = function YEAR_TEMPLATE(year) {
   return url_join_1.default("http://localhost:8000", "ASU-" + year + ".json");
@@ -67263,7 +66614,7 @@ function (_super) {
     var _this = _super.call(this, props) || this;
 
     _this.state = {
-      selectedYear: "2020",
+      selectedYear: "2021",
       filterString: "",
       years: {}
     };
@@ -67455,26 +66806,47 @@ function Module(moduleName) {
 }
 
 module.bundle.Module = Module;
+var checkedAssets, assetsToAccept;
 var parent = module.bundle.parent;
 
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64138" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65400" + '/');
 
   ws.onmessage = function (event) {
+    checkedAssets = {};
+    assetsToAccept = [];
     var data = JSON.parse(event.data);
 
     if (data.type === 'update') {
-      console.clear();
-      data.assets.forEach(function (asset) {
-        hmrApply(global.parcelRequire, asset);
-      });
+      var handled = false;
       data.assets.forEach(function (asset) {
         if (!asset.isNew) {
-          hmrAccept(global.parcelRequire, asset.id);
+          var didAccept = hmrAcceptCheck(global.parcelRequire, asset.id);
+
+          if (didAccept) {
+            handled = true;
+          }
         }
+      }); // Enable HMR for CSS by default.
+
+      handled = handled || data.assets.every(function (asset) {
+        return asset.type === 'css' && asset.generated.js;
       });
+
+      if (handled) {
+        console.clear();
+        data.assets.forEach(function (asset) {
+          hmrApply(global.parcelRequire, asset);
+        });
+        assetsToAccept.forEach(function (v) {
+          hmrAcceptRun(v[0], v[1]);
+        });
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
+      }
     }
 
     if (data.type === 'reload') {
@@ -67562,7 +66934,7 @@ function hmrApply(bundle, asset) {
   }
 }
 
-function hmrAccept(bundle, id) {
+function hmrAcceptCheck(bundle, id) {
   var modules = bundle.modules;
 
   if (!modules) {
@@ -67570,9 +66942,27 @@ function hmrAccept(bundle, id) {
   }
 
   if (!modules[id] && bundle.parent) {
-    return hmrAccept(bundle.parent, id);
+    return hmrAcceptCheck(bundle.parent, id);
   }
 
+  if (checkedAssets[id]) {
+    return;
+  }
+
+  checkedAssets[id] = true;
+  var cached = bundle.cache[id];
+  assetsToAccept.push([bundle, id]);
+
+  if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+    return true;
+  }
+
+  return getParents(global.parcelRequire, id).some(function (id) {
+    return hmrAcceptCheck(global.parcelRequire, id);
+  });
+}
+
+function hmrAcceptRun(bundle, id) {
   var cached = bundle.cache[id];
   bundle.hotData = {};
 
@@ -67597,10 +66987,6 @@ function hmrAccept(bundle, id) {
 
     return true;
   }
-
-  return getParents(global.parcelRequire, id).some(function (id) {
-    return hmrAccept(global.parcelRequire, id);
-  });
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.tsx"], null)
-//# sourceMappingURL=/src.f69400ca.map
+//# sourceMappingURL=/src.f69400ca.js.map
