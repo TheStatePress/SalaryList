@@ -67226,7 +67226,7 @@ require("./app.scss");
 
 var SalaryTable_1 = __importDefault(require("./SalaryTable"));
 
-var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"];
+var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"];
 
 var YEAR_TEMPLATE = function YEAR_TEMPLATE(year) {
   return url_join_1.default("http://localhost:8000", "ASU-" + year + ".json");
@@ -67263,7 +67263,7 @@ function (_super) {
     var _this = _super.call(this, props) || this;
 
     _this.state = {
-      selectedYear: "2021",
+      selectedYear: "2020",
       filterString: "",
       years: {}
     };
@@ -67460,7 +67460,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64213" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64138" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
