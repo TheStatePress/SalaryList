@@ -63,7 +63,7 @@ class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
     this.state = {
-      selectedYear: "2020",
+      selectedYear: "2021",
       filterString: "",
       years: {}
     };
