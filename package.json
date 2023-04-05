@@ -39,7 +39,7 @@
     "react-dom": "^16.7.0",
     "react-select": "^2.2.0",
     "react-virtualized": "^9.21.0",
-    "url-join": "^4.0.0",
+    "url-join": "^4.0.1",
     "url-search-params-polyfill": "^5.0.0"
   }
 }
