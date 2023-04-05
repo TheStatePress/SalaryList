@@ -15,7 +15,7 @@
  */
 
 // const parse = require('csv-parse');
-const YEAR = "2023";
+const YEAR = "2022";
 const INPUT_FILE = `./data-csv/${YEAR}.csv`;
 const OUTPUT_FILE = `./data-json/ASU-${YEAR}.json`;
 
