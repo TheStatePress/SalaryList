@@ -37,12 +37,14 @@ const data = R.map(rowArray => {
       lastName
     })
   }
+  // replace dollar signs and commas in salary field so it can be parsed as a number
+  const salaryString = rowArray[4].replaceAll(/\$|,/g, "");
   const row = {
     firstName,
     lastName,
     jobDescription: rowArray[2],
     departmentDescription: rowArray[3],
-    salary: parseInt(rowArray[4]),
+    salary: Number(salaryString),
   };
   return {
     ...row,
