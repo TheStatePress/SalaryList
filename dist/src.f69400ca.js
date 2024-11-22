@@ -53080,6 +53080,11 @@ var define;
 
   function normalize (strArray) {
     var resultArray = [];
+    if (strArray.length === 0) { return ''; }
+
+    if (typeof strArray[0] !== 'string') {
+      throw new TypeError('Url must be a string. Received ' + strArray[0]);
+    }
 
     // If the first part is a plain protocol, we combine it with the next part.
     if (strArray[0].match(/^[^/:]+:\/*$/) && strArray.length > 1) {
@@ -66577,7 +66582,7 @@ require("./app.scss");
 
 var SalaryTable_1 = __importDefault(require("./SalaryTable"));
 
-var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"];
+var YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"];
 
 var YEAR_TEMPLATE = function YEAR_TEMPLATE(year) {
   return url_join_1.default("http://localhost:8000", "ASU-" + year + ".json");
@@ -66614,7 +66619,7 @@ function (_super) {
     var _this = _super.call(this, props) || this;
 
     _this.state = {
-      selectedYear: "2021",
+      selectedYear: "2023",
       filterString: "",
       years: {}
     };
@@ -66812,7 +66817,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60513" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44041" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
