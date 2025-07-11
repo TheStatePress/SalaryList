@@ -8,7 +8,7 @@ import {
   includes,
   join,
   indexBy,
-  values
+  values,
 } from "ramda";
 import Select from "react-select";
 import urljoin from "url-join";
@@ -16,8 +16,23 @@ import "./app.scss";
 
 import SalaryTable from "./SalaryTable";
 
-const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022","2023", "2023 revised"];
-const YEAR_TEMPLATE = year => urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
+const YEARS = [
+  "2012",
+  "2013",
+  "2014",
+  "2015",
+  "2016",
+  "2017",
+  "2018",
+  "2019",
+  "2020",
+  "2021",
+  "2022",
+  "2023",
+  "2023 revised",
+];
+const YEAR_TEMPLATE = (year) =>
+  urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
 
 export type Row = {
   firstName: string;
@@ -38,9 +53,9 @@ const getOptions = (years: string[]) =>
   indexBy(
     prop("value"),
     map(
-      option => ({
+      (option) => ({
         value: option,
-        label: option
+        label: option,
       }),
       years
     )
@@ -49,11 +64,11 @@ const getOptions = (years: string[]) =>
 const theme = (theme) => ({
   ...theme,
   colors: {
-  ...theme.colors,
-    primary25: '#eedde0',
-    primary: '#830920',
+    ...theme.colors,
+    primary25: "#eedde0",
+    primary: "#830920",
   },
-})
+});
 
 const urlparams = new URLSearchParams(window.location.search);
 const isEmbedded = urlparams.get("embed");
@@ -65,7 +80,7 @@ class App extends React.Component<any, State> {
     this.state = {
       selectedYear: "2023 revised",
       filterString: "",
-      years: {}
+      years: {},
     };
     this._getYear = this._getYear.bind(this);
     this._handleFilter = this._handleFilter.bind(this);
@@ -76,7 +91,7 @@ class App extends React.Component<any, State> {
     console.log(YEAR_TEMPLATE(year));
     const { data } = await axios.get(YEAR_TEMPLATE(year));
     this.setState({
-      years: assoc(`ASU_${year}`, data, this.state.years)
+      years: assoc(`ASU_${year}`, data, this.state.years),
     });
   }
   _getFilteredYear() {
@@ -88,13 +103,13 @@ class App extends React.Component<any, State> {
       return null;
     }
     return filter(
-      row =>
+      (row) =>
         includes(
           filterString,
           join(" ", [
             row.firstName,
             row.lastName,
-            row.jobDescription
+            row.jobDescription,
           ]).toLowerCase()
         ),
       year
@@ -102,12 +117,12 @@ class App extends React.Component<any, State> {
   }
   _handleFilter(event: any) {
     this.setState({
-      filterString: (event.target as any).value.toLowerCase()
+      filterString: (event.target as any).value.toLowerCase(),
     });
   }
   _handleYearSelect(option: { value: string }) {
     this.setState({
-      selectedYear: option.value
+      selectedYear: option.value,
     });
   }
 
@@ -147,7 +162,7 @@ class App extends React.Component<any, State> {
           style={{
             display: "flex",
             padding: "8px",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
           }}
         >
           <span
