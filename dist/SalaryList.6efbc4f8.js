@@ -19676,7 +19676,7 @@ const YEARS = [
     "2023",
     "2023 revised"
 ];
-const YEAR_TEMPLATE = (year)=>(0, _urlJoinDefault.default)("https://potential-couscous-69pp545qrq95c9w-8000.app.github.dev/", `ASU-${year}.json`);
+const YEAR_TEMPLATE = (year)=>(0, _urlJoinDefault.default)("http://localhost:8000", `ASU-${year}.json`);
 _c = YEAR_TEMPLATE;
 const getOptions = (years)=>(0, _ramda.indexBy)((0, _ramda.prop)("value"), (0, _ramda.map)((option)=>({
             value: option,
@@ -19686,8 +19686,8 @@ const theme = (theme)=>({
         ...theme,
         colors: {
             ...theme.colors,
-            primary25: '#eedde0',
-            primary: '#830920'
+            primary25: "#eedde0",
+            primary: "#830920"
         }
     });
 const urlparams = new URLSearchParams(window.location.search);
@@ -19697,7 +19697,7 @@ class App extends _react.Component {
     constructor(props){
         super(props);
         this.state = {
-            selectedYear: "2023",
+            selectedYear: "2023 revised",
             filterString: "",
             years: {}
         };
@@ -19751,7 +19751,7 @@ class App extends _react.Component {
             },
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 121,
+                lineNumber: 136,
                 columnNumber: 7
             },
             __self: this
@@ -19759,7 +19759,7 @@ class App extends _react.Component {
             className: "flex p1",
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 128,
+                lineNumber: 143,
                 columnNumber: 9
             },
             __self: this
@@ -19771,7 +19771,7 @@ class App extends _react.Component {
             value: this.state.filterString,
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 129,
+                lineNumber: 144,
                 columnNumber: 11
             },
             __self: this
@@ -19784,7 +19784,7 @@ class App extends _react.Component {
             value: options[selectedYear],
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 136,
+                lineNumber: 151,
                 columnNumber: 11
             },
             __self: this
@@ -19792,7 +19792,7 @@ class App extends _react.Component {
             items: this._getFilteredYear(),
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 145,
+                lineNumber: 160,
                 columnNumber: 9
             },
             __self: this
@@ -19804,7 +19804,7 @@ class App extends _react.Component {
             },
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 146,
+                lineNumber: 161,
                 columnNumber: 9
             },
             __self: this
@@ -19816,7 +19816,7 @@ class App extends _react.Component {
             },
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 153,
+                lineNumber: 168,
                 columnNumber: 11
             },
             __self: this
@@ -19825,7 +19825,7 @@ class App extends _react.Component {
             href: "http://www.statepress.com/",
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 157,
+                lineNumber: 172,
                 columnNumber: 13
             },
             __self: this
@@ -19834,7 +19834,7 @@ class App extends _react.Component {
             href: "https://github.com/James-Quigley",
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 161,
+                lineNumber: 176,
                 columnNumber: 13
             },
             __self: this
@@ -19843,7 +19843,7 @@ class App extends _react.Component {
             href: "https://github.com/chuckdries",
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 165,
+                lineNumber: 180,
                 columnNumber: 13
             },
             __self: this
@@ -19854,7 +19854,7 @@ class App extends _react.Component {
             },
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 170,
+                lineNumber: 185,
                 columnNumber: 11
             },
             __self: this
@@ -19863,7 +19863,7 @@ class App extends _react.Component {
             target: "_blank",
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 172,
+                lineNumber: 187,
                 columnNumber: 15
             },
             __self: this
@@ -19872,7 +19872,7 @@ class App extends _react.Component {
             onClick: ()=>close(),
             __source: {
                 fileName: "src/App.tsx",
-                lineNumber: 182,
+                lineNumber: 197,
                 columnNumber: 15
             },
             __self: this
