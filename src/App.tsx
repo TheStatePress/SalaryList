@@ -16,7 +16,7 @@ import "./app.scss";
 
 import SalaryTable from "./SalaryTable";
 
-const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022","2023"];
+const YEARS = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022","2023", "2023 revised"];
 const YEAR_TEMPLATE = year => urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
 
 export type Row = {
