@@ -15,7 +15,7 @@
  */
 
 // const parse = require('csv-parse');
-const YEAR = "2023 revised";
+const YEAR = "2024";
 const INPUT_FILE = `./data-csv/${YEAR}.csv`;
 const OUTPUT_FILE = `./data-json/ASU-${YEAR}.json`;
 
@@ -27,7 +27,7 @@ const input = fs.readFileSync(INPUT_FILE);
 const raw = parse(input);
 const data = R.map(rowArray => {
   // EDIT THIS FUNCTION DOWN HERE
-  const splitName = rowArray[1].split(',');
+  const splitName = rowArray[0].split(',');
   const firstName = splitName[1].trim();
   const lastName = splitName[0];
   if (splitName.length !== 2) {
@@ -38,12 +38,12 @@ const data = R.map(rowArray => {
     })
   }
   // replace dollar signs and commas in salary field so it can be parsed as a number
-  const salaryString = rowArray[4].replaceAll(/\$|,/g, "");
+  const salaryString = rowArray[3].replaceAll(/\$|,/g, "").trim();
   const row = {
     firstName,
     lastName,
     jobDescription: rowArray[2],
-    departmentDescription: rowArray[3],
+    departmentDescription: rowArray[7],
     salary: Number(salaryString),
   };
   return {

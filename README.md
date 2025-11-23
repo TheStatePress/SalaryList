@@ -34,7 +34,7 @@ The existing safeembed on the website should continue to work after you follow t
 0. Run `yarn` to install our dependencies
 1. Run `yarn start` to test your changes and make sure the new year appears in the list and works
 2. Run `yarn build`, which will place some files in the dist folder.
-3. Use git to push the changes to master. The website will run whatever code is in the `dist` folder on master.
+3. Use `git push` to push the changes to master. The website will run whatever code is in the `dist` folder on master.
 
 ## Developing the client
 

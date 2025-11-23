@@ -29,6 +29,7 @@ const YEARS = [
   "2021",
   "2022",
   "2023 revised",
+  "2024",
 ];
 const YEAR_TEMPLATE = (year) =>
   urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
@@ -77,7 +78,7 @@ class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
     this.state = {
-      selectedYear: "2023 revised",
+      selectedYear: "2024",
       filterString: "",
       years: {},
     };
@@ -130,7 +131,13 @@ class App extends React.Component<any, State> {
   }
   render() {
     const { selectedYear } = this.state;
-    const options = getOptions(YEARS);
+    const keyedOptions = getOptions(YEARS) as Record<
+      string,
+      { value: string; label: string }
+    >;
+    const sortedOptions = values(keyedOptions).sort((a, b) =>
+      a.value.localeCompare(b.value)
+    );
     return (
       <div
         style={{
@@ -151,9 +158,9 @@ class App extends React.Component<any, State> {
             className="select"
             isSearchable={false}
             onChange={this._handleYearSelect}
-            options={values(options)}
+            options={sortedOptions}
             theme={theme}
-            value={options[selectedYear]}
+            value={keyedOptions[selectedYear]}
           />
         </form>
         <SalaryTable items={this._getFilteredYear()} />
