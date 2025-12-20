@@ -29,7 +29,7 @@ const YEARS = [
   "2021",
   "2022",
   "2023 revised",
-  "2024",
+  "2024 revised",
 ];
 const YEAR_TEMPLATE = (year) =>
   urljoin(process.env.YEAR_URL, `ASU-${year}.json`);
@@ -78,7 +78,7 @@ class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
     this.state = {
-      selectedYear: "2024",
+      selectedYear: "2024 revised",
       filterString: "",
       years: {},
     };
