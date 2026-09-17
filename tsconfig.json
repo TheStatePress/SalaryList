@@ -2,8 +2,9 @@
     "compilerOptions": {
         "noEmitOnError": true,
         "jsx": "react",
-        "target": "es2020",
-        "ignoreDeprecations": "6.0",
+        "target": "es2017",
+        "module": "commonjs",
+        "moduleResolution": "node",
         "lib": ["es5", "es6", "dom"]
     },
     "parcel-plugin-typescript": {
