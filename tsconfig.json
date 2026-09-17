@@ -2,7 +2,8 @@
     "compilerOptions": {
         "noEmitOnError": true,
         "jsx": "react",
-        "target": "es5",
+        "target": "es2020",
+        "ignoreDeprecations": "6.0",
         "lib": ["es5", "es6", "dom"]
     },
     "parcel-plugin-typescript": {
