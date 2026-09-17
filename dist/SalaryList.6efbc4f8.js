@@ -94,7 +94,54 @@
 
     function localRequire(x) {
       var res = localRequire.resolve(x);
-      return res === false ? {} : newRequire(res);
+      if (res === false) {
+        return {};
+      }
+      // Synthesize a module to follow re-exports.
+      if (Array.isArray(res)) {
+        var m = {__esModule: true};
+        res.forEach(function (v) {
+          var key = v[0];
+          var id = v[1];
+          var exp = v[2] || v[0];
+          var x = newRequire(id);
+          if (key === '*') {
+            Object.keys(x).forEach(function (key) {
+              if (
+                key === 'default' ||
+                key === '__esModule' ||
+                Object.prototype.hasOwnProperty.call(m, key)
+              ) {
+                return;
+              }
+
+              Object.defineProperty(m, key, {
+                enumerable: true,
+                get: function () {
+                  return x[key];
+                },
+              });
+            });
+          } else if (exp === '*') {
+            Object.defineProperty(m, key, {
+              enumerable: true,
+              value: x,
+            });
+          } else {
+            Object.defineProperty(m, key, {
+              enumerable: true,
+              get: function () {
+                if (exp === 'default') {
+                  return x.__esModule ? x.default : x;
+                }
+                return x[exp];
+              },
+            });
+          }
+        });
+        return m;
+      }
+      return newRequire(res);
     }
 
     function resolve(x) {
@@ -19674,7 +19721,7 @@ const YEARS = [
     "2021",
     "2022",
     "2023 revised",
-    "2024"
+    "2024 revised"
 ];
 const YEAR_TEMPLATE = (year)=>(0, _urlJoinDefault.default)("http://localhost:8000", `ASU-${year}.json`);
 _c = YEAR_TEMPLATE;
@@ -19697,7 +19744,7 @@ class App extends _react.Component {
     constructor(props){
         super(props);
         this.state = {
-            selectedYear: "2024",
+            selectedYear: "2024 revised",
             filterString: "",
             years: {}
         };
