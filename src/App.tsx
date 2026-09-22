@@ -1,5 +1,4 @@
 import * as React from "react";
-import axios from "axios";
 import {
   map,
   assoc,
@@ -89,8 +88,8 @@ class App extends React.Component<any, State> {
     this._getFilteredYear = this._getFilteredYear.bind(this);
   }
   async _getYear(year) {
-    console.log(YEAR_TEMPLATE(year));
-    const { data } = await axios.get(YEAR_TEMPLATE(year));
+    console.log("fetching", YEAR_TEMPLATE(year));
+    const data = await fetch(YEAR_TEMPLATE(year)).then(r => r.json());
     this.setState({
       years: assoc(`ASU_${year}`, data, this.state.years),
     });
@@ -127,9 +126,6 @@ class App extends React.Component<any, State> {
     });
   }
 
-  componentDidMount() {
-    this._getYear(2018);
-  }
   render() {
     const { selectedYear } = this.state;
     const keyedOptions = getOptions(YEARS) as Record<

@@ -21,8 +21,7 @@ The existing safeembed on the website should continue to work after you follow t
 ### Detailed step by step:
 
 #### 0. Setup
-- Install [Yarn 1](https://classic.yarnpkg.com)
-- Run `yarn` in your command line to install our dependencies
+- Run `npm install` in your command line to install the node_modules
 #### 1. Convert CSV to JSON
 1. Put the CSV file in the format specified by the comment at the top of `csv-to-json.js` into the `data-csv` folder and name it `2019.csv` (or whatever else)
 2. Change the `YEAR` variable on line 18 of `csv-to-json.js`
@@ -31,18 +30,17 @@ The existing safeembed on the website should continue to work after you follow t
 1. Add the year to the `YEARS` array on line 19 of App.tsx
 2. Change the default `selectedYear` on line 66 of App.tsx
 #### 3. Compile the new code and push it to github
-0. Run `yarn` to install our dependencies
-1. Run `yarn start` to test your changes and make sure the new year appears in the list and works
-2. Run `yarn build`, which will place some files in the dist folder.
-3. Use `git push` to push the changes to master. The website will run whatever code is in the `dist` folder on master.
+1. Run `npm run start` to test your changes and make sure the new year appears in the list and works
+2. Run `npm run build`, which will place some files in the dist folder.
+3. Use git to push the changes to master. The website will run whatever code is in the `dist` folder on master.
 
 ## Developing the client
 
-The client is written in Typescript with React 16. I tried to use the accepted best practices at the time I wrote it. You'll need [Yarn 1](https://classic.yarnpkg.com).
+The client is written in Typescript with React 16. I tried to use the accepted best practices at the time I wrote it.
 
-`yarn` will install its dependencies  
-`yarn start` will start the development server  
-`yarn build` will build the static files for deployment
+`npm install` will install its dependencies  
+`npm run start` will start the development server  
+`npm run build` will build the static files for deployment
 
 ## Embedding  
 
